@@ -72,7 +72,7 @@ const Navbar = () => {
             <div className="bg-emerald-600 p-2 rounded-lg">
               <School className="text-white w-6 h-6" />
             </div>
-            <span className={`text-xl font-bold ${isScrolled ? 'text-slate-900' : 'text-white'}`}>مدرسة التميز</span>
+            <span className={`text-xl font-bold ${isScrolled ? 'text-slate-900' : 'text-white'}`}>مدرسة 22 مايو</span>
           </div>
           
           <div className="hidden md:flex items-center gap-6">
@@ -145,7 +145,7 @@ const Hero = () => {
     {
       image: "https://images.unsplash.com/photo-1523050335392-9ae867749296?auto=format&fit=crop&q=80&w=2000",
       tag: "مرحباً بكم في صرح العلم والمعرفة",
-      title: "مدرسة التميز النموذجية",
+      title: "مدرسة 22 مايو النموذجية",
       desc: "نحن نؤمن بأن كل طفل لديه القدرة على الإبداع. نوفر بيئة تعليمية محفزة تجمع بين الأصالة والابتكار لبناء جيل يقود المستقبل."
     },
     {
@@ -205,7 +205,7 @@ const Hero = () => {
             </span>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
               {slides[currentSlide].title.split(' ').map((word, i) => (
-                word === 'التميز' ? <span key={i} className="text-emerald-500"> {word} </span> : <span key={i}>{word} </span>
+                word === '22' || word === 'مايو' ? <span key={i} className="text-emerald-500"> {word} </span> : <span key={i}>{word} </span>
               ))}
             </h1>
             <p className="text-xl text-slate-200 mb-10 max-w-2xl leading-relaxed">
@@ -298,7 +298,7 @@ const AboutSection = () => {
               نصنع قادة المستقبل من خلال <br /> تعليم متميز وشامل
             </h3>
             <p className="text-slate-600 text-lg mb-8 leading-relaxed">
-              تأسست مدرسة التميز لتكون منارة للعلم في منطقتنا. نحن نجمع بين المناهج التعليمية القوية والأنشطة التي تنمي شخصية الطالب وتصقل مواهبه في مختلف المجالات.
+              تأسست مدرسة 22 مايو لتكون منارة للعلم في منطقتنا. نحن نجمع بين المناهج التعليمية القوية والأنشطة التي تنمي شخصية الطالب وتصقل مواهبه في مختلف المجالات.
             </p>
             <div className="space-y-4">
               {[
@@ -1216,7 +1216,7 @@ const Registration = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden grid lg:grid-cols-5">
           <div className="lg:col-span-2 bg-slate-900 p-12 text-white flex flex-col justify-center">
-            <h2 className="text-4xl font-bold mb-6 leading-tight">انضم إلى عائلة <br /><span className="text-emerald-500">مدرسة التميز</span></h2>
+            <h2 className="text-4xl font-bold mb-6 leading-tight">انضم إلى عائلة <br /><span className="text-emerald-500">مدرسة 22 مايو</span></h2>
             <p className="text-slate-400 mb-10 text-lg leading-relaxed">
               افتح آفاقاً جديدة لمستقبل طفلك. عملية التسجيل بسيطة وسهلة، وفريقنا جاهز لمساعدتك في كل خطوة.
             </p>
@@ -1373,7 +1373,7 @@ const Footer = () => {
           <div className="bg-emerald-600 p-2 rounded-lg">
             <School className="text-white w-6 h-6" />
           </div>
-          <span className="text-2xl font-bold">مدرسة التميز</span>
+          <span className="text-2xl font-bold">مدرسة 22 مايو</span>
         </div>
         <p className="text-slate-500 mb-8 max-w-lg mx-auto">
           نحن نلتزم بتقديم تعليم عالي الجودة ينمي مهارات التفكير النقدي والإبداعي لدى طلابنا.
@@ -1386,7 +1386,7 @@ const Footer = () => {
           ))}
         </div>
         <div className="text-slate-600 text-sm">
-          © {new Date().getFullYear()} مدرسة التميز النموذجية. جميع الحقوق محفوظة.
+          © {new Date().getFullYear()} مدرسة 22 مايو النموذجية. جميع الحقوق محفوظة.
         </div>
       </div>
     </footer>
