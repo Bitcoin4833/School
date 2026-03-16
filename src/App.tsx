@@ -13,6 +13,7 @@ import {
   Mail, 
   MapPin, 
   ChevronLeft, 
+  ChevronDown,
   Menu, 
   X,
   CheckCircle2,
@@ -42,7 +43,50 @@ import {
   Area
 } from 'recharts';
 
-const Navbar = () => {
+const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-64" }: { label: string, options: string[], value: string, onChange: (v: string) => void, widthClass?: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`flex flex-col gap-2 w-full ${widthClass} relative`}>
+      <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-widest">{label}</span>
+      <button 
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-3.5 font-bold text-slate-700 hover:bg-slate-100 transition-all"
+      >
+        <span>{value}</span>
+        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-30 overflow-hidden p-2"
+          >
+            {options.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => {
+                  onChange(opt);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-right px-4 py-3 rounded-xl font-bold transition-all ${value === opt ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}
+              >
+                {opt}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const Navbar = ({ setView, currentView }: { setView: (v: string) => void, currentView: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -55,47 +99,38 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'الرئيسية', href: '#', icon: Home },
-    { name: 'عن المدرسة', href: '#about', icon: Info },
-    { name: 'الأوائل', href: '#top-students', icon: Trophy },
-    { name: 'أرقام الجلوس', href: '#seating', icon: ClipboardList },
-    { name: 'بوابة الأهالي', href: '#parent-portal', icon: UserCheck },
-    { name: 'الأخبار', href: '#blog', icon: BookOpen },
-    { name: 'تواصل معنا', href: '#contact', icon: MessageSquare },
+    { name: 'الرئيسية', id: 'home', icon: Home },
+    { name: 'التقويم والجدول', id: 'schedule', icon: Calendar },
+    { name: 'أرقام الجلوس', id: 'seating', icon: ClipboardList },
+    { name: 'بوابة الأهالي', id: 'parent-portal', icon: UserCheck },
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`} dir="rtl">
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled || currentView !== 'home' ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`} dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('home')}>
             <div className="bg-emerald-600 p-2 rounded-lg">
               <School className="text-white w-6 h-6" />
             </div>
-            <span className={`text-xl font-bold ${isScrolled ? 'text-slate-900' : 'text-white'}`}>مدرسة 22 مايو</span>
+            <span className={`text-xl font-bold ${isScrolled || currentView !== 'home' ? 'text-slate-900' : 'text-white'}`}>مدرسة 22 مايو</span>
           </div>
           
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className={`font-medium transition-colors hover:text-emerald-500 flex items-center gap-1.5 text-sm lg:text-base ${isScrolled ? 'text-slate-600' : 'text-white'}`}
+              <button 
+                key={link.id} 
+                onClick={() => setView(link.id)}
+                className={`font-medium transition-colors hover:text-emerald-500 flex items-center gap-1.5 text-sm lg:text-base ${currentView === link.id ? 'text-emerald-600' : (isScrolled || currentView !== 'home' ? 'text-slate-600' : 'text-white')}`}
               >
                 <link.icon className="w-4 h-4 opacity-70" />
                 {link.name}
-              </a>
+              </button>
             ))}
-            <a 
-              href="#registration"
-              className="bg-emerald-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-emerald-700 transition-all text-sm shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 hover:-translate-y-0.5 active:translate-y-0"
-            >
-              سجل الآن
-            </a>
           </div>
 
           <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className={isScrolled ? 'text-slate-900' : 'text-white'}>
+            <button onClick={() => setIsOpen(!isOpen)} className={isScrolled || currentView !== 'home' ? 'text-slate-900' : 'text-white'}>
               {isOpen ? <X /> : <Menu />}
             </button>
           </div>
@@ -112,25 +147,15 @@ const Navbar = () => {
             className="md:hidden bg-white absolute top-full left-0 w-full shadow-xl py-4"
           >
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className="flex items-center gap-3 px-8 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 font-medium transition-colors"
-                onClick={() => setIsOpen(false)}
+              <button 
+                key={link.id} 
+                onClick={() => { setView(link.id); setIsOpen(false); }}
+                className={`flex items-center gap-3 w-full text-right px-8 py-3 hover:bg-emerald-50 font-medium transition-colors ${currentView === link.id ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700'}`}
               >
                 <link.icon className="w-5 h-5 text-emerald-500" />
                 {link.name}
-              </a>
+              </button>
             ))}
-            <div className="px-8 mt-4">
-              <a 
-                href="#registration"
-                onClick={() => setIsOpen(false)}
-                className="block w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-center shadow-lg shadow-emerald-600/20"
-              >
-                سجل الآن
-              </a>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -455,6 +480,8 @@ const StudentCard = ({ student, idx }: { student: any, idx: number, key?: string
 const TopStudents = () => {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [selectedGrade, setSelectedGrade] = useState('الصف السادس');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
 
   const students = [
     // 2024 - Grade 6
@@ -484,6 +511,24 @@ const TopStudents = () => {
       image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200', 
       score: '99.2%',
       achievements: ['بطل المدرسة في الشطرنج', 'جائزة الابتكار العلمي', 'متطوع في الهلال الأحمر الطلابي']
+    },
+    { 
+      name: 'ليان العتيبي', 
+      grade: 'الصف السادس', 
+      year: '2024', 
+      rank: 4, 
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
+      score: '98.9%',
+      achievements: ['المركز الأول في مسابقة الإلقاء', 'عضو في نادي العلوم']
+    },
+    { 
+      name: 'خالد منصور', 
+      grade: 'الصف السادس', 
+      year: '2024', 
+      rank: 5, 
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
+      score: '98.7%',
+      achievements: ['جائزة الطالب الخلوق', 'مشارك في فريق كرة القدم']
     },
     
     // 2024 - Grade 5
@@ -527,7 +572,13 @@ const TopStudents = () => {
     },
   ];
 
-  const filteredStudents = students.filter(s => s.year === selectedYear && s.grade === selectedGrade);
+  const filteredStudents = students.filter(s => 
+    s.year === selectedYear && 
+    s.grade === selectedGrade &&
+    s.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const displayedStudents = showAll ? filteredStudents : filteredStudents.slice(0, 3);
 
   return (
     <section id="top-students" className="py-24 bg-white" dir="rtl">
@@ -544,44 +595,40 @@ const TopStudents = () => {
           </motion.div>
         </div>
 
-        {/* Filters UI */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-16">
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-widest">العام الدراسي</span>
-            <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-              {['2024', '2023', '2022'].map(year => (
-                <button
-                  key={year}
-                  onClick={() => setSelectedYear(year)}
-                  className={`px-8 py-2.5 rounded-xl font-bold transition-all duration-300 ${selectedYear === year ? 'bg-white text-emerald-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  {year}
-                </button>
-              ))}
-            </div>
+        {/* Search and Filters UI */}
+        <div className="flex flex-col gap-8 mb-16">
+          <div className="max-w-md mx-auto w-full relative">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <input 
+              type="text" 
+              placeholder="ابحث عن اسم الطالب..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl pr-12 pl-6 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-700"
+            />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-widest">المرحلة الدراسية</span>
-            <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-              {['الصف الخامس', 'الصف السادس', 'الصف السابع'].map(grade => (
-                <button
-                  key={grade}
-                  onClick={() => setSelectedGrade(grade)}
-                  className={`px-8 py-2.5 rounded-xl font-bold transition-all duration-300 ${selectedGrade === grade ? 'bg-white text-emerald-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  {grade}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6">
+            <ElegantDropdown 
+              label="العام الدراسي"
+              options={['2024', '2023', '2022']}
+              value={selectedYear}
+              onChange={(val) => { setSelectedYear(val); setShowAll(false); }}
+            />
+            <ElegantDropdown 
+              label="المرحلة الدراسية"
+              options={['الصف الخامس', 'الصف السادس', 'الصف السابع']}
+              value={selectedGrade}
+              onChange={(val) => { setSelectedGrade(val); setShowAll(false); }}
+            />
           </div>
         </div>
 
         {/* Students Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <AnimatePresence mode="wait">
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student, idx) => (
+            {displayedStudents.length > 0 ? (
+              displayedStudents.map((student, idx) => (
                 <StudentCard key={`${student.name}-${student.year}`} student={student} idx={idx} />
               ))
             ) : (
@@ -593,14 +640,27 @@ const TopStudents = () => {
                 <div className="bg-slate-50 p-10 rounded-full mb-6">
                   <Users className="w-16 h-16 text-slate-200" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-2">لا توجد بيانات متاحة</h3>
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">لا توجد نتائج</h3>
                 <p className="text-slate-400 max-w-sm">
-                  عذراً، لم يتم إدراج قائمة الأوائل لعام <span className="text-emerald-600 font-bold">{selectedYear}</span> في <span className="text-emerald-600 font-bold">{selectedGrade}</span> بعد. يرجى التحقق لاحقاً.
+                  عذراً، لم نجد طلاباً يطابقون بحثك في <span className="text-emerald-600 font-bold">{selectedGrade}</span> لعام <span className="text-emerald-600 font-bold">{selectedYear}</span>.
                 </p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
+
+        {/* View All Button */}
+        {!showAll && filteredStudents.length > 3 && (
+          <div className="mt-16 text-center">
+            <button 
+              onClick={() => setShowAll(true)}
+              className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 flex items-center gap-2 mx-auto"
+            >
+              عرض جميع المتفوقين ({filteredStudents.length})
+              <LayoutGrid className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -608,6 +668,16 @@ const TopStudents = () => {
 
 const AcademicSchedule = () => {
   const [activeTab, setActiveTab] = useState('calendar');
+  const [selectedGrade, setSelectedGrade] = useState('الصف السادس الابتدائي');
+
+  const grades = [
+    'الصف الأول الابتدائي',
+    'الصف الثاني الابتدائي',
+    'الصف الثالث الابتدائي',
+    'الصف الرابع الابتدائي',
+    'الصف الخامس الابتدائي',
+    'الصف السادس الابتدائي'
+  ];
 
   const events = [
     { date: '15 مارس', title: 'بداية اختبارات منتصف الفصل', type: 'academic' },
@@ -631,21 +701,34 @@ const AcademicSchedule = () => {
             <h2 className="text-4xl font-bold text-slate-900 mb-4">التقويم والجدول</h2>
             <p className="text-slate-500">ابقَ على اطلاع بمواعيد الحصص والفعاليات المدرسية</p>
           </div>
-          <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
-            <button
-              onClick={() => setActiveTab('calendar')}
-              className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'calendar' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
-            >
-              <Calendar className="w-5 h-5" />
-              التقويم الدراسي
-            </button>
-            <button
-              onClick={() => setActiveTab('schedule')}
-              className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'schedule' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
-            >
-              <Clock className="w-5 h-5" />
-              جدول الحصص
-            </button>
+          
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {activeTab === 'schedule' && (
+              <ElegantDropdown 
+                label="اختر الصف"
+                options={grades}
+                value={selectedGrade}
+                onChange={(val) => setSelectedGrade(val)}
+                widthClass="md:w-72"
+              />
+            )}
+            
+            <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 h-fit self-end">
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'calendar' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+              >
+                <Calendar className="w-5 h-5" />
+                التقويم الدراسي
+              </button>
+              <button
+                onClick={() => setActiveTab('schedule')}
+                className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'schedule' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+              >
+                <Clock className="w-5 h-5" />
+                جدول الحصص
+              </button>
+            </div>
           </div>
         </div>
 
@@ -724,7 +807,7 @@ const AcademicSchedule = () => {
                 </tbody>
               </table>
               <div className="p-6 bg-slate-50 text-center">
-                <p className="text-slate-500 text-sm">ملاحظة: هذا الجدول خاص بالمرحلة الابتدائية - الصف السادس (أ)</p>
+                <p className="text-slate-500 text-sm">ملاحظة: هذا الجدول خاص بـ {selectedGrade} - الشعبة (أ)</p>
               </div>
             </motion.div>
           )}
@@ -895,35 +978,20 @@ const SeatingNumbers = () => {
         </div>
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-12">
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-widest">الصف الدراسي</span>
-            <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-              {['الصف الخامس', 'الصف السادس', 'الصف السابع'].map(grade => (
-                <button
-                  key={grade}
-                  onClick={() => setSelectedGrade(grade)}
-                  className={`px-6 py-2 rounded-xl font-bold transition-all ${selectedGrade === grade ? 'bg-white text-emerald-600 shadow-md' : 'text-slate-500'}`}
-                >
-                  {grade}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-widest">الشعبة</span>
-            <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-              {['أ', 'ب', 'ج'].map(section => (
-                <button
-                  key={section}
-                  onClick={() => setSelectedSection(section)}
-                  className={`px-8 py-2 rounded-xl font-bold transition-all ${selectedSection === section ? 'bg-white text-emerald-600 shadow-md' : 'text-slate-500'}`}
-                >
-                  {section}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ElegantDropdown 
+            label="الصف الدراسي"
+            options={['الصف الخامس', 'الصف السادس', 'الصف السابع']}
+            value={selectedGrade}
+            onChange={(val) => setSelectedGrade(val)}
+            widthClass="md:w-64"
+          />
+          <ElegantDropdown 
+            label="الشعبة"
+            options={['أ', 'ب', 'ج']}
+            value={selectedSection}
+            onChange={(val) => setSelectedSection(val)}
+            widthClass="md:w-48"
+          />
         </div>
 
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
@@ -965,11 +1033,7 @@ const SeatingNumbers = () => {
 };
 
 const ParentPortal = () => {
-  const [formData, setFormData] = useState({
-    parentName: '',
-    phone: '',
-    studentId: ''
-  });
+  const [studentId, setStudentId] = useState('');
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
 
@@ -1003,13 +1067,13 @@ const ParentPortal = () => {
     e.preventDefault();
     setError('');
     
-    if (!formData.parentName || !formData.phone || !formData.studentId) {
-      setError('يرجى تعبئة جميع الحقول المطلوبة.');
+    if (!studentId) {
+      setError('يرجى إدخال رقم الطالب.');
       return;
     }
 
-    if (mockData[formData.studentId]) {
-      setResult(mockData[formData.studentId]);
+    if (mockData[studentId]) {
+      setResult(mockData[studentId]);
     } else {
       setResult(null);
       setError('عذراً، لم يتم العثور على طالب بهذا الرقم. يرجى التأكد من الرقم والمحاولة مرة أخرى.');
@@ -1017,7 +1081,7 @@ const ParentPortal = () => {
   };
 
   return (
-    <section id="parent-portal" className="py-24 bg-slate-900 text-white relative overflow-hidden" dir="rtl">
+    <section id="parent-portal" className="py-32 bg-slate-900 text-white min-h-screen relative overflow-hidden" dir="rtl">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-500 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
@@ -1026,51 +1090,26 @@ const ParentPortal = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">بوابة أولياء الأمور</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">سجل بياناتك للبدء في متابعة مستوى ابنك الدراسي ونتائج الامتحانات</p>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">أدخل رقم الطالب الخاص لمتابعة المستوى الدراسي ونتائج الامتحانات</p>
         </div>
 
-        <div className="max-w-2xl mx-auto mb-16">
+        <div className="max-w-xl mx-auto mb-16">
           <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-300 mr-2">اسم ولي الأمر</label>
-                <input 
-                  type="text" 
-                  required
-                  value={formData.parentName}
-                  onChange={(e) => setFormData({...formData, parentName: e.target.value})}
-                  placeholder="الاسم الكامل"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-300 mr-2">رقم الجوال</label>
-                <input 
-                  type="tel" 
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  placeholder="05xxxxxxxx"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2 mb-10">
-              <label className="text-sm font-bold text-slate-300 mr-2">رقم الطالب الخاص (Student ID)</label>
+            <div className="space-y-4 mb-10">
+              <label className="text-sm font-bold text-slate-300 block text-center">رقم الطالب الخاص (Student ID)</label>
               <input 
                 type="text" 
                 required
-                value={formData.studentId}
-                onChange={(e) => setFormData({...formData, studentId: e.target.value})}
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
                 placeholder="أدخل الرقم (مثال: 12345)"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-xl font-bold tracking-widest"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-2xl font-bold tracking-widest"
               />
             </div>
 
             <button type="submit" className="w-full bg-emerald-600 text-white py-5 rounded-2xl font-bold text-xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3 group">
               <UserCheck className="w-6 h-6" />
-              تسجيل الدخول للمتابعة
+              عرض التقرير الدراسي
               <ArrowRight className="w-5 h-5 rotate-180 group-hover:-translate-x-2 transition-transform" />
             </button>
             
@@ -1207,6 +1246,16 @@ const ParentPortal = () => {
 };
 
 const Registration = () => {
+  const [selectedGrade, setSelectedGrade] = useState('الصف الأول الابتدائي');
+  const grades = [
+    'الصف الأول الابتدائي',
+    'الصف الثاني الابتدائي',
+    'الصف الثالث الابتدائي',
+    'الصف الرابع الابتدائي',
+    'الصف الخامس الابتدائي',
+    'الصف السادس الابتدائي'
+  ];
+
   return (
     <section id="registration" className="py-24 bg-emerald-600 relative overflow-hidden" dir="rtl">
       {/* Decorative Elements */}
@@ -1252,15 +1301,13 @@ const Registration = () => {
                   <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="الاسم ثلاثي" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 mr-2">المرحلة الدراسية</label>
-                  <select className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all appearance-none">
-                    <option>الصف الأول الابتدائي</option>
-                    <option>الصف الثاني الابتدائي</option>
-                    <option>الصف الثالث الابتدائي</option>
-                    <option>الصف الرابع الابتدائي</option>
-                    <option>الصف الخامس الابتدائي</option>
-                    <option>الصف السادس الابتدائي</option>
-                  </select>
+                  <ElegantDropdown 
+                    label="المرحلة الدراسية"
+                    options={grades}
+                    value={selectedGrade}
+                    onChange={(val) => setSelectedGrade(val)}
+                    widthClass="w-full"
+                  />
                 </div>
               </div>
 
@@ -1394,21 +1441,30 @@ const Footer = () => {
 };
 
 export default function App() {
+  const [view, setView] = useState('home');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view]);
+
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-emerald-100 selection:text-emerald-900">
-      <Navbar />
+      <Navbar setView={setView} currentView={view} />
       <main>
-        <Hero />
-        <AboutSection />
-        <TopStudents />
-        <AcademicSchedule />
-        <SeatingNumbers />
-        <ParentPortal />
-        <BlogSection />
-        <VisionMission />
-        <Services />
-        <Registration />
-        <Contact />
+        {view === 'home' && (
+          <>
+            <Hero />
+            <AboutSection />
+            <TopStudents />
+            <BlogSection />
+            <VisionMission />
+            <Services />
+            <Contact />
+          </>
+        )}
+        {view === 'schedule' && <AcademicSchedule />}
+        {view === 'seating' && <SeatingNumbers />}
+        {view === 'parent-portal' && <ParentPortal />}
       </main>
       <Footer />
     </div>
