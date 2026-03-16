@@ -1048,64 +1048,56 @@ const SeatingNumbers = () => {
   );
 };
 
-const ParentPortal = () => {
-  const [studentId, setStudentId] = useState('');
-  const [result, setResult] = useState<any>(null);
+const PARENT_PORTAL_MOCK_DATA: any = {
+  '12345': {
+    name: 'أحمد محمد علي',
+    grade: 'الصف السادس',
+    attendance: '98%',
+    behavior: 'ممتاز',
+    results: [
+      { subject: 'الرياضيات', score: 98, total: 100, trend: [85, 88, 92, 98] },
+      { subject: 'اللغة العربية', score: 95, total: 100, trend: [90, 92, 94, 95] },
+      { subject: 'العلوم', score: 99, total: 100, trend: [88, 94, 96, 99] },
+      { subject: 'اللغة الإنجليزية', score: 92, total: 100, trend: [80, 85, 88, 92] },
+    ],
+    monthlyTests: [
+      { month: 'أكتوبر', score: 92 },
+      { month: 'نوفمبر', score: 88 },
+      { month: 'ديسمبر', score: 95 },
+      { month: 'يناير', score: 91 },
+      { month: 'فبراير', score: 94 },
+    ],
+    termExams: {
+      midterm: 96,
+      final: 98
+    },
+    attendanceDetails: [
+      { month: 'أكتوبر', present: 20, absent: 1 },
+      { month: 'نوفمبر', present: 19, absent: 2 },
+      { month: 'ديسمبر', present: 21, absent: 0 },
+      { month: 'يناير', present: 18, absent: 3 },
+      { month: 'فبراير', present: 22, absent: 0 },
+    ],
+    feedback: [
+      { teacher: 'أ. محمد (الرياضيات)', comment: 'أحمد طالب متميز جداً، لديه قدرة استثنائية على حل المسائل المعقدة بسرعة.' },
+      { teacher: 'أ. سارة (اللغة العربية)', comment: 'تحسن ملحوظ في مهارات الكتابة الإبداعية، يحتاج فقط للتركيز أكثر على قواعد النحو.' },
+      { teacher: 'أ. خالد (العلوم)', comment: 'مشارك فعال في التجارب المخبرية، يظهر شغفاً كبيراً بالاكتشاف.' }
+    ]
+  }
+};
+
+const ParentPortal = ({ 
+  studentId, 
+  setStudentId, 
+  result, 
+  setResult 
+}: { 
+  studentId: string, 
+  setStudentId: (s: string) => void, 
+  result: any, 
+  setResult: (r: any) => void 
+}) => {
   const [error, setError] = useState('');
-
-  const mockData: any = {
-    '12345': {
-      name: 'أحمد محمد علي',
-      grade: 'الصف السادس',
-      attendance: '98%',
-      behavior: 'ممتاز',
-      results: [
-        { subject: 'الرياضيات', score: 98, total: 100, trend: [85, 88, 92, 98] },
-        { subject: 'اللغة العربية', score: 95, total: 100, trend: [90, 92, 94, 95] },
-        { subject: 'العلوم', score: 99, total: 100, trend: [88, 94, 96, 99] },
-        { subject: 'اللغة الإنجليزية', score: 92, total: 100, trend: [80, 85, 88, 92] },
-      ],
-      monthlyTests: [
-        { month: 'أكتوبر', score: 92 },
-        { month: 'نوفمبر', score: 88 },
-        { month: 'ديسمبر', score: 95 },
-        { month: 'يناير', score: 91 },
-        { month: 'فبراير', score: 94 },
-      ],
-      termExams: {
-        midterm: 96,
-        final: 98
-      },
-      attendanceDetails: [
-        { month: 'أكتوبر', present: 20, absent: 1 },
-        { month: 'نوفمبر', present: 19, absent: 2 },
-        { month: 'ديسمبر', present: 21, absent: 0 },
-        { month: 'يناير', present: 18, absent: 3 },
-        { month: 'فبراير', present: 22, absent: 0 },
-      ],
-      feedback: [
-        { teacher: 'أ. محمد (الرياضيات)', comment: 'أحمد طالب متميز جداً، لديه قدرة استثنائية على حل المسائل المعقدة بسرعة.' },
-        { teacher: 'أ. سارة (اللغة العربية)', comment: 'تحسن ملحوظ في مهارات الكتابة الإبداعية، يحتاج فقط للتركيز أكثر على قواعد النحو.' },
-        { teacher: 'أ. خالد (العلوم)', comment: 'مشارك فعال في التجارب المخبرية، يظهر شغفاً كبيراً بالاكتشاف.' }
-      ]
-    }
-  };
-
-  useEffect(() => {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        const savedId = localStorage.getItem('parentPortalStudentId');
-        if (savedId) {
-          setStudentId(savedId);
-          if (mockData[savedId]) {
-            setResult(mockData[savedId]);
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('LocalStorage access failed:', e);
-    }
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1116,8 +1108,8 @@ const ParentPortal = () => {
       return;
     }
 
-    if (mockData[studentId]) {
-      setResult(mockData[studentId]);
+    if (PARENT_PORTAL_MOCK_DATA[studentId]) {
+      setResult(PARENT_PORTAL_MOCK_DATA[studentId]);
       try {
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem('parentPortalStudentId', studentId);
@@ -1564,10 +1556,28 @@ const Footer = () => {
 
 export default function App() {
   const [view, setView] = useState('home');
+  const [parentPortalStudentId, setParentPortalStudentId] = useState('');
+  const [parentPortalResult, setParentPortalResult] = useState<any>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
+
+  useEffect(() => {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const savedId = localStorage.getItem('parentPortalStudentId');
+        if (savedId) {
+          setParentPortalStudentId(savedId);
+          if (PARENT_PORTAL_MOCK_DATA[savedId]) {
+            setParentPortalResult(PARENT_PORTAL_MOCK_DATA[savedId]);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('LocalStorage access failed:', e);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-emerald-100 selection:text-emerald-900">
@@ -1586,7 +1596,14 @@ export default function App() {
         )}
         {view === 'schedule' && <AcademicSchedule />}
         {view === 'seating' && <SeatingNumbers />}
-        {view === 'parent-portal' && <ParentPortal />}
+        {view === 'parent-portal' && (
+          <ParentPortal 
+            studentId={parentPortalStudentId}
+            setStudentId={setParentPortalStudentId}
+            result={parentPortalResult}
+            setResult={setParentPortalResult}
+          />
+        )}
       </main>
       <Footer />
     </div>
