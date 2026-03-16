@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   School, 
   BookOpen, 
@@ -482,6 +482,22 @@ const TopStudents = () => {
   const [selectedGrade, setSelectedGrade] = useState('الصف السادس');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    if (gridRef.current && typeof window !== 'undefined') {
+      const yOffset = -120; 
+      const element = gridRef.current;
+      const y = element.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0) + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, [showAll, selectedYear, selectedGrade]);
 
   const students = [
     // 2024 - Grade 6
@@ -625,7 +641,7 @@ const TopStudents = () => {
         </div>
 
         {/* Students Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <AnimatePresence mode="wait">
             {displayedStudents.length > 0 ? (
               displayedStudents.map((student, idx) => (
@@ -1049,11 +1065,23 @@ const ParentPortal = () => {
         { subject: 'العلوم', score: 99, total: 100, trend: [88, 94, 96, 99] },
         { subject: 'اللغة الإنجليزية', score: 92, total: 100, trend: [80, 85, 88, 92] },
       ],
-      overallTrend: [
-        { month: 'أكتوبر', score: 86 },
-        { month: 'نوفمبر', score: 89 },
-        { month: 'ديسمبر', score: 93 },
-        { month: 'يناير', score: 96 },
+      monthlyTests: [
+        { month: 'أكتوبر', score: 92 },
+        { month: 'نوفمبر', score: 88 },
+        { month: 'ديسمبر', score: 95 },
+        { month: 'يناير', score: 91 },
+        { month: 'فبراير', score: 94 },
+      ],
+      termExams: {
+        midterm: 96,
+        final: 98
+      },
+      attendanceDetails: [
+        { month: 'أكتوبر', present: 20, absent: 1 },
+        { month: 'نوفمبر', present: 19, absent: 2 },
+        { month: 'ديسمبر', present: 21, absent: 0 },
+        { month: 'يناير', present: 18, absent: 3 },
+        { month: 'فبراير', present: 22, absent: 0 },
       ],
       feedback: [
         { teacher: 'أ. محمد (الرياضيات)', comment: 'أحمد طالب متميز جداً، لديه قدرة استثنائية على حل المسائل المعقدة بسرعة.' },
@@ -1062,6 +1090,22 @@ const ParentPortal = () => {
       ]
     }
   };
+
+  useEffect(() => {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const savedId = localStorage.getItem('parentPortalStudentId');
+        if (savedId) {
+          setStudentId(savedId);
+          if (mockData[savedId]) {
+            setResult(mockData[savedId]);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('LocalStorage access failed:', e);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1074,9 +1118,28 @@ const ParentPortal = () => {
 
     if (mockData[studentId]) {
       setResult(mockData[studentId]);
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('parentPortalStudentId', studentId);
+        }
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
     } else {
       setResult(null);
       setError('عذراً، لم يتم العثور على طالب بهذا الرقم. يرجى التأكد من الرقم والمحاولة مرة أخرى.');
+    }
+  };
+
+  const handleLogout = () => {
+    setResult(null);
+    setStudentId('');
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('parentPortalStudentId');
+      }
+    } catch (e) {
+      console.warn('LocalStorage removal failed:', e);
     }
   };
 
@@ -1135,14 +1198,23 @@ const ParentPortal = () => {
             >
               <div className="lg:col-span-1 space-y-6">
                 <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="bg-emerald-600 p-3 rounded-2xl">
-                      <Users className="w-6 h-6" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-emerald-600 p-3 rounded-2xl">
+                        <Users className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{result.name}</h3>
+                        <p className="text-slate-400 text-sm">{result.grade}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold">{result.name}</h3>
-                      <p className="text-slate-400 text-sm">{result.grade}</p>
-                    </div>
+                    <button 
+                      onClick={handleLogout}
+                      className="text-slate-400 hover:text-red-400 transition-colors p-2"
+                      title="تسجيل الخروج"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
@@ -1193,31 +1265,81 @@ const ParentPortal = () => {
                   </div>
                 </div>
 
-                {/* Performance Trend Chart */}
+                {/* Monthly Tests and Term Exams */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
+                    <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                      <Calendar className="text-emerald-500" />
+                      نتائج الاختبارات الشهرية
+                    </h3>
+                    <div className="space-y-4">
+                      {result.monthlyTests.map((test: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                          <span className="text-slate-300 font-bold">{test.month}</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-24 bg-white/10 h-1.5 rounded-full overflow-hidden">
+                              <div className="bg-emerald-500 h-full" style={{ width: `${test.score}%` }}></div>
+                            </div>
+                            <span className="text-emerald-400 font-black">{test.score}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
+                    <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                      <Trophy className="text-emerald-500" />
+                      الامتحانات النصفية والنهائية
+                    </h3>
+                    <div className="space-y-6">
+                      <div className="p-6 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl text-center">
+                        <span className="text-slate-400 text-sm block mb-2">الامتحان النصفي</span>
+                        <span className="text-4xl font-black text-emerald-500">{result.termExams.midterm}%</span>
+                      </div>
+                      <div className="p-6 bg-blue-600/10 border border-blue-500/20 rounded-3xl text-center">
+                        <span className="text-slate-400 text-sm block mb-2">الامتحان النهائي</span>
+                        <span className="text-4xl font-black text-blue-500">{result.termExams.final}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Monthly Attendance Details */}
                 <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
                   <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Trophy className="text-emerald-500" />
-                    منحنى التطور العام
+                    <Clock className="text-emerald-500" />
+                    سجل الحضور والغياب الشهري
                   </h3>
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={result.overallTrend}>
-                        <defs>
-                          <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                        <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
-                          itemStyle={{ color: '#10b981' }}
-                        />
-                        <Area type="monotone" dataKey="score" stroke="#10b981" fillOpacity={1} fill="url(#colorScore)" strokeWidth={3} />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-right border-collapse">
+                      <thead>
+                        <tr className="text-slate-400 text-sm border-b border-white/10">
+                          <th className="pb-4 font-bold">الشهر</th>
+                          <th className="pb-4 font-bold text-center">أيام الحضور</th>
+                          <th className="pb-4 font-bold text-center">أيام الغياب</th>
+                          <th className="pb-4 font-bold text-center">الحالة</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {result.attendanceDetails.map((item: any, idx: number) => (
+                          <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td className="py-4 font-bold text-slate-200">{item.month}</td>
+                            <td className="py-4 text-center text-emerald-400 font-bold">{item.present} يوم</td>
+                            <td className="py-4 text-center text-red-400 font-bold">{item.absent} يوم</td>
+                            <td className="py-4 text-center">
+                              {item.absent === 0 ? (
+                                <span className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-bold">مثالي</span>
+                              ) : item.absent <= 2 ? (
+                                <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-[10px] font-bold">جيد جداً</span>
+                              ) : (
+                                <span className="bg-orange-500/10 text-orange-500 px-3 py-1 rounded-full text-[10px] font-bold">تنبيه</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
