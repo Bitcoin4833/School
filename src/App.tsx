@@ -27,7 +27,15 @@ import {
   MessageSquare,
   Search,
   ClipboardList,
-  UserCheck
+  UserCheck,
+  Settings,
+  Plus,
+  Trash2,
+  Edit,
+  Save,
+  LogOut,
+  Lock,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -43,15 +51,217 @@ import {
   Area
 } from 'recharts';
 
+const INITIAL_STUDENTS = [
+  // 2024 - Grade 6
+  { 
+    id: '1',
+    name: 'أحمد محمد علي', 
+    grade: 'الصف السادس', 
+    year: '2024', 
+    rank: 1, 
+    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200', 
+    score: '99.8%',
+    achievements: ['المركز الأول في أولمبياد الرياضيات', 'جائزة الطالب المثالي', 'قائد فريق الإذاعة المدرسية']
+  },
+  { 
+    id: '2',
+    name: 'سارة خالد حسن', 
+    grade: 'الصف السادس', 
+    year: '2024', 
+    rank: 2, 
+    image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=200', 
+    score: '99.5%',
+    achievements: ['جائزة أفضل قصة قصيرة', 'المركز الثاني في مسابقة الرسم', 'عضو متميز في نادي القراءة']
+  },
+  { 
+    id: '3',
+    name: 'عمر ياسين', 
+    grade: 'الصف السادس', 
+    year: '2024', 
+    rank: 3, 
+    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200', 
+    score: '99.2%',
+    achievements: ['بطل المدرسة في الشطرنج', 'جائزة الابتكار العلمي', 'متطوع في الهلال الأحمر الطلابي']
+  },
+  { 
+    id: '4',
+    name: 'ليان العتيبي', 
+    grade: 'الصف السادس', 
+    year: '2024', 
+    rank: 4, 
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
+    score: '98.9%',
+    achievements: ['المركز الأول في مسابقة الإلقاء', 'عضو في نادي العلوم']
+  },
+  { 
+    id: '5',
+    name: 'خالد منصور', 
+    grade: 'الصف السادس', 
+    year: '2024', 
+    rank: 5, 
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
+    score: '98.7%',
+    achievements: ['جائزة الطالب الخلوق', 'مشارك في فريق كرة القدم']
+  },
+  { 
+    id: '6',
+    name: 'يوسف إبراهيم', 
+    grade: 'الصف الخامس', 
+    year: '2024', 
+    rank: 1, 
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', 
+    score: '99.7%',
+    achievements: ['المركز الأول في حفظ القرآن', 'جائزة الخط العربي', 'عضو فريق كرة القدم']
+  },
+  { 
+    id: '7',
+    name: 'مريم عبدالله', 
+    grade: 'الصف الخامس', 
+    year: '2024', 
+    rank: 2, 
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', 
+    score: '99.4%',
+    achievements: ['جائزة التميز في اللغة الإنجليزية', 'المركز الأول في مسابقة الإلقاء', 'مساهمة في مجلة المدرسة']
+  },
+  { 
+    id: '8',
+    name: 'ليلى محمود', 
+    grade: 'الصف السادس', 
+    year: '2023', 
+    rank: 1, 
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
+    score: '99.9%',
+    achievements: ['جائزة التفوق الدراسي الشامل', 'المركز الأول في تحدي القراءة العربي', 'رئيسة مجلس الطلاب']
+  },
+  { 
+    id: '9',
+    name: 'فهد العتيبي', 
+    grade: 'الصف السادس', 
+    year: '2023', 
+    rank: 2, 
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
+    score: '99.6%',
+    achievements: ['بطل المنطقة في السباحة', 'جائزة الطالب المبتكر', 'عضو فريق الروبوت']
+  },
+];
+
+const INITIAL_EVENTS = [
+  { id: '1', date: '15 مارس', title: 'بداية اختبارات منتصف الفصل', type: 'academic' },
+  { id: '2', date: '22 مارس', title: 'يوم النشاط الطلابي المفتوح', type: 'activity' },
+  { id: '3', date: '1 أبريل', title: 'إجازة عيد الفطر المبارك', type: 'holiday' },
+  { id: '4', date: '10 أبريل', title: 'عودة الدراسة بعد الإجازة', type: 'academic' },
+];
+
+const INITIAL_SCHEDULE = [
+  { id: '1', time: '08:00 - 08:45', sun: 'رياضيات', mon: 'علوم', tue: 'لغة عربية', wed: 'إنجليزي', thu: 'تربية إسلامية', grade: 'الصف السادس الابتدائي' },
+  { id: '2', time: '08:45 - 09:30', sun: 'لغة عربية', mon: 'رياضيات', tue: 'إنجليزي', wed: 'علوم', thu: 'اجتماعيات', grade: 'الصف السادس الابتدائي' },
+  { id: '3', time: '09:30 - 10:00', sun: 'فـسـحـة', mon: 'فـسـحـة', tue: 'فـسـحـة', wed: 'فـسـحـة', thu: 'فـسـحـة', grade: 'الصف السادس الابتدائي' },
+  { id: '4', time: '10:00 - 10:45', sun: 'علوم', mon: 'إنجليزي', tue: 'رياضيات', wed: 'لغة عربية', thu: 'حاسب آلي', grade: 'الصف السادس الابتدائي' },
+];
+
+const INITIAL_POSTS = [
+  {
+    id: 1,
+    title: "تتويج فريق المدرسة ببطولة الروبوت الإقليمية",
+    excerpt: "حقق طلابنا المركز الأول في مسابقة الروبوت والذكاء الاصطناعي التي أقيمت على مستوى المنطقة...",
+    date: "12 مارس 2026",
+    category: "إنجازات",
+    image: "https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 2,
+    title: "ندوة حول أهمية القراءة في العصر الرقمي",
+    excerpt: "استضافت المدرسة نخبة من الكتاب والمثقفين في ندوة حوارية تهدف إلى تعزيز حب القراءة لدى الطلاب...",
+    date: "10 مارس 2026",
+    category: "فعاليات",
+    image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=800"
+  },
+  {
+    id: 3,
+    title: "تحديثات في المختبرات العلمية والتقنية",
+    excerpt: "تم تزويد مختبرات العلوم بأجهزة حديثة وتقنيات واقع معزز لتسهيل فهم المفاهيم العلمية المعقدة...",
+    date: "05 مارس 2026",
+    category: "تطوير",
+    image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800"
+  }
+];
+
+const INITIAL_SEATING_DATA = [
+  { id: '101', name: 'أحمد محمد علي', grade: 'الصف السادس', section: 'أ', seatNumber: '601' },
+  { id: '102', name: 'سارة خالد حسن', grade: 'الصف السادس', section: 'أ', seatNumber: '602' },
+  { id: '103', name: 'عمر ياسين', grade: 'الصف السادس', section: 'أ', seatNumber: '603' },
+  { id: '104', name: 'ياسر عمار', grade: 'الصف السادس', section: 'ب', seatNumber: '621' },
+  { id: '105', name: 'نورة السبيعي', grade: 'الصف السادس', section: 'ب', seatNumber: '622' },
+  { id: '106', name: 'يوسف إبراهيم', grade: 'الصف الخامس', section: 'أ', seatNumber: '501' },
+  { id: '107', name: 'مريم عبدالله', grade: 'الصف الخامس', section: 'أ', seatNumber: '502' },
+];
+
+const PARENT_PORTAL_MOCK_DATA: any = {
+  '12345': {
+    name: 'أحمد محمد علي',
+    grade: 'الصف السادس',
+    attendance: '98%',
+    behavior: 'ممتاز',
+    results: [
+      { subject: 'الرياضيات', score: 98, total: 100, trend: [85, 88, 92, 98] },
+      { subject: 'اللغة العربية', score: 95, total: 100, trend: [90, 92, 94, 95] },
+      { subject: 'العلوم', score: 99, total: 100, trend: [88, 94, 96, 99] },
+      { subject: 'اللغة الإنجليزية', score: 92, total: 100, trend: [80, 85, 88, 92] },
+    ],
+    monthlyTests: [
+      { month: 'أكتوبر', score: 92 },
+      { month: 'نوفمبر', score: 88 },
+      { month: 'ديسمبر', score: 95 },
+      { month: 'يناير', score: 91 },
+      { month: 'فبراير', score: 94 },
+    ],
+    termExams: {
+      midterm: 96,
+      final: 98
+    },
+    attendanceDetails: [
+      { month: 'أكتوبر', present: 20, absent: 1 },
+      { month: 'نوفمبر', present: 19, absent: 2 },
+      { month: 'ديسمبر', present: 21, absent: 0 },
+      { month: 'يناير', present: 18, absent: 3 },
+      { month: 'فبراير', present: 22, absent: 0 },
+    ],
+    feedback: [
+      { teacher: 'أ. محمد (الرياضيات)', comment: 'أحمد طالب متميز جداً، لديه قدرة استثنائية على حل المسائل المعقدة بسرعة.' },
+      { teacher: 'أ. سارة (اللغة العربية)', comment: 'تحسن ملحوظ في مهارات الكتابة الإبداعية، يحتاج فقط للتركيز أكثر على قواعد النحو.' },
+      { teacher: 'أ. خالد (العلوم)', comment: 'مشارك فعال في التجارب المخبرية، يظهر شغفاً كبيراً بالاكتشاف.' }
+    ]
+  }
+};
+
 const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-64" }: { label: string, options: string[], value: string, onChange: (v: string) => void, widthClass?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(opt => 
+    opt.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className={`flex flex-col gap-2 w-full ${widthClass} relative`}>
-      <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-widest">{label}</span>
+    <div ref={dropdownRef} className={`flex flex-col gap-2 w-full ${widthClass} relative`}>
+      <span className="text-xs font-bold text-slate-400 ml-2 uppercase tracking-widest text-right">{label}</span>
       <button 
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setSearchTerm('');
+        }}
         className="flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-3.5 font-bold text-slate-700 hover:bg-slate-100 transition-all"
       >
         <span>{value}</span>
@@ -64,21 +274,41 @@ const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-6
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-30 overflow-hidden p-2"
+            className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 overflow-hidden p-2"
           >
-            {options.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => {
-                  onChange(opt);
-                  setIsOpen(false);
-                }}
-                className={`w-full text-right px-4 py-3 rounded-xl font-bold transition-all ${value === opt ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}
-              >
-                {opt}
-              </button>
-            ))}
+            {options.length > 5 && (
+              <div className="p-2 border-b border-slate-50 mb-2">
+                <div className="relative">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input 
+                    type="text"
+                    placeholder="بحث..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl pr-9 pl-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+            )}
+            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => {
+                      onChange(opt);
+                      setIsOpen(false);
+                    }}
+                    className={`w-full text-right px-4 py-3 rounded-xl font-bold transition-all ${value === opt ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50'}`}
+                  >
+                    {opt}
+                  </button>
+                ))
+              ) : (
+                <div className="p-4 text-center text-slate-400 text-sm">لا توجد نتائج</div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -103,6 +333,7 @@ const Navbar = ({ setView, currentView }: { setView: (v: string) => void, curren
     { name: 'التقويم والجدول', id: 'schedule', icon: Calendar },
     { name: 'أرقام الجلوس', id: 'seating', icon: ClipboardList },
     { name: 'بوابة الأهالي', id: 'parent-portal', icon: UserCheck },
+    { name: 'لوحة التحكم', id: 'admin', icon: Settings },
   ];
 
   return (
@@ -116,12 +347,12 @@ const Navbar = ({ setView, currentView }: { setView: (v: string) => void, curren
             <span className={`text-xl font-bold ${isScrolled || currentView !== 'home' ? 'text-slate-900' : 'text-white'}`}>مدرسة 22 مايو</span>
           </div>
           
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4 lg:gap-6">
             {navLinks.map((link) => (
               <button 
                 key={link.id} 
                 onClick={() => setView(link.id)}
-                className={`font-medium transition-colors hover:text-emerald-500 flex items-center gap-1.5 text-sm lg:text-base ${currentView === link.id ? 'text-emerald-600' : (isScrolled || currentView !== 'home' ? 'text-slate-600' : 'text-white')}`}
+                className={`font-medium transition-colors hover:text-emerald-500 flex items-center gap-1.5 text-xs lg:text-base ${currentView === link.id ? 'text-emerald-600' : (isScrolled || currentView !== 'home' ? 'text-slate-600' : 'text-white')}`}
               >
                 <link.icon className="w-4 h-4 opacity-70" />
                 {link.name}
@@ -477,7 +708,7 @@ const StudentCard = ({ student, idx }: { student: any, idx: number, key?: string
   );
 };
 
-const TopStudents = () => {
+const TopStudents = ({ students }: { students: any[] }) => {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [selectedGrade, setSelectedGrade] = useState('الصف السادس');
   const [searchQuery, setSearchQuery] = useState('');
@@ -498,95 +729,6 @@ const TopStudents = () => {
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }, [showAll, selectedYear, selectedGrade]);
-
-  const students = [
-    // 2024 - Grade 6
-    { 
-      name: 'أحمد محمد علي', 
-      grade: 'الصف السادس', 
-      year: '2024', 
-      rank: 1, 
-      image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200', 
-      score: '99.8%',
-      achievements: ['المركز الأول في أولمبياد الرياضيات', 'جائزة الطالب المثالي', 'قائد فريق الإذاعة المدرسية']
-    },
-    { 
-      name: 'سارة خالد حسن', 
-      grade: 'الصف السادس', 
-      year: '2024', 
-      rank: 2, 
-      image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=200', 
-      score: '99.5%',
-      achievements: ['جائزة أفضل قصة قصيرة', 'المركز الثاني في مسابقة الرسم', 'عضو متميز في نادي القراءة']
-    },
-    { 
-      name: 'عمر ياسين', 
-      grade: 'الصف السادس', 
-      year: '2024', 
-      rank: 3, 
-      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200', 
-      score: '99.2%',
-      achievements: ['بطل المدرسة في الشطرنج', 'جائزة الابتكار العلمي', 'متطوع في الهلال الأحمر الطلابي']
-    },
-    { 
-      name: 'ليان العتيبي', 
-      grade: 'الصف السادس', 
-      year: '2024', 
-      rank: 4, 
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
-      score: '98.9%',
-      achievements: ['المركز الأول في مسابقة الإلقاء', 'عضو في نادي العلوم']
-    },
-    { 
-      name: 'خالد منصور', 
-      grade: 'الصف السادس', 
-      year: '2024', 
-      rank: 5, 
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
-      score: '98.7%',
-      achievements: ['جائزة الطالب الخلوق', 'مشارك في فريق كرة القدم']
-    },
-    
-    // 2024 - Grade 5
-    { 
-      name: 'يوسف إبراهيم', 
-      grade: 'الصف الخامس', 
-      year: '2024', 
-      rank: 1, 
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', 
-      score: '99.7%',
-      achievements: ['المركز الأول في حفظ القرآن', 'جائزة الخط العربي', 'عضو فريق كرة القدم']
-    },
-    { 
-      name: 'مريم عبدالله', 
-      grade: 'الصف الخامس', 
-      year: '2024', 
-      rank: 2, 
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', 
-      score: '99.4%',
-      achievements: ['جائزة التميز في اللغة الإنجليزية', 'المركز الأول في مسابقة الإلقاء', 'مساهمة في مجلة المدرسة']
-    },
-
-    // 2023 - Grade 6
-    { 
-      name: 'ليلى محمود', 
-      grade: 'الصف السادس', 
-      year: '2023', 
-      rank: 1, 
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
-      score: '99.9%',
-      achievements: ['جائزة التفوق الدراسي الشامل', 'المركز الأول في تحدي القراءة العربي', 'رئيسة مجلس الطلاب']
-    },
-    { 
-      name: 'فهد العتيبي', 
-      grade: 'الصف السادس', 
-      year: '2023', 
-      rank: 2, 
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
-      score: '99.6%',
-      achievements: ['بطل المنطقة في السباحة', 'جائزة الطالب المبتكر', 'عضو فريق الروبوت']
-    },
-  ];
 
   const filteredStudents = students.filter(s => 
     s.year === selectedYear && 
@@ -682,7 +824,7 @@ const TopStudents = () => {
   );
 };
 
-const AcademicSchedule = () => {
+const AcademicSchedule = ({ events, schedule }: { events: any[], schedule: any[] }) => {
   const [activeTab, setActiveTab] = useState('calendar');
   const [selectedGrade, setSelectedGrade] = useState('الصف السادس الابتدائي');
 
@@ -693,20 +835,6 @@ const AcademicSchedule = () => {
     'الصف الرابع الابتدائي',
     'الصف الخامس الابتدائي',
     'الصف السادس الابتدائي'
-  ];
-
-  const events = [
-    { date: '15 مارس', title: 'بداية اختبارات منتصف الفصل', type: 'academic' },
-    { date: '22 مارس', title: 'يوم النشاط الطلابي المفتوح', type: 'activity' },
-    { date: '1 أبريل', title: 'إجازة عيد الفطر المبارك', type: 'holiday' },
-    { date: '10 أبريل', title: 'عودة الدراسة بعد الإجازة', type: 'academic' },
-  ];
-
-  const schedule = [
-    { time: '08:00 - 08:45', sun: 'رياضيات', mon: 'علوم', tue: 'لغة عربية', wed: 'إنجليزي', thu: 'تربية إسلامية' },
-    { time: '08:45 - 09:30', sun: 'لغة عربية', mon: 'رياضيات', tue: 'إنجليزي', wed: 'علوم', thu: 'اجتماعيات' },
-    { time: '09:30 - 10:00', sun: 'فـسـحـة', mon: 'فـسـحـة', tue: 'فـسـحـة', wed: 'فـسـحـة', thu: 'فـسـحـة' },
-    { time: '10:00 - 10:45', sun: 'علوم', mon: 'إنجليزي', tue: 'رياضيات', wed: 'لغة عربية', thu: 'حاسب آلي' },
   ];
 
   return (
@@ -796,9 +924,9 @@ const AcademicSchedule = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="overflow-x-auto bg-white rounded-3xl shadow-sm border border-slate-100"
+              className="table-responsive bg-white rounded-3xl shadow-sm border border-slate-100"
             >
-              <table className="w-full text-right border-collapse">
+              <table className="table w-full text-right border-collapse min-w-[800px]">
                 <thead>
                   <tr className="bg-slate-50">
                     <th className="p-6 font-bold text-slate-900 border-b border-slate-100">الوقت</th>
@@ -810,7 +938,7 @@ const AcademicSchedule = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {schedule.map((row, idx) => (
+                  {schedule.filter(s => s.grade === selectedGrade).map((row, idx) => (
                     <tr key={idx} className="hover:bg-slate-50 transition-colors">
                       <td className="p-6 font-bold text-emerald-600 border-b border-slate-100">{row.time}</td>
                       <td className="p-6 text-slate-600 border-b border-slate-100">{row.sun}</td>
@@ -833,34 +961,7 @@ const AcademicSchedule = () => {
   );
 };
 
-const BlogSection = () => {
-  const posts = [
-    {
-      id: 1,
-      title: "تتويج فريق المدرسة ببطولة الروبوت الإقليمية",
-      excerpt: "حقق طلابنا المركز الأول في مسابقة الروبوت والذكاء الاصطناعي التي أقيمت على مستوى المنطقة...",
-      date: "12 مارس 2026",
-      category: "إنجازات",
-      image: "https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?auto=format&fit=crop&q=80&w=800"
-    },
-    {
-      id: 2,
-      title: "ندوة حول أهمية القراءة في العصر الرقمي",
-      excerpt: "استضافت المدرسة نخبة من الكتاب والمثقفين في ندوة حوارية تهدف إلى تعزيز حب القراءة لدى الطلاب...",
-      date: "10 مارس 2026",
-      category: "فعاليات",
-      image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=800"
-    },
-    {
-      id: 3,
-      title: "تحديثات في المختبرات العلمية والتقنية",
-      excerpt: "تم تزويد مختبرات العلوم بأجهزة حديثة وتقنيات واقع معزز لتسهيل فهم المفاهيم العلمية المعقدة...",
-      date: "05 مارس 2026",
-      category: "تطوير",
-      image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800"
-    }
-  ];
-
+const BlogSection = ({ posts }: { posts: any[] }) => {
   return (
     <section id="blog" className="py-24 bg-slate-50" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -968,19 +1069,9 @@ const Services = () => {
   );
 };
 
-const SeatingNumbers = () => {
+const SeatingNumbers = ({ seatingData }: { seatingData: any[] }) => {
   const [selectedGrade, setSelectedGrade] = useState('الصف السادس');
   const [selectedSection, setSelectedSection] = useState('أ');
-
-  const seatingData = [
-    { id: '101', name: 'أحمد محمد علي', grade: 'الصف السادس', section: 'أ', seatNumber: '601' },
-    { id: '102', name: 'سارة خالد حسن', grade: 'الصف السادس', section: 'أ', seatNumber: '602' },
-    { id: '103', name: 'عمر ياسين', grade: 'الصف السادس', section: 'أ', seatNumber: '603' },
-    { id: '104', name: 'ياسر عمار', grade: 'الصف السادس', section: 'ب', seatNumber: '621' },
-    { id: '105', name: 'نورة السبيعي', grade: 'الصف السادس', section: 'ب', seatNumber: '622' },
-    { id: '106', name: 'يوسف إبراهيم', grade: 'الصف الخامس', section: 'أ', seatNumber: '501' },
-    { id: '107', name: 'مريم عبدالله', grade: 'الصف الخامس', section: 'أ', seatNumber: '502' },
-  ];
 
   const filteredData = seatingData.filter(s => s.grade === selectedGrade && s.section === selectedSection);
 
@@ -1010,8 +1101,8 @@ const SeatingNumbers = () => {
           />
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-          <table className="w-full text-right border-collapse">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 table-responsive">
+          <table className="table w-full text-right border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-slate-50">
                 <th className="p-6 font-bold text-slate-900 border-b border-slate-100">اسم الطالب</th>
@@ -1048,54 +1139,1019 @@ const SeatingNumbers = () => {
   );
 };
 
-const PARENT_PORTAL_MOCK_DATA: any = {
-  '12345': {
-    name: 'أحمد محمد علي',
-    grade: 'الصف السادس',
-    attendance: '98%',
-    behavior: 'ممتاز',
-    results: [
-      { subject: 'الرياضيات', score: 98, total: 100, trend: [85, 88, 92, 98] },
-      { subject: 'اللغة العربية', score: 95, total: 100, trend: [90, 92, 94, 95] },
-      { subject: 'العلوم', score: 99, total: 100, trend: [88, 94, 96, 99] },
-      { subject: 'اللغة الإنجليزية', score: 92, total: 100, trend: [80, 85, 88, 92] },
-    ],
-    monthlyTests: [
-      { month: 'أكتوبر', score: 92 },
-      { month: 'نوفمبر', score: 88 },
-      { month: 'ديسمبر', score: 95 },
-      { month: 'يناير', score: 91 },
-      { month: 'فبراير', score: 94 },
-    ],
-    termExams: {
-      midterm: 96,
-      final: 98
-    },
-    attendanceDetails: [
-      { month: 'أكتوبر', present: 20, absent: 1 },
-      { month: 'نوفمبر', present: 19, absent: 2 },
-      { month: 'ديسمبر', present: 21, absent: 0 },
-      { month: 'يناير', present: 18, absent: 3 },
-      { month: 'فبراير', present: 22, absent: 0 },
-    ],
-    feedback: [
-      { teacher: 'أ. محمد (الرياضيات)', comment: 'أحمد طالب متميز جداً، لديه قدرة استثنائية على حل المسائل المعقدة بسرعة.' },
-      { teacher: 'أ. سارة (اللغة العربية)', comment: 'تحسن ملحوظ في مهارات الكتابة الإبداعية، يحتاج فقط للتركيز أكثر على قواعد النحو.' },
-      { teacher: 'أ. خالد (العلوم)', comment: 'مشارك فعال في التجارب المخبرية، يظهر شغفاً كبيراً بالاكتشاف.' }
-    ]
+const AdminDashboard = ({ 
+  students, setStudents,
+  events, setEvents,
+  schedule, setSchedule,
+  posts, setPosts,
+  seatingData, setSeatingData,
+  parentPortalData, setParentPortalData,
+  grades, setGrades,
+  academicYears, setAcademicYears,
+  categories, setCategories,
+  sections, setSections
+}: any) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState('students');
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string | number, type: string } | null>(null);
+  const [modalSubTab, setModalSubTab] = useState('basic');
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState(grades[0]);
+  const [selectedSectionFilter, setSelectedSectionFilter] = useState(sections[0]);
+  const [parentPortalSearch, setParentPortalSearch] = useState('');
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+
+  const handleDelete = () => {
+    if (!showDeleteConfirm) return;
+    const { id, type } = showDeleteConfirm;
+    
+    if (type === 'students') setStudents(students.filter((s: any) => s.id !== id));
+    else if (type === 'posts') setPosts(posts.filter((p: any) => p.id !== id));
+    else if (type === 'events') setEvents(events.filter((ev: any) => ev.id !== id));
+    else if (type === 'schedule') setSchedule(schedule.filter((s: any) => s.id !== id));
+    else if (type === 'seating') setSeatingData(seatingData.filter((s: any) => s.id !== id));
+    else if (type === 'parent-portal') {
+      const newData = { ...parentPortalData };
+      delete newData[id as string];
+      setParentPortalData(newData);
+    }
+    
+    setShowDeleteConfirm(null);
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'admin123') {
+      setIsLoggedIn(true);
+    } else {
+      alert('كلمة المرور خاطئة');
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4" dir="rtl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full text-center"
+        >
+          <div className="bg-emerald-100 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8">
+            <Lock className="text-emerald-600 w-10 h-10" />
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">لوحة التحكم</h2>
+          <p className="text-slate-500 mb-8">يرجى إدخال كلمة المرور للوصول إلى الإعدادات</p>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-center text-2xl tracking-widest focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+              placeholder="••••••••"
+            />
+            <button className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
+              تسجيل الدخول
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
   }
+
+  const tabs = [
+    { id: 'students', name: 'لوحة الشرف', icon: Trophy },
+    { id: 'posts', name: 'المستجدات', icon: MessageSquare },
+    { id: 'schedule', name: 'التقويم والجداول', icon: Calendar },
+    { id: 'seating', name: 'أرقام الجلوس', icon: ClipboardList },
+    { id: 'parent-portal', name: 'بوابة الأهالي', icon: UserCheck },
+    { id: 'settings', name: 'الإعدادات العامة', icon: Settings },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'students':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-slate-900">إدارة لوحة الشرف</h3>
+              <button 
+                onClick={() => { setEditingItem({ name: '', grade: 'الصف السادس', year: '2024', rank: 1, score: '', achievements: [], image: '' }); setIsAdding(true); setModalSubTab('basic'); }}
+                className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                إضافة طالب
+              </button>
+            </div>
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm table-responsive">
+              <table className="table w-full text-right min-w-[800px]">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="p-4 font-bold text-slate-600">الطالب</th>
+                    <th className="p-4 font-bold text-slate-600">الصف</th>
+                    <th className="p-4 font-bold text-slate-600">العام</th>
+                    <th className="p-4 font-bold text-slate-600">المعدل</th>
+                    <th className="p-4 font-bold text-slate-600">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((s: any) => (
+                    <tr key={s.id} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img src={s.image} className="w-10 h-10 rounded-full object-cover" alt="" />
+                          <span className="font-bold text-slate-800">{s.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-slate-600">{s.grade}</td>
+                      <td className="p-4 text-slate-600">{s.year}</td>
+                      <td className="p-4 font-bold text-emerald-600">{s.score}</td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <button onClick={() => { setEditingItem(s); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                          <button onClick={() => setShowDeleteConfirm({ id: s.id, type: 'students' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      case 'posts':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-slate-900">إدارة الأخبار والفعاليات</h3>
+              <button 
+                onClick={() => { setEditingItem({ title: '', excerpt: '', date: new Date().toLocaleDateString('ar-SA'), category: 'فعاليات', image: '' }); setIsAdding(true); setModalSubTab('basic'); }}
+                className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                إضافة خبر
+              </button>
+            </div>
+            <div className="grid gap-4">
+              {posts.map((p: any) => (
+                <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row gap-6 items-center text-center sm:text-right">
+                    <img src={p.image} className="w-20 h-20 rounded-2xl object-cover" alt="" />
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-lg mb-1">{p.title}</h4>
+                      <p className="text-slate-500 text-sm">{p.date} • {p.category}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditingItem(p); setIsAdding(false); setModalSubTab('basic'); }} className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><Edit className="w-5 h-5" /></button>
+                    <button onClick={() => setShowDeleteConfirm({ id: p.id, type: 'posts' })} className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-5 h-5" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case 'schedule':
+        return (
+          <div className="space-y-12">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-slate-900">التقويم الدراسي</h3>
+                <button 
+                  onClick={() => { setEditingItem({ date: '', title: '', type: 'academic' }); setIsAdding(true); setModalSubTab('basic'); }}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all"
+                >
+                  <Plus className="w-5 h-5" />
+                  إضافة حدث
+                </button>
+              </div>
+              <div className="grid gap-4">
+                {events.map((e: any) => (
+                  <div key={e.id} className="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+                    <div className="flex flex-col sm:flex-row gap-4 items-center text-center sm:text-right">
+                      <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl font-bold">{e.date}</div>
+                      <div>
+                        <h4 className="font-bold text-slate-900">{e.title}</h4>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                          e.type === 'academic' ? 'bg-blue-100 text-blue-600' : 
+                          e.type === 'holiday' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'
+                        }`}>
+                          {e.type === 'academic' ? 'أكاديمي' : e.type === 'holiday' ? 'إجازة' : 'نشاط'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setEditingItem(e); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                      <button onClick={() => setShowDeleteConfirm({ id: e.id, type: 'events' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-6 pt-10 border-t border-slate-100">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h3 className="text-2xl font-bold text-slate-900">الجدول الدراسي الأسبوعي</h3>
+                <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                  <ElegantDropdown 
+                    label="تصفية حسب الصف"
+                    options={grades}
+                    value={selectedGradeFilter}
+                    onChange={(val) => setSelectedGradeFilter(val)}
+                    widthClass="w-full md:w-64"
+                  />
+                  <button 
+                    onClick={() => { setEditingItem({ time: '', sun: '', mon: '', tue: '', wed: '', thu: '', grade: selectedGradeFilter, isSchedule: true }); setIsAdding(true); setModalSubTab('basic'); }}
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
+                  >
+                    <Plus className="w-5 h-5" />
+                    إضافة حصة
+                  </button>
+                </div>
+              </div>
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm table-responsive">
+                <table className="table w-full text-right min-w-[1000px]">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="p-4 font-bold text-slate-600">الوقت</th>
+                      <th className="p-4 font-bold text-slate-600">الأحد</th>
+                      <th className="p-4 font-bold text-slate-600">الاثنين</th>
+                      <th className="p-4 font-bold text-slate-600">الثلاثاء</th>
+                      <th className="p-4 font-bold text-slate-600">الأربعاء</th>
+                      <th className="p-4 font-bold text-slate-600">الخميس</th>
+                      <th className="p-4 font-bold text-slate-600">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {schedule.filter((s: any) => s.grade === selectedGradeFilter).map((s: any) => (
+                      <tr key={s.id} className="border-t border-slate-50">
+                        <td className="p-4 font-bold text-slate-800">{s.time}</td>
+                        <td className="p-4 text-slate-600">{s.sun}</td>
+                        <td className="p-4 text-slate-600">{s.mon}</td>
+                        <td className="p-4 text-slate-600">{s.tue}</td>
+                        <td className="p-4 text-slate-600">{s.wed}</td>
+                        <td className="p-4 text-slate-600">{s.thu}</td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            <button onClick={() => { setEditingItem({ ...s, isSchedule: true }); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                            <button onClick={() => setShowDeleteConfirm({ id: s.id, type: 'schedule' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="space-y-10">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+              <h3 className="text-2xl font-bold text-slate-900 mb-8">إدارة القوائم المنسدلة</h3>
+              
+              <div className="grid md:grid-cols-2 gap-10">
+                {/* Grades */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-bold text-slate-700">المراحل الدراسية</label>
+                    <button onClick={() => {
+                      const name = prompt('أدخل اسم المرحلة الجديدة:');
+                      if (name) setGrades([...grades, name]);
+                    }} className="text-emerald-600 hover:text-emerald-700 p-1"><Plus className="w-5 h-5" /></button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {grades.map((g, i) => (
+                      <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
+                        <span className="font-bold text-slate-600">{g}</span>
+                        <button onClick={() => setGrades(grades.filter((_, idx) => idx !== i))} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Years */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-bold text-slate-700">الأعوام الدراسية</label>
+                    <button onClick={() => {
+                      const year = prompt('أدخل العام الدراسي الجديد:');
+                      if (year) setAcademicYears([...academicYears, year]);
+                    }} className="text-emerald-600 hover:text-emerald-700 p-1"><Plus className="w-5 h-5" /></button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {academicYears.map((y, i) => (
+                      <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
+                        <span className="font-bold text-slate-600">{y}</span>
+                        <button onClick={() => setAcademicYears(academicYears.filter((_, idx) => idx !== i))} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Categories */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-bold text-slate-700">تصنيفات الأخبار</label>
+                    <button onClick={() => {
+                      const cat = prompt('أدخل اسم التصنيف الجديد:');
+                      if (cat) setCategories([...categories, cat]);
+                    }} className="text-emerald-600 hover:text-emerald-700 p-1"><Plus className="w-5 h-5" /></button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((c, i) => (
+                      <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
+                        <span className="font-bold text-slate-600">{c}</span>
+                        <button onClick={() => setCategories(categories.filter((_, idx) => idx !== i))} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sections */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-bold text-slate-700">الشعب الدراسية</label>
+                    <button onClick={() => {
+                      const sec = prompt('أدخل اسم الشعبة الجديدة:');
+                      if (sec) setSections([...sections, sec]);
+                    }} className="text-emerald-600 hover:text-emerald-700 p-1"><Plus className="w-5 h-5" /></button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sections.map((s, i) => (
+                      <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
+                        <span className="font-bold text-slate-600">{s}</span>
+                        <button onClick={() => setSections(sections.filter((_, idx) => idx !== i))} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'seating':
+        return (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h3 className="text-2xl font-bold text-slate-900">إدارة أرقام الجلوس</h3>
+              <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                <ElegantDropdown 
+                  label="الصف"
+                  options={grades}
+                  value={selectedGradeFilter}
+                  onChange={(val) => setSelectedGradeFilter(val)}
+                  widthClass="w-full md:w-48"
+                />
+                <ElegantDropdown 
+                  label="الشعبة"
+                  options={sections}
+                  value={selectedSectionFilter}
+                  onChange={(val) => setSelectedSectionFilter(val)}
+                  widthClass="w-full md:w-32"
+                />
+                <button 
+                  onClick={() => { setEditingItem({ name: '', grade: selectedGradeFilter, section: selectedSectionFilter, seatNumber: '' }); setIsAdding(true); setModalSubTab('basic'); }}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
+                >
+                  <Plus className="w-5 h-5" />
+                  إضافة رقم جلوس
+                </button>
+              </div>
+            </div>
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm table-responsive">
+              <table className="table w-full text-right min-w-[800px]">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="p-4 font-bold text-slate-600">الطالب</th>
+                    <th className="p-4 font-bold text-slate-600">الصف</th>
+                    <th className="p-4 font-bold text-slate-600">الشعبة</th>
+                    <th className="p-4 font-bold text-slate-600">رقم الجلوس</th>
+                    <th className="p-4 font-bold text-slate-600">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {seatingData.filter((s: any) => s.grade === selectedGradeFilter && s.section === selectedSectionFilter).map((s: any) => (
+                    <tr key={s.id} className="border-t border-slate-50">
+                      <td className="p-4 font-bold text-slate-800">{s.name}</td>
+                      <td className="p-4 text-slate-600">{s.grade}</td>
+                      <td className="p-4 text-slate-600">{s.section}</td>
+                      <td className="p-4 font-black text-emerald-600">{s.seatNumber}</td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <button onClick={() => { setEditingItem(s); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                          <button onClick={() => setShowDeleteConfirm({ id: s.id, type: 'seating' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      case 'parent-portal':
+        return (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h3 className="text-2xl font-bold text-slate-900">إدارة بيانات الطلاب (بوابة الأهالي)</h3>
+              <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input 
+                    type="text" 
+                    placeholder="بحث باسم الطالب أو الرقم..." 
+                    value={parentPortalSearch}
+                    onChange={(e) => setParentPortalSearch(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <button 
+                  onClick={() => { setEditingItem({ id: '', name: '', grade: '', attendance: '100%', behavior: 'ممتاز', results: [], monthlyTests: [], termExams: { midterm: 0, final: 0 }, attendanceDetails: [], feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
+                >
+                  <Plus className="w-5 h-5" />
+                  إضافة بيانات طالب
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {Object.keys(parentPortalData)
+                .filter(id => 
+                  parentPortalData[id].name.toLowerCase().includes(parentPortalSearch.toLowerCase()) || 
+                  id.toLowerCase().includes(parentPortalSearch.toLowerCase())
+                )
+                .map((id) => (
+                <div key={id} className="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
+                      <User className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-lg mb-1">{parentPortalData[id].name}</h4>
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-slate-500 text-sm">
+                        <span>رقم الطالب: <span className="font-mono font-bold text-slate-700">{id}</span></span>
+                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                        <span>{parentPortalData[id].grade}</span>
+                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                        <span className="flex items-center gap-1 text-emerald-600 font-bold">
+                          <CheckCircle2 className="w-3 h-3" />
+                          حضور {parentPortalData[id].attendance}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditingItem({ ...parentPortalData[id], id }); setIsAdding(false); setModalSubTab('basic'); }} className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><Edit className="w-5 h-5" /></button>
+                    <button onClick={() => setShowDeleteConfirm({ id, type: 'parent-portal' })} className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-5 h-5" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowSaveConfirm(true);
+  };
+
+  const confirmSave = () => {
+    if (activeTab === 'students') {
+      if (isAdding) {
+        setStudents([...students, { ...editingItem, id: Date.now().toString() }]);
+      } else {
+        setStudents(students.map((s: any) => s.id === editingItem.id ? editingItem : s));
+      }
+    } else if (activeTab === 'posts') {
+      if (isAdding) {
+        setPosts([...posts, { ...editingItem, id: Date.now() }]);
+      } else {
+        setPosts(posts.map((p: any) => p.id === editingItem.id ? editingItem : p));
+      }
+    } else if (activeTab === 'schedule') {
+      if (editingItem.isSchedule) {
+        if (isAdding) {
+          setSchedule([...schedule, { ...editingItem, id: Date.now().toString() }]);
+        } else {
+          setSchedule(schedule.map((s: any) => s.id === editingItem.id ? editingItem : s));
+        }
+      } else {
+        if (isAdding) {
+          setEvents([...events, { ...editingItem, id: Date.now().toString() }]);
+        } else {
+          setEvents(events.map((ev: any) => ev.id === editingItem.id ? editingItem : ev));
+        }
+      }
+    } else if (activeTab === 'seating') {
+      if (isAdding) {
+        setSeatingData([...seatingData, { ...editingItem, id: Date.now().toString() }]);
+      } else {
+        setSeatingData(seatingData.map((s: any) => s.id === editingItem.id ? editingItem : s));
+      }
+    } else if (activeTab === 'parent-portal') {
+      const { id, ...data } = editingItem;
+      setParentPortalData({ ...parentPortalData, [id]: data });
+    }
+    setEditingItem(null);
+    setIsAdding(false);
+    setShowSaveConfirm(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 pt-24 lg:pt-32 pb-20" dir="rtl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[280px_1fr] gap-10">
+          {/* Sidebar */}
+          <aside className="lg:sticky lg:top-32 h-fit space-y-4">
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
+              <div className="flex items-center gap-3 p-4 mb-6 border-b border-slate-50">
+                <div className="bg-emerald-600 p-2 rounded-xl text-white">
+                  <Settings className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-slate-900">لوحة الإدارة</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">مدرسة 22 مايو</p>
+                </div>
+              </div>
+              <nav className="space-y-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+                  >
+                    <tab.icon className="w-5 h-5" />
+                    {tab.name}
+                  </button>
+                ))}
+              </nav>
+              <div className="mt-10 pt-6 border-t border-slate-50">
+                <button 
+                  onClick={() => setIsLoggedIn(false)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-red-500 hover:bg-red-50 transition-all"
+                >
+                  <LogOut className="w-5 h-5" />
+                  تسجيل الخروج
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="min-h-[600px] w-full overflow-hidden">
+            {renderContent()}
+          </main>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {editingItem && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-10"
+            >
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-2xl font-bold text-slate-900">{isAdding ? 'إضافة جديد' : 'تعديل البيانات'}</h3>
+                <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X /></button>
+              </div>
+              <form onSubmit={handleSave} className="space-y-6">
+                {activeTab === 'students' && (
+                  <>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
+                        <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">المعدل</label>
+                        <input type="text" value={editingItem.score} onChange={(e) => setEditingItem({...editingItem, score: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="99.8%" required />
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <ElegantDropdown 
+                        label="الصف"
+                        options={grades}
+                        value={editingItem.grade}
+                        onChange={(val) => setEditingItem({...editingItem, grade: val})}
+                        widthClass="w-full"
+                      />
+                      <ElegantDropdown 
+                        label="العام الدراسي"
+                        options={academicYears}
+                        value={editingItem.year}
+                        onChange={(val) => setEditingItem({...editingItem, year: val})}
+                        widthClass="w-full"
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الترتيب</label>
+                        <input type="number" value={editingItem.rank} onChange={(e) => setEditingItem({...editingItem, rank: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" min="1" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رابط الصورة</label>
+                        <input type="url" value={editingItem.image} onChange={(e) => setEditingItem({...editingItem, image: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الإنجازات (واحد في كل سطر)</label>
+                      <textarea 
+                        value={editingItem.achievements?.join('\n')} 
+                        onChange={(e) => setEditingItem({...editingItem, achievements: e.target.value.split('\n').filter(a => a.trim() !== '')})} 
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" 
+                        rows={3} 
+                        placeholder="المركز الأول في الرياضيات&#10;جائزة الطالب المثالي"
+                      />
+                    </div>
+                  </>
+                )}
+                {activeTab === 'schedule' && (
+                  <>
+                    {editingItem.isSchedule ? (
+                      <>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الوقت</label>
+                            <input type="text" value={editingItem.time} onChange={(e) => setEditingItem({...editingItem, time: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="08:00 - 08:45" required />
+                          </div>
+                          <ElegantDropdown 
+                            label="الصف"
+                            options={grades}
+                            value={editingItem.grade || grades[0]}
+                            onChange={(val) => setEditingItem({...editingItem, grade: val})}
+                            widthClass="w-full"
+                          />
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الأحد</label>
+                            <input type="text" value={editingItem.sun} onChange={(e) => setEditingItem({...editingItem, sun: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الاثنين</label>
+                            <input type="text" value={editingItem.mon} onChange={(e) => setEditingItem({...editingItem, mon: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" />
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الثلاثاء</label>
+                            <input type="text" value={editingItem.tue} onChange={(e) => setEditingItem({...editingItem, tue: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الأربعاء</label>
+                            <input type="text" value={editingItem.wed} onChange={(e) => setEditingItem({...editingItem, wed: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الخميس</label>
+                            <input type="text" value={editingItem.thu} onChange={(e) => setEditingItem({...editingItem, thu: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">عنوان الحدث</label>
+                          <input type="text" value={editingItem.title} onChange={(e) => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">التاريخ</label>
+                            <input type="text" value={editingItem.date} onChange={(e) => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="15 مارس" required />
+                          </div>
+                          <ElegantDropdown 
+                            label="نوع الحدث"
+                            options={['academic', 'activity', 'holiday']}
+                            value={editingItem.type}
+                            onChange={(val) => setEditingItem({...editingItem, type: val})}
+                            widthClass="w-full"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+                {activeTab === 'posts' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">عنوان الخبر</label>
+                      <input type="text" value={editingItem.title} onChange={(e) => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">مقتطف</label>
+                      <textarea value={editingItem.excerpt} onChange={(e) => setEditingItem({...editingItem, excerpt: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" rows={3} required />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <ElegantDropdown 
+                        label="التصنيف"
+                        options={categories}
+                        value={editingItem.category}
+                        onChange={(val) => setEditingItem({...editingItem, category: val})}
+                        widthClass="w-full"
+                      />
+                      <div>
+                        <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">التاريخ</label>
+                        <input type="text" value={editingItem.date} onChange={(e) => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رابط الصورة</label>
+                      <input type="url" value={editingItem.image} onChange={(e) => setEditingItem({...editingItem, image: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                    </div>
+                  </>
+                )}
+                {activeTab === 'seating' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
+                      <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <ElegantDropdown 
+                        label="الصف"
+                        options={grades}
+                        value={editingItem.grade}
+                        onChange={(val) => setEditingItem({...editingItem, grade: val})}
+                        widthClass="w-full"
+                      />
+                      <ElegantDropdown 
+                        label="الشعبة"
+                        options={sections}
+                        value={editingItem.section}
+                        onChange={(val) => setEditingItem({...editingItem, section: val})}
+                        widthClass="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رقم الجلوس</label>
+                      <input type="text" value={editingItem.seatNumber} onChange={(e) => setEditingItem({...editingItem, seatNumber: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                    </div>
+                  </>
+                )}
+                {activeTab === 'parent-portal' && (
+                  <div className="space-y-6">
+                    {/* Sub-tabs Navigation */}
+                    <div className="flex p-1 bg-slate-100 rounded-2xl">
+                      {[
+                        { id: 'basic', name: 'المعلومات الأساسية', icon: User },
+                        { id: 'results', name: 'النتائج الدراسية', icon: Trophy },
+                        { id: 'attendance', name: 'الحضور والغياب', icon: ClipboardList }
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setModalSubTab(tab.id)}
+                          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${modalSubTab === tab.id ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          <tab.icon className="w-4 h-4" />
+                          <span className="text-sm">{tab.name}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Basic Info Tab */}
+                    {modalSubTab === 'basic' && (
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رقم الطالب (ID)</label>
+                            <input type="text" value={editingItem.id} onChange={(e) => setEditingItem({...editingItem, id: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" disabled={!isAdding} required />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
+                            <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <ElegantDropdown 
+                            label="الصف"
+                            options={grades}
+                            value={editingItem.grade}
+                            onChange={(val) => setEditingItem({...editingItem, grade: val})}
+                            widthClass="w-full"
+                          />
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">نسبة الحضور الإجمالية</label>
+                            <input type="text" value={editingItem.attendance} onChange={(e) => setEditingItem({...editingItem, attendance: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="95%" required />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">تقييم السلوك</label>
+                          <input type="text" value={editingItem.behavior} onChange={(e) => setEditingItem({...editingItem, behavior: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ممتاز" required />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Results Tab */}
+                    {modalSubTab === 'results' && (
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-slate-900">قائمة المواد والدرجات</h4>
+                          <button type="button" onClick={() => {
+                            const newResults = [...(editingItem.results || []), { subject: '', score: 0, total: 100, trend: [0, 0, 0, 0] }];
+                            setEditingItem({...editingItem, results: newResults});
+                          }} className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-100 transition-colors">
+                            <Plus className="w-4 h-4" />
+                            إضافة مادة
+                          </button>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {(editingItem.results || []).length > 0 ? (
+                            (editingItem.results || []).map((res: any, idx: number) => (
+                              <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-4">
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1 grid grid-cols-[1fr_100px_100px] gap-4">
+                                    <div>
+                                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">اسم المادة</label>
+                                      <input type="text" value={res.subject} onChange={(e) => {
+                                        const newResults = [...editingItem.results];
+                                        newResults[idx].subject = e.target.value;
+                                        setEditingItem({...editingItem, results: newResults});
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">الدرجة</label>
+                                      <input type="number" value={res.score} onChange={(e) => {
+                                        const newResults = [...editingItem.results];
+                                        newResults[idx].score = Number(e.target.value);
+                                        setEditingItem({...editingItem, results: newResults});
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">المجموع</label>
+                                      <input type="number" value={res.total} onChange={(e) => {
+                                        const newResults = [...editingItem.results];
+                                        newResults[idx].total = Number(e.target.value);
+                                        setEditingItem({...editingItem, results: newResults});
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
+                                    </div>
+                                  </div>
+                                  <button type="button" onClick={() => {
+                                    const newResults = editingItem.results.filter((_: any, i: number) => i !== idx);
+                                    setEditingItem({...editingItem, results: newResults});
+                                  }} className="mr-4 p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full bg-emerald-500 transition-all duration-500" 
+                                      style={{ width: `${(res.score / res.total) * 100}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-bold text-slate-500">{Math.round((res.score / res.total) * 100)}%</span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                              <p className="text-slate-400 text-sm">لا توجد مواد مضافة حالياً</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Attendance Tab */}
+                    {modalSubTab === 'attendance' && (
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-slate-900">سجل الغياب الشهري</h4>
+                          <button type="button" onClick={() => {
+                            const newDetails = [...(editingItem.attendanceDetails || []), { month: '', present: 0, absent: 0 }];
+                            setEditingItem({...editingItem, attendanceDetails: newDetails});
+                          }} className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-100 transition-colors">
+                            <Plus className="w-4 h-4" />
+                            إضافة شهر
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          {(editingItem.attendanceDetails || []).length > 0 ? (
+                            (editingItem.attendanceDetails || []).map((att: any, idx: number) => (
+                              <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+                                <div className="flex-1 grid grid-cols-[1fr_100px_100px] gap-4">
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">الشهر</label>
+                                    <input type="text" value={att.month} onChange={(e) => {
+                                      const newDetails = [...editingItem.attendanceDetails];
+                                      newDetails[idx].month = e.target.value;
+                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                    }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="مثلاً: يناير" />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-emerald-600">أيام الحضور</label>
+                                    <input type="number" value={att.present} onChange={(e) => {
+                                      const newDetails = [...editingItem.attendanceDetails];
+                                      newDetails[idx].present = Number(e.target.value);
+                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                    }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-red-500">أيام الغياب</label>
+                                    <input type="number" value={att.absent} onChange={(e) => {
+                                      const newDetails = [...editingItem.attendanceDetails];
+                                      newDetails[idx].absent = Number(e.target.value);
+                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                    }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
+                                  </div>
+                                </div>
+                                <button type="button" onClick={() => {
+                                  const newDetails = editingItem.attendanceDetails.filter((_: any, i: number) => i !== idx);
+                                  setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                              <p className="text-slate-400 text-sm">لا توجد بيانات غياب مضافة</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="pt-6 flex gap-4">
+                  <button type="submit" className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                    <Save className="w-5 h-5" />
+                    حفظ التغييرات
+                  </button>
+                  <button type="button" onClick={() => setEditingItem(null)} className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold text-lg hover:bg-slate-200 transition-all">
+                    تراجع
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => setShowDeleteConfirm(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl text-center">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Trash2 className="w-10 h-10 text-red-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">هل أنت متأكد؟</h3>
+            <p className="text-slate-500 mb-8 leading-relaxed">سيتم حذف هذا العنصر بشكل نهائي ولا يمكن التراجع عن هذه العملية.</p>
+            <div className="flex gap-4">
+              <button onClick={handleDelete} className="flex-1 bg-red-600 text-white py-4 rounded-2xl font-bold hover:bg-red-700 transition-all">نعم، احذف</button>
+              <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all">تراجع</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Save Confirmation Modal */}
+      {showSaveConfirm && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => setShowSaveConfirm(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl text-center">
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">تأكيد الحفظ</h3>
+            <p className="text-slate-500 mb-8 leading-relaxed">هل أنت متأكد من رغبتك في حفظ هذه التغييرات؟</p>
+            <div className="flex gap-4">
+              <button onClick={confirmSave} className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all">نعم، احفظ</button>
+              <button onClick={() => setShowSaveConfirm(false)} className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all">تراجع</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const ParentPortal = ({ 
   studentId, 
   setStudentId, 
   result, 
-  setResult 
+  setResult,
+  parentPortalData
 }: { 
   studentId: string, 
   setStudentId: (s: string) => void, 
   result: any, 
-  setResult: (r: any) => void 
+  setResult: (r: any) => void,
+  parentPortalData: any
 }) => {
   const [error, setError] = useState('');
 
@@ -1108,8 +2164,8 @@ const ParentPortal = ({
       return;
     }
 
-    if (PARENT_PORTAL_MOCK_DATA[studentId]) {
-      setResult(PARENT_PORTAL_MOCK_DATA[studentId]);
+    if (parentPortalData[studentId]) {
+      setResult(parentPortalData[studentId]);
       try {
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem('parentPortalStudentId', studentId);
@@ -1136,7 +2192,7 @@ const ParentPortal = ({
   };
 
   return (
-    <section id="parent-portal" className="py-32 bg-slate-900 text-white min-h-screen relative overflow-hidden" dir="rtl">
+    <section id="parent-portal" className="py-20 lg:py-32 bg-slate-900 text-white min-h-screen relative overflow-x-hidden" dir="rtl">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-500 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
@@ -1144,12 +2200,12 @@ const ParentPortal = ({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">بوابة أولياء الأمور</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">بوابة أولياء الأمور</h2>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto">أدخل رقم الطالب الخاص لمتابعة المستوى الدراسي ونتائج الامتحانات</p>
         </div>
 
         <div className="max-w-xl mx-auto mb-16">
-          <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
+          <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-12 shadow-2xl">
             <div className="space-y-4 mb-10">
               <label className="text-sm font-bold text-slate-300 block text-center">رقم الطالب الخاص (Student ID)</label>
               <input 
@@ -1186,11 +2242,11 @@ const ParentPortal = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="grid lg:grid-cols-3 gap-8"
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full"
             >
               <div className="lg:col-span-1 space-y-6">
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-4">
                       <div className="bg-emerald-600 p-3 rounded-2xl">
                         <Users className="w-6 h-6" />
@@ -1223,17 +2279,17 @@ const ParentPortal = ({
 
               <div className="lg:col-span-2 space-y-8">
                 {/* Results Grid */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                  <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                  <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                     <Award className="text-emerald-500" />
                     نتائج الاختبارات الفصلية
                   </h3>
-                  <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {result.results.map((item: any, idx: number) => (
-                      <div key={idx} className="p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all group">
-                        <div className="flex justify-between items-center mb-4">
-                          <span className="font-bold text-lg">{item.subject}</span>
-                          <span className="text-emerald-500 font-black text-xl">{item.score} / {item.total}</span>
+                      <div key={idx} className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all group overflow-hidden">
+                        <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+                          <span className="font-bold text-base sm:text-lg truncate max-w-[150px] sm:max-w-none" title={item.subject}>{item.subject}</span>
+                          <span className="text-emerald-500 font-black text-lg sm:text-xl shrink-0">{item.score} / {item.total}</span>
                         </div>
                         <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden mb-4">
                           <motion.div 
@@ -1258,53 +2314,53 @@ const ParentPortal = ({
                 </div>
 
                 {/* Monthly Tests and Term Exams */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                    <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                  <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                    <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                       <Calendar className="text-emerald-500" />
                       نتائج الاختبارات الشهرية
                     </h3>
                     <div className="space-y-4">
                       {result.monthlyTests.map((test: any, idx: number) => (
-                        <div key={idx} className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                          <span className="text-slate-300 font-bold">{test.month}</span>
-                          <div className="flex items-center gap-3">
-                            <div className="w-24 bg-white/10 h-1.5 rounded-full overflow-hidden">
+                        <div key={idx} className="flex flex-wrap justify-between items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5">
+                          <span className="text-slate-300 font-bold truncate max-w-[100px] sm:max-w-none" title={test.month}>{test.month}</span>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div className="w-16 sm:w-24 bg-white/10 h-1.5 rounded-full overflow-hidden">
                               <div className="bg-emerald-500 h-full" style={{ width: `${test.score}%` }}></div>
                             </div>
-                            <span className="text-emerald-400 font-black">{test.score}%</span>
+                            <span className="text-emerald-400 font-black text-sm sm:text-base">{test.score}%</span>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                    <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                  <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                    <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                       <Trophy className="text-emerald-500" />
                       الامتحانات النصفية والنهائية
                     </h3>
                     <div className="space-y-6">
-                      <div className="p-6 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl text-center">
+                      <div className="p-4 sm:p-6 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl text-center">
                         <span className="text-slate-400 text-sm block mb-2">الامتحان النصفي</span>
-                        <span className="text-4xl font-black text-emerald-500">{result.termExams.midterm}%</span>
+                        <span className="text-2xl sm:text-4xl font-black text-emerald-500">{result.termExams.midterm}%</span>
                       </div>
-                      <div className="p-6 bg-blue-600/10 border border-blue-500/20 rounded-3xl text-center">
+                      <div className="p-4 sm:p-6 bg-blue-600/10 border border-blue-500/20 rounded-3xl text-center">
                         <span className="text-slate-400 text-sm block mb-2">الامتحان النهائي</span>
-                        <span className="text-4xl font-black text-blue-500">{result.termExams.final}%</span>
+                        <span className="text-2xl sm:text-4xl font-black text-blue-500">{result.termExams.final}%</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Monthly Attendance Details */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                  <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                  <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                     <Clock className="text-emerald-500" />
                     سجل الحضور والغياب الشهري
                   </h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-right border-collapse">
+                  <div className="table-responsive">
+                    <table className="table w-full text-right border-collapse min-w-[700px]">
                       <thead>
                         <tr className="text-slate-400 text-sm border-b border-white/10">
                           <th className="pb-4 font-bold">الشهر</th>
@@ -1336,8 +2392,8 @@ const ParentPortal = ({
                 </div>
 
                 {/* Teacher Feedback */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                  <h3 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                  <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
                     <MessageSquare className="text-emerald-500" />
                     ملاحظات المعلمين
                   </h3>
@@ -1377,8 +2433,8 @@ const Registration = () => {
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-700 rounded-full translate-y-1/2 -translate-x-1/2 opacity-50"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden grid lg:grid-cols-5">
-          <div className="lg:col-span-2 bg-slate-900 p-12 text-white flex flex-col justify-center">
+        <div className="bg-white rounded-3xl lg:rounded-[3rem] shadow-2xl overflow-hidden grid lg:grid-cols-5">
+          <div className="lg:col-span-2 bg-slate-900 p-6 sm:p-12 text-white flex flex-col justify-center">
             <h2 className="text-4xl font-bold mb-6 leading-tight">انضم إلى عائلة <br /><span className="text-emerald-500">مدرسة 22 مايو</span></h2>
             <p className="text-slate-400 mb-10 text-lg leading-relaxed">
               افتح آفاقاً جديدة لمستقبل طفلك. عملية التسجيل بسيطة وسهلة، وفريقنا جاهز لمساعدتك في كل خطوة.
@@ -1402,7 +2458,7 @@ const Registration = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-3 p-12">
+          <div className="lg:col-span-3 p-6 sm:p-12">
             <div className="mb-10">
               <h3 className="text-2xl font-bold text-slate-900 mb-2">نموذج التسجيل المبدئي</h3>
               <p className="text-slate-500">يرجى تعبئة البيانات التالية وسنقوم بالتواصل معكم قريباً</p>
@@ -1559,6 +2615,18 @@ export default function App() {
   const [parentPortalStudentId, setParentPortalStudentId] = useState('');
   const [parentPortalResult, setParentPortalResult] = useState<any>(null);
 
+  // Application State
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const [events, setEvents] = useState(INITIAL_EVENTS);
+  const [schedule, setSchedule] = useState(INITIAL_SCHEDULE);
+  const [posts, setPosts] = useState(INITIAL_POSTS);
+  const [seatingData, setSeatingData] = useState(INITIAL_SEATING_DATA);
+  const [parentPortalData, setParentPortalData] = useState(PARENT_PORTAL_MOCK_DATA);
+  const [grades, setGrades] = useState(['الصف الخامس', 'الصف السادس', 'الصف السابع']);
+  const [academicYears, setAcademicYears] = useState(['2024', '2023', '2022']);
+  const [categories, setCategories] = useState(['إنجازات', 'فعاليات', 'تطوير']);
+  const [sections, setSections] = useState(['أ', 'ب', 'ج']);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
@@ -1569,15 +2637,15 @@ export default function App() {
         const savedId = localStorage.getItem('parentPortalStudentId');
         if (savedId) {
           setParentPortalStudentId(savedId);
-          if (PARENT_PORTAL_MOCK_DATA[savedId]) {
-            setParentPortalResult(PARENT_PORTAL_MOCK_DATA[savedId]);
+          if (parentPortalData[savedId]) {
+            setParentPortalResult(parentPortalData[savedId]);
           }
         }
       }
     } catch (e) {
       console.warn('LocalStorage access failed:', e);
     }
-  }, []);
+  }, [parentPortalData]);
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-emerald-100 selection:text-emerald-900">
@@ -1587,21 +2655,36 @@ export default function App() {
           <>
             <Hero />
             <AboutSection />
-            <TopStudents />
-            <BlogSection />
+            <TopStudents students={students} />
+            <BlogSection posts={posts} />
             <VisionMission />
             <Services />
             <Contact />
           </>
         )}
-        {view === 'schedule' && <AcademicSchedule />}
-        {view === 'seating' && <SeatingNumbers />}
+        {view === 'schedule' && <AcademicSchedule events={events} schedule={schedule} />}
+        {view === 'seating' && <SeatingNumbers seatingData={seatingData} />}
         {view === 'parent-portal' && (
           <ParentPortal 
             studentId={parentPortalStudentId}
             setStudentId={setParentPortalStudentId}
             result={parentPortalResult}
             setResult={setParentPortalResult}
+            parentPortalData={parentPortalData}
+          />
+        )}
+        {view === 'admin' && (
+          <AdminDashboard 
+            students={students} setStudents={setStudents}
+            events={events} setEvents={setEvents}
+            schedule={schedule} setSchedule={setSchedule}
+            posts={posts} setPosts={setPosts}
+            seatingData={seatingData} setSeatingData={setSeatingData}
+            parentPortalData={parentPortalData} setParentPortalData={setParentPortalData}
+            grades={grades} setGrades={setGrades}
+            academicYears={academicYears} setAcademicYears={setAcademicYears}
+            categories={categories} setCategories={setCategories}
+            sections={sections} setSections={setSections}
           />
         )}
       </main>
