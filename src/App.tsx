@@ -1966,55 +1966,57 @@ const AdminDashboard = ({
                           </button>
                         </div>
                         
-                        <div className="space-y-3">
+                        <div className="table-responsive bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
                           {(editingItem.results || []).length > 0 ? (
-                            (editingItem.results || []).map((res: any, idx: number) => (
-                              <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-4">
-                                <div className="flex justify-between items-start">
-                                  <div className="flex-1 grid grid-cols-[1fr_100px_100px] gap-4">
-                                    <div>
-                                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">اسم المادة</label>
+                            <table className="table mb-0">
+                              <thead>
+                                <tr>
+                                  <th className="text-right whitespace-nowrap">اسم المادة</th>
+                                  <th className="text-center whitespace-nowrap">الدرجة</th>
+                                  <th className="text-center whitespace-nowrap">المجموع</th>
+                                  <th className="text-center whitespace-nowrap">النسبة</th>
+                                  <th className="text-center whitespace-nowrap">إجراءات</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(editingItem.results || []).map((res: any, idx: number) => (
+                                  <tr key={idx}>
+                                    <td className="min-w-[150px]">
                                       <input type="text" value={res.subject} onChange={(e) => {
                                         const newResults = [...editingItem.results];
                                         newResults[idx].subject = e.target.value;
                                         setEditingItem({...editingItem, results: newResults});
                                       }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-                                    </div>
-                                    <div>
-                                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">الدرجة</label>
+                                    </td>
+                                    <td className="w-24">
                                       <input type="number" value={res.score} onChange={(e) => {
                                         const newResults = [...editingItem.results];
                                         newResults[idx].score = Number(e.target.value);
                                         setEditingItem({...editingItem, results: newResults});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-                                    </div>
-                                    <div>
-                                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">المجموع</label>
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
+                                    </td>
+                                    <td className="w-24">
                                       <input type="number" value={res.total} onChange={(e) => {
                                         const newResults = [...editingItem.results];
                                         newResults[idx].total = Number(e.target.value);
                                         setEditingItem({...editingItem, results: newResults});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-                                    </div>
-                                  </div>
-                                  <button type="button" onClick={() => {
-                                    const newResults = editingItem.results.filter((_: any, i: number) => i !== idx);
-                                    setEditingItem({...editingItem, results: newResults});
-                                  }} className="mr-4 p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full bg-emerald-500 transition-all duration-500" 
-                                      style={{ width: `${(res.score / res.total) * 100}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-xs font-bold text-slate-500">{Math.round((res.score / res.total) * 100)}%</span>
-                                </div>
-                              </div>
-                            ))
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
+                                    </td>
+                                    <td className="text-center align-middle">
+                                      <span className="text-xs font-bold text-slate-500">{Math.round((res.score / res.total) * 100)}%</span>
+                                    </td>
+                                    <td className="text-center align-middle">
+                                      <button type="button" onClick={() => {
+                                        const newResults = editingItem.results.filter((_: any, i: number) => i !== idx);
+                                        setEditingItem({...editingItem, results: newResults});
+                                      }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           ) : (
                             <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                               <p className="text-slate-400 text-sm">لا توجد مواد مضافة حالياً</p>
@@ -2038,44 +2040,53 @@ const AdminDashboard = ({
                           </button>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="table-responsive bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
                           {(editingItem.attendanceDetails || []).length > 0 ? (
-                            (editingItem.attendanceDetails || []).map((att: any, idx: number) => (
-                              <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                                <div className="flex-1 grid grid-cols-[1fr_100px_100px] gap-4">
-                                  <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">الشهر</label>
-                                    <input type="text" value={att.month} onChange={(e) => {
-                                      const newDetails = [...editingItem.attendanceDetails];
-                                      newDetails[idx].month = e.target.value;
-                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                    }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="مثلاً: يناير" />
-                                  </div>
-                                  <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-emerald-600">أيام الحضور</label>
-                                    <input type="number" value={att.present} onChange={(e) => {
-                                      const newDetails = [...editingItem.attendanceDetails];
-                                      newDetails[idx].present = Number(e.target.value);
-                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                    }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-                                  </div>
-                                  <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-red-500">أيام الغياب</label>
-                                    <input type="number" value={att.absent} onChange={(e) => {
-                                      const newDetails = [...editingItem.attendanceDetails];
-                                      newDetails[idx].absent = Number(e.target.value);
-                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                    }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" />
-                                  </div>
-                                </div>
-                                <button type="button" onClick={() => {
-                                  const newDetails = editingItem.attendanceDetails.filter((_: any, i: number) => i !== idx);
-                                  setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ))
+                            <table className="table mb-0">
+                              <thead>
+                                <tr>
+                                  <th className="text-right whitespace-nowrap">الشهر</th>
+                                  <th className="text-center whitespace-nowrap">أيام الحضور</th>
+                                  <th className="text-center whitespace-nowrap">أيام الغياب</th>
+                                  <th className="text-center whitespace-nowrap">إجراءات</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(editingItem.attendanceDetails || []).map((att: any, idx: number) => (
+                                  <tr key={idx}>
+                                    <td className="min-w-[120px]">
+                                      <input type="text" value={att.month} onChange={(e) => {
+                                        const newDetails = [...editingItem.attendanceDetails];
+                                        newDetails[idx].month = e.target.value;
+                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="مثلاً: يناير" />
+                                    </td>
+                                    <td className="w-32">
+                                      <input type="number" value={att.present} onChange={(e) => {
+                                        const newDetails = [...editingItem.attendanceDetails];
+                                        newDetails[idx].present = Number(e.target.value);
+                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
+                                    </td>
+                                    <td className="w-32">
+                                      <input type="number" value={att.absent} onChange={(e) => {
+                                        const newDetails = [...editingItem.attendanceDetails];
+                                        newDetails[idx].absent = Number(e.target.value);
+                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
+                                    </td>
+                                    <td className="text-center align-middle">
+                                      <button type="button" onClick={() => {
+                                        const newDetails = editingItem.attendanceDetails.filter((_: any, i: number) => i !== idx);
+                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                      }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           ) : (
                             <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                               <p className="text-slate-400 text-sm">لا توجد بيانات غياب مضافة</p>
