@@ -32,12 +32,21 @@ import {
   Plus,
   Trash2,
   Edit,
+  Edit2,
   Save,
   LogOut,
   Lock,
-  User
+  User,
+  Download,
+  Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { jsPDF } from 'jspdf';
+import { domToPng } from 'modern-screenshot';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 import { 
   LineChart, 
@@ -54,6 +63,12 @@ import {
 const DAYS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
 const PERIODS = ['الحصة الأولى', 'الحصة الثانية', 'الحصة الثالثة', 'الحصة الرابعة', 'الحصة الخامسة', 'الحصة السادسة', 'الحصة السابعة'];
 const INITIAL_SUBJECTS = ['رياضيات', 'علوم', 'لغة عربية', 'إنجليزي', 'تربية إسلامية', 'اجتماعيات', 'حاسب آلي', 'فنية', 'رياضة'];
+const INITIAL_SOCIAL_LINKS = [
+  { id: '1', name: 'Twitter', url: 'https://twitter.com' },
+  { id: '2', name: 'Instagram', url: 'https://instagram.com' },
+  { id: '3', name: 'Facebook', url: 'https://facebook.com' },
+  { id: '4', name: 'LinkedIn', url: 'https://linkedin.com' }
+];
 
 const INITIAL_STUDENTS = [
   // 2024 - Grade 6
@@ -149,11 +164,22 @@ const INITIAL_STUDENTS = [
   },
 ];
 
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch (e) {
+    return dateString;
+  }
+};
+
 const INITIAL_EVENTS = [
-  { id: '1', date: '15 مارس', title: 'بداية اختبارات منتصف الفصل', type: 'academic' },
-  { id: '2', date: '22 مارس', title: 'يوم النشاط الطلابي المفتوح', type: 'activity' },
-  { id: '3', date: '1 أبريل', title: 'إجازة عيد الفطر المبارك', type: 'holiday' },
-  { id: '4', date: '10 أبريل', title: 'عودة الدراسة بعد الإجازة', type: 'academic' },
+  { id: '1', date: '2026-03-15', title: 'بداية اختبارات منتصف الفصل', type: 'academic' },
+  { id: '2', date: '2026-03-22', title: 'يوم النشاط الطلابي المفتوح', type: 'activity' },
+  { id: '3', date: '2026-04-01', title: 'إجازة عيد الفطر المبارك', type: 'holiday' },
+  { id: '4', date: '2026-04-10', title: 'عودة الدراسة بعد الإجازة', type: 'academic' },
 ];
 
 const INITIAL_SCHEDULE = [
@@ -181,7 +207,7 @@ const INITIAL_POSTS = [
     id: 1,
     title: "تتويج فريق المدرسة ببطولة الروبوت الإقليمية",
     excerpt: "حقق طلابنا المركز الأول في مسابقة الروبوت والذكاء الاصطناعي التي أقيمت على مستوى المنطقة...",
-    date: "12 مارس 2026",
+    date: "2026-03-12",
     category: "إنجازات",
     image: "https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?auto=format&fit=crop&q=80&w=800"
   },
@@ -189,7 +215,7 @@ const INITIAL_POSTS = [
     id: 2,
     title: "ندوة حول أهمية القراءة في العصر الرقمي",
     excerpt: "استضافت المدرسة نخبة من الكتاب والمثقفين في ندوة حوارية تهدف إلى تعزيز حب القراءة لدى الطلاب...",
-    date: "10 مارس 2026",
+    date: "2026-03-10",
     category: "فعاليات",
     image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=800"
   },
@@ -197,7 +223,7 @@ const INITIAL_POSTS = [
     id: 3,
     title: "تحديثات في المختبرات العلمية والتقنية",
     excerpt: "تم تزويد مختبرات العلوم بأجهزة حديثة وتقنيات واقع معزز لتسهيل فهم المفاهيم العلمية المعقدة...",
-    date: "05 مارس 2026",
+    date: "2026-03-05",
     category: "تطوير",
     image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800"
   }
@@ -266,7 +292,7 @@ const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-6
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredOptions = options.filter(opt => 
+  const filteredOptions = (options || []).filter(opt => 
     opt.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -293,7 +319,7 @@ const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-6
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 overflow-hidden p-2"
           >
-            {options.length > 5 && (
+            {(options || []).length > 5 && (
               <div className="p-2 border-b border-slate-50 mb-2">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -333,6 +359,14 @@ const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-6
   );
 };
 
+const navLinks = [
+  { name: 'الرئيسية', id: 'home', icon: Home },
+  { name: 'التقويم والجدول', id: 'schedule', icon: Calendar },
+  { name: 'أرقام الجلوس', id: 'seating', icon: ClipboardList },
+  { name: 'بوابة الأهالي', id: 'parent-portal', icon: UserCheck },
+  { name: 'لوحة التحكم', id: 'admin', icon: Settings },
+];
+
 const Navbar = ({ setView, currentView }: { setView: (v: string) => void, currentView: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -345,13 +379,16 @@ const Navbar = ({ setView, currentView }: { setView: (v: string) => void, curren
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: 'الرئيسية', id: 'home', icon: Home },
-    { name: 'التقويم والجدول', id: 'schedule', icon: Calendar },
-    { name: 'أرقام الجلوس', id: 'seating', icon: ClipboardList },
-    { name: 'بوابة الأهالي', id: 'parent-portal', icon: UserCheck },
-    { name: 'لوحة التحكم', id: 'admin', icon: Settings },
-  ];
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled || currentView !== 'home' ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`} dir="rtl">
@@ -388,23 +425,75 @@ const Navbar = ({ setView, currentView }: { setView: (v: string) => void, curren
       {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-white absolute top-full left-0 w-full shadow-xl py-4"
-          >
-            {navLinks.map((link) => (
-              <button 
-                key={link.id} 
-                onClick={() => { setView(link.id); setIsOpen(false); }}
-                className={`flex items-center gap-3 w-full text-right px-8 py-3 hover:bg-emerald-50 font-medium transition-colors ${currentView === link.id ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700'}`}
-              >
-                <link.icon className="w-5 h-5 text-emerald-500" />
-                {link.name}
-              </button>
-            ))}
-          </motion.div>
+          <>
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-slate-900/40 md:hidden z-[-1]"
+            />
+            
+            <motion.div 
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={{
+                open: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: {
+                    duration: 0.25,
+                    ease: "easeOut",
+                    staggerChildren: 0.03,
+                  }
+                },
+                closed: { 
+                  opacity: 0, 
+                  y: -10,
+                  transition: {
+                    duration: 0.2,
+                    ease: "easeIn",
+                  }
+                }
+              }}
+              style={{ transform: 'translateZ(0)' }}
+              className="md:hidden bg-white absolute top-full left-0 w-full shadow-xl py-6 rounded-b-[2rem] overflow-hidden border-t border-slate-50"
+            >
+              <div className="flex flex-col gap-1 px-4">
+                {navLinks.map((link) => (
+                  <motion.button 
+                    variants={{
+                      open: { 
+                        opacity: 1, 
+                        transition: { duration: 0.15 } 
+                      },
+                      closed: { 
+                        opacity: 0, 
+                        transition: { duration: 0.1 } 
+                      }
+                    }}
+                    key={link.id} 
+                    onClick={() => { setView(link.id); setIsOpen(false); }}
+                    style={{ transform: 'translateZ(0)' }}
+                    className={`flex items-center gap-4 w-full text-right px-6 py-4 rounded-2xl font-bold transition-colors duration-200 ${
+                      currentView === link.id 
+                        ? 'text-emerald-600 bg-emerald-50' 
+                        : 'text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-xl transition-colors duration-200 ${
+                      currentView === link.id ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      <link.icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-lg">{link.name}</span>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </nav>
@@ -468,23 +557,61 @@ const Hero = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.8 }}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { 
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.15,
+                  delayChildren: 0.2
+                }
+              },
+              exit: { 
+                opacity: 0,
+                x: -20,
+                transition: { duration: 0.5 }
+              }
+            }}
           >
-            <span className="inline-block bg-emerald-600/30 text-emerald-400 px-4 py-1.5 rounded-full text-sm font-bold mb-6 backdrop-blur-md border border-emerald-500/30">
+            <motion.span 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+              }}
+              className="inline-block bg-emerald-600/30 text-emerald-400 px-4 py-1.5 rounded-full text-sm font-bold mb-6 backdrop-blur-md border border-emerald-500/30"
+            >
               {slides[currentSlide].tag}
-            </span>
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            </motion.span>
+            <motion.h1 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+              }}
+              className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
+            >
               {slides[currentSlide].title.split(' ').map((word, i) => (
                 word === '22' || word === 'مايو' ? <span key={i} className="text-emerald-500"> {word} </span> : <span key={i}>{word} </span>
               ))}
-            </h1>
-            <p className="text-xl text-slate-200 mb-10 max-w-2xl leading-relaxed">
+            </motion.h1>
+            <motion.p 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+              }}
+              className="text-xl text-slate-200 mb-10 max-w-2xl leading-relaxed"
+            >
               {slides[currentSlide].desc}
-            </p>
-            <div className="flex flex-wrap gap-4 justify-start">
+            </motion.p>
+            <motion.div 
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+              }}
+              className="flex flex-wrap gap-4 justify-start"
+            >
               <button className="bg-emerald-600 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 group">
                 سجل طفلك الآن
                 <ArrowRight className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
@@ -492,7 +619,7 @@ const Hero = () => {
               <button className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition-all">
                 مشاهدة الإنجازات
               </button>
-            </div>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -699,7 +826,7 @@ const StudentCard = ({ student, idx }: { student: any, idx: number, key?: string
                 className="overflow-hidden mt-3"
               >
                 <div className="bg-slate-50 rounded-2xl p-4 space-y-2">
-                  {student.achievements.map((achievement: string, i: number) => (
+                  {(student.achievements || []).map((achievement: string, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-right">
                       <Award className="w-3 h-3 text-emerald-500 flex-shrink-0" />
                       <span className="text-xs text-slate-600 font-medium">{achievement}</span>
@@ -747,7 +874,7 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
     }
   }, [showAll, selectedYear, selectedGrade]);
 
-  const filteredStudents = students.filter(s => 
+  const filteredStudents = (students || []).filter(s => 
     s.year === selectedYear && 
     s.grade === selectedGrade &&
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -811,8 +938,8 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
         {/* Students Grid */}
         <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <AnimatePresence mode="wait">
-            {displayedStudents.length > 0 ? (
-              displayedStudents.map((student, idx) => (
+            {(displayedStudents || []).length > 0 ? (
+              (displayedStudents || []).map((student, idx) => (
                 <StudentCard key={`${student.name}-${student.year}`} student={student} idx={idx} />
               ))
             ) : (
@@ -854,6 +981,64 @@ const AcademicSchedule = ({ events, schedule, examSchedule, grades, sections }: 
   const [activeTab, setActiveTab] = useState('calendar');
   const [selectedGrade, setSelectedGrade] = useState(grades[0]);
   const [selectedSection, setSelectedSection] = useState(sections[0]);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const scheduleRef = useRef<HTMLDivElement>(null);
+  const examsRef = useRef<HTMLDivElement>(null);
+
+  const downloadPDF = async (ref: React.RefObject<HTMLDivElement>, fileName: string) => {
+    if (!ref.current) return;
+    setIsDownloading(true);
+    try {
+      // Temporarily disable overflow to capture full table width
+      const originalStyle = ref.current.style.overflow;
+      const originalWidth = ref.current.style.width;
+      ref.current.style.overflow = 'visible';
+      ref.current.style.width = 'fit-content';
+
+      const dataUrl = await domToPng(ref.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        quality: 1
+      });
+
+      // Restore original styles
+      ref.current.style.overflow = originalStyle;
+      ref.current.style.width = originalWidth;
+      
+      // Use landscape orientation for tables
+      const pdf = new jsPDF('l', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const availableWidth = pdfWidth - (margin * 2);
+      const availableHeight = pdfHeight - (margin * 2);
+      
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve) => (img.onload = resolve));
+      
+      let imgWidth = availableWidth;
+      let imgHeight = (img.height * availableWidth) / img.width;
+
+      // If height exceeds page, scale down further
+      if (imgHeight > availableHeight) {
+        imgHeight = availableHeight;
+        imgWidth = (img.width * availableHeight) / img.height;
+      }
+
+      // Center horizontally
+      const xOffset = (pdfWidth - imgWidth) / 2;
+      
+      pdf.addImage(dataUrl, 'PNG', xOffset, margin, imgWidth, imgHeight);
+      pdf.save(`${fileName}.pdf`);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('عذراً، حدث خطأ أثناء تحميل الملف. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <section id="schedule" className="py-24 bg-slate-50" dir="rtl">
@@ -918,11 +1103,11 @@ const AcademicSchedule = ({ events, schedule, examSchedule, grades, sections }: 
               className="grid md:grid-cols-2 gap-8"
             >
               <div className="space-y-4">
-                {events.map((event, idx) => (
+                {(events || []).map((event, idx) => (
                   <div key={idx} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-6 hover:border-emerald-200 transition-all">
                     <div className="bg-emerald-50 text-emerald-600 p-4 rounded-2xl text-center min-w-[100px]">
                       <div className="text-sm font-bold opacity-70">2026</div>
-                      <div className="text-lg font-black">{event.date}</div>
+                      <div className="text-lg font-black">{formatDate(event.date)}</div>
                     </div>
                     <div>
                       <h4 className="text-xl font-bold text-slate-900 mb-1">{event.title}</h4>
@@ -958,41 +1143,59 @@ const AcademicSchedule = ({ events, schedule, examSchedule, grades, sections }: 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="table-responsive bg-white rounded-3xl shadow-sm border border-slate-100"
+              className="space-y-6"
             >
-              <table className="table w-full text-right border-collapse min-w-[800px]">
-                <thead>
-                  <tr className="bg-slate-50">
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100">اليوم</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 1</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 2</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 3</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 4</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 5</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 6</th>
-                    <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 7</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {DAYS.map((day, idx) => {
-                    const row = schedule.find(s => s.day === day && s.grade === selectedGrade && s.section === selectedSection) || { day, p1: '-', p2: '-', p3: '-', p4: '-', p5: '-', p6: '-', p7: '-' };
-                    return (
-                      <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-6 font-bold text-emerald-600 border-b border-slate-100">{row.day}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p1}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p2}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p3}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p4}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p5}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p6}</td>
-                        <td className="p-6 text-slate-600 border-b border-slate-100 text-center">{row.p7}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <div className="p-6 bg-slate-50 text-center">
-                <p className="text-slate-500 text-sm">ملاحظة: هذا الجدول خاص بـ {selectedGrade} - الشعبة ({selectedSection})</p>
+              <div className="flex justify-end">
+                <button 
+                  onClick={() => downloadPDF(scheduleRef, `جدول_الحصص_${selectedGrade}_${selectedSection}`)}
+                  disabled={isDownloading}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+                >
+                  <Download className="w-5 h-5" />
+                  {isDownloading ? 'جاري التحميل...' : 'تحميل الجدول (PDF)'}
+                </button>
+              </div>
+              <div ref={scheduleRef} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4">
+                <div className="mb-6 text-center border-b border-slate-100 pb-6">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">جدول الحصص الأسبوعي</h3>
+                  <p className="text-emerald-600 font-bold">{selectedGrade} - الشعبة ({selectedSection})</p>
+                </div>
+                <div className="table-responsive">
+                  <table className="table w-full text-right border-collapse min-w-[800px]">
+                  <thead>
+                    <tr className="bg-slate-50">
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100">اليوم</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 1</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 2</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 3</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 4</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 5</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 6</th>
+                      <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100 text-center">الحصة 7</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {DAYS.map((day, idx) => {
+                      const row = (schedule || []).find(s => s.day === day && s.grade === selectedGrade && s.section === selectedSection) || { day, p1: '-', p2: '-', p3: '-', p4: '-', p5: '-', p6: '-', p7: '-' };
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                          <td className="p-3 md:p-4 font-bold text-emerald-600 border-b border-slate-100">{row.day}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p1}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p2}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p3}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p4}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p5}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p6}</td>
+                          <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100 text-center">{row.p7}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                </div>
+                <div className="mt-6 text-center text-slate-400 text-xs">
+                  تم استخراج هذا الجدول من الموقع الرسمي لمدرسة 22 مايو النموذجية
+                </div>
               </div>
             </motion.div>
           )}
@@ -1005,55 +1208,72 @@ const AcademicSchedule = ({ events, schedule, examSchedule, grades, sections }: 
               exit={{ opacity: 0, x: -20 }}
               className="space-y-12"
             >
-              {EXAM_TYPES.map((type) => {
-                const filteredExams = examSchedule.filter(exam => 
-                  exam.grade === selectedGrade && 
-                  exam.section === selectedSection && 
-                  exam.type === type.id
-                );
-
-                if (filteredExams.length === 0) return null;
-
-                return (
-                  <div key={type.id} className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="h-8 w-1.5 bg-emerald-600 rounded-full"></div>
-                      <h3 className="text-2xl font-bold text-slate-900">{type.name}</h3>
-                    </div>
-                    <div className="table-responsive bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                      <table className="table w-full text-right border-collapse min-w-[800px]">
-                        <thead>
-                          <tr className="bg-slate-50">
-                            <th className="p-6 font-bold text-slate-900 border-b border-slate-100">اليوم</th>
-                            <th className="p-6 font-bold text-slate-900 border-b border-slate-100">اسم المادة</th>
-                            <th className="p-6 font-bold text-slate-900 border-b border-slate-100">وقت الاختبار</th>
-                            <th className="p-6 font-bold text-slate-900 border-b border-slate-100">التاريخ</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredExams.map((exam, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                              <td className="p-6 font-bold text-slate-900 border-b border-slate-100">{exam.day}</td>
-                              <td className="p-6 font-bold text-emerald-600 border-b border-slate-100">{exam.subject}</td>
-                              <td className="p-6 text-slate-600 border-b border-slate-100">{exam.time}</td>
-                              <td className="p-6 text-slate-600 border-b border-slate-100">{exam.date}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {examSchedule.filter(exam => exam.grade === selectedGrade && exam.section === selectedSection).length === 0 && (
-                <div className="p-20 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
-                  <p className="text-slate-400">لا توجد امتحانات مجدولة لهذا الصف والشعبة حالياً</p>
+              <div className="flex justify-end">
+                <button 
+                  onClick={() => downloadPDF(examsRef, `جدول_الامتحانات_${selectedGrade}_${selectedSection}`)}
+                  disabled={isDownloading}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+                >
+                  <Download className="w-5 h-5" />
+                  {isDownloading ? 'جاري التحميل...' : 'تحميل جدول الامتحانات (PDF)'}
+                </button>
+              </div>
+              <div ref={examsRef} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4">
+                <div className="mb-6 text-center border-b border-slate-100 pb-6">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">جدول الامتحانات المدرسية</h3>
+                  <p className="text-emerald-600 font-bold">{selectedGrade} - الشعبة ({selectedSection})</p>
                 </div>
-              )}
-              
-              <div className="p-6 bg-slate-100/50 text-center rounded-3xl border border-slate-200/50">
-                <p className="text-slate-500 text-sm font-bold">ملاحظة: هذا الجدول خاص بـ {selectedGrade} - الشعبة ({selectedSection})</p>
+                <div className="space-y-10">
+                  {EXAM_TYPES.map((type) => {
+                    const filteredExams = (examSchedule || []).filter(exam => 
+                      exam.grade === selectedGrade && 
+                      exam.section === selectedSection && 
+                      exam.type === type.id
+                    );
+
+                    if (filteredExams.length === 0) return null;
+
+                    return (
+                      <div key={type.id} className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-6 w-1 bg-emerald-600 rounded-full"></div>
+                          <h3 className="text-xl font-bold text-slate-900">{type.name}</h3>
+                        </div>
+                        <div className="table-responsive border border-slate-50 rounded-2xl">
+                          <table className="table w-full text-right border-collapse min-w-[800px]">
+                            <thead>
+                              <tr className="bg-slate-50">
+                                <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100">اليوم</th>
+                                <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100">اسم المادة</th>
+                                <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100">وقت الاختبار</th>
+                                <th className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100">التاريخ</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredExams.map((exam, idx) => (
+                                <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                                  <td className="p-3 md:p-4 font-bold text-slate-900 border-b border-slate-100">{exam.day}</td>
+                                  <td className="p-3 md:p-4 font-bold text-emerald-600 border-b border-slate-100">{exam.subject}</td>
+                                  <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100">{exam.time}</td>
+                                  <td className="p-3 md:p-4 text-slate-600 border-b border-slate-100">{exam.date}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {(examSchedule || []).filter(exam => exam.grade === selectedGrade && exam.section === selectedSection).length === 0 && (
+                  <div className="p-20 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
+                    <p className="text-slate-400">لا توجد امتحانات مجدولة لهذا الصف والشعبة حالياً</p>
+                  </div>
+                )}
+                <div className="mt-8 text-center text-slate-400 text-xs">
+                  تم استخراج هذا الجدول من الموقع الرسمي لمدرسة 22 مايو النموذجية
+                </div>
               </div>
             </motion.div>
           )}
@@ -1079,7 +1299,7 @@ const BlogSection = ({ posts }: { posts: any[] }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {posts.map((post, idx) => (
+          {(posts || []).map((post, idx) => (
             <motion.article
               key={post.id}
               initial={{ opacity: 0, y: 20 }}
@@ -1104,7 +1324,7 @@ const BlogSection = ({ posts }: { posts: any[] }) => {
               <div className="p-8">
                 <div className="flex items-center gap-2 text-slate-400 text-sm mb-4">
                   <Calendar className="w-4 h-4" />
-                  {post.date}
+                  {formatDate(post.date)}
                 </div>
                 <h4 className="text-xl font-bold text-slate-900 mb-4 leading-tight group-hover:text-emerald-600 transition-colors">
                   {post.title}
@@ -1174,8 +1394,13 @@ const Services = () => {
 const SeatingNumbers = ({ seatingData, grades, sections }: { seatingData: any[], grades: string[], sections: string[] }) => {
   const [selectedGrade, setSelectedGrade] = useState(grades[0]);
   const [selectedSection, setSelectedSection] = useState(sections[0]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredData = seatingData.filter(s => s.grade === selectedGrade && s.section === selectedSection);
+  const filteredData = (seatingData || []).filter(s => 
+    s.grade === selectedGrade && 
+    s.section === selectedSection &&
+    s.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+  );
 
   return (
     <section id="seating" className="py-24 bg-white" dir="rtl">
@@ -1187,20 +1412,32 @@ const SeatingNumbers = ({ seatingData, grades, sections }: { seatingData: any[],
         </div>
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-12">
-          <ElegantDropdown 
-            label="الصف الدراسي"
-            options={grades}
-            value={selectedGrade}
-            onChange={(val) => setSelectedGrade(val)}
-            widthClass="md:w-64"
-          />
-          <ElegantDropdown 
-            label="الشعبة"
-            options={sections}
-            value={selectedSection}
-            onChange={(val) => setSelectedSection(val)}
-            widthClass="md:w-48"
-          />
+          <div className="relative w-full md:w-80">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <input 
+              type="text" 
+              placeholder="بحث عن اسم الطالب..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl pr-12 pl-4 py-4 outline-none focus:ring-2 focus:ring-emerald-500 text-lg shadow-sm transition-all"
+            />
+          </div>
+          <div className="flex gap-4 w-full md:w-auto">
+            <ElegantDropdown 
+              label="الصف الدراسي"
+              options={grades}
+              value={selectedGrade}
+              onChange={(val) => setSelectedGrade(val)}
+              widthClass="w-full md:w-64"
+            />
+            <ElegantDropdown 
+              label="الشعبة"
+              options={sections}
+              value={selectedSection}
+              onChange={(val) => setSelectedSection(val)}
+              widthClass="w-full md:w-48"
+            />
+          </div>
         </div>
 
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 table-responsive">
@@ -1254,20 +1491,21 @@ const AdminDashboard = ({
   academicYears, setAcademicYears,
   categories, setCategories,
   sections, setSections,
-  contactInfo, setContactInfo
+  contactInfo, setContactInfo,
+  socialLinks, setSocialLinks,
+  showHonorRoll, setShowHonorRoll
 }: any) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('students');
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string | number, type: string } | null>(null);
   const [modalSubTab, setModalSubTab] = useState('basic');
   const [selectedGradeFilter, setSelectedGradeFilter] = useState(grades[0]);
   const [selectedSectionFilter, setSelectedSectionFilter] = useState(sections[0]);
   const [selectedExamTypeFilter, setSelectedExamTypeFilter] = useState(EXAM_TYPES[0].id);
   const [parentPortalSearch, setParentPortalSearch] = useState('');
-  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [seatingSearch, setSeatingSearch] = useState('');
   
   const [newGrade, setNewGrade] = useState('');
   const [newYear, setNewYear] = useState('');
@@ -1284,6 +1522,8 @@ const AdminDashboard = ({
   // New state for schedule management
   const [localSchedule, setLocalSchedule] = useState<any[]>([]);
   const [showSubjectPicker, setShowSubjectPicker] = useState<{ day: string, period: string } | null>(null);
+  const [showResultSubjectPicker, setShowResultSubjectPicker] = useState<number | null>(null);
+  const [showAttendanceMonthPicker, setShowAttendanceMonthPicker] = useState<number | null>(null);
 
   useEffect(() => {
     // Initialize local schedule for the selected grade/section
@@ -1296,7 +1536,7 @@ const AdminDashboard = ({
   }, [selectedGradeFilter, selectedSectionFilter, schedule]);
 
   const handleSaveSchedule = () => {
-    setShowSaveConfirm(true);
+    handleSave(new Event('submit') as any);
   };
 
   const updateCell = (day: string, period: string, subject: string) => {
@@ -1305,47 +1545,78 @@ const AdminDashboard = ({
   };
 
   const handleSaveContactInfo = () => {
-    setShowSaveConfirm(true);
+    handleSave(new Event('submit') as any);
   };
 
-  const handleDelete = () => {
-    if (!showDeleteConfirm) return;
-    const { id, type } = showDeleteConfirm;
-    
-    if (type === 'students') setStudents(students.filter((s: any) => s.id !== id));
-    else if (type === 'posts') setPosts(posts.filter((p: any) => p.id !== id));
-    else if (type === 'events') setEvents(events.filter((ev: any) => ev.id !== id));
-    else if (type === 'schedule') setSchedule(schedule.filter((s: any) => s.id !== id));
-    else if (type === 'examSchedule') setExamSchedule(examSchedule.filter((s: any) => s.id !== id));
-    else if (type === 'seating') setSeatingData(seatingData.filter((s: any) => s.id !== id));
+  const executeDelete = (id: string | number, type: string) => {
+    if (type === 'students') setStudents((students || []).filter((s: any) => s.id !== id));
+    else if (type === 'posts') setPosts((posts || []).filter((p: any) => p.id !== id));
+    else if (type === 'events') setEvents((events || []).filter((ev: any) => ev.id !== id));
+    else if (type === 'schedule') setSchedule((schedule || []).filter((s: any) => s.id !== id));
+    else if (type === 'examSchedule') setExamSchedule((examSchedule || []).filter((s: any) => s.id !== id));
+    else if (type === 'seating') setSeatingData((seatingData || []).filter((s: any) => s.id !== id));
     else if (type === 'parent-portal') {
-      const newData = { ...parentPortalData };
+      const newData = { ...(parentPortalData || {}) };
       delete newData[id as string];
       setParentPortalData(newData);
     }
-    else if (type === 'grade') setGrades(grades.filter((_, i) => i !== id));
-    else if (type === 'year') setAcademicYears(academicYears.filter((_, i) => i !== id));
-    else if (type === 'category') setCategories(categories.filter((_, i) => i !== id));
-    else if (type === 'section') setSections(sections.filter((_, i) => i !== id));
-    else if (type === 'subject') setSubjects(subjects.filter((_, i) => i !== id));
+    else if (type === 'grade') setGrades((grades || []).filter((_, i) => i !== id));
+    else if (type === 'year') setAcademicYears((academicYears || []).filter((_, i) => i !== id));
+    else if (type === 'category') setCategories((categories || []).filter((_, i) => i !== id));
+    else if (type === 'section') setSections((sections || []).filter((_, i) => i !== id));
+    else if (type === 'subject') setSubjects((subjects || []).filter((_, i) => i !== id));
+    else if (type === 'social') setSocialLinks((socialLinks || []).filter((l: any) => l.id !== id));
     else if (type === 'portal-result') {
-      const newResults = editingItem.results.filter((_: any, i: number) => i !== id);
+      const newResults = (editingItem.results || []).filter((_: any, i: number) => i !== id);
       setEditingItem({...editingItem, results: newResults});
     }
     else if (type === 'portal-attendance') {
-      const newDetails = editingItem.attendanceDetails.filter((_: any, i: number) => i !== id);
+      const newDetails = (editingItem.attendanceDetails || []).filter((_: any, i: number) => i !== id);
       setEditingItem({...editingItem, attendanceDetails: newDetails});
     }
-    
-    setShowDeleteConfirm(null);
   };
+
+  const triggerDelete = (id: string | number, type: string) => {
+    MySwal.fire({
+      title: 'هل أنت متأكد؟',
+      text: "سيتم حذف هذا العنصر بشكل نهائي ولا يمكن التراجع عن هذه العملية.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'تراجع',
+      customClass: {
+        popup: 'rounded-[2rem]',
+        confirmButton: 'rounded-xl px-6 py-3 font-bold',
+        cancelButton: 'rounded-xl px-6 py-3 font-bold'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        executeDelete(id, type);
+        MySwal.fire({
+          title: 'تم الحذف!',
+          text: 'تم حذف العنصر بنجاح.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'rounded-[2rem]'
+          }
+        });
+      }
+    });
+  };
+
+  const [loginError, setLoginError] = useState('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError('');
     if (password === 'admin123') {
       setIsLoggedIn(true);
     } else {
-      alert('كلمة المرور خاطئة');
+      setLoginError('كلمة المرور خاطئة');
     }
   };
 
@@ -1370,6 +1641,11 @@ const AdminDashboard = ({
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-center text-2xl tracking-widest focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
               placeholder="••••••••"
             />
+            {loginError && (
+              <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold text-center animate-in fade-in slide-in-from-top-2">
+                {loginError}
+              </div>
+            )}
             <button className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
               تسجيل الدخول
             </button>
@@ -1385,6 +1661,7 @@ const AdminDashboard = ({
     { id: 'schedule', name: 'التقويم والجداول', icon: Calendar },
     { id: 'seating', name: 'أرقام الجلوس', icon: ClipboardList },
     { id: 'parent-portal', name: 'بوابة الأهالي', icon: UserCheck },
+    { id: 'social', name: 'روابط التواصل', icon: Share2 },
     { id: 'settings', name: 'الإعدادات العامة', icon: Settings },
   ];
 
@@ -1393,6 +1670,23 @@ const AdminDashboard = ({
       case 'students':
         return (
           <div className="space-y-6">
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 mb-6 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${showHonorRoll ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                  <Trophy className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900">عرض لوحة الشرف</h4>
+                  <p className="text-sm text-slate-500">التحكم في ظهور قسم المتفوقين في الصفحة الرئيسية</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowHonorRoll(!showHonorRoll)}
+                className={`w-14 h-8 rounded-full relative transition-all duration-300 ${showHonorRoll ? 'bg-emerald-600' : 'bg-slate-300'}`}
+              >
+                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${showHonorRoll ? 'right-7' : 'right-1'}`}></div>
+              </button>
+            </div>
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-bold text-slate-900">إدارة لوحة الشرف</h3>
               <button 
@@ -1438,7 +1732,7 @@ const AdminDashboard = ({
                       <td className="p-4">
                         <div className="flex gap-2">
                           <button onClick={() => { setEditingItem(s); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
-                          <button onClick={() => setShowDeleteConfirm({ id: s.id, type: 'students' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => triggerDelete(s.id, 'students')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
                     </tr>
@@ -1454,7 +1748,7 @@ const AdminDashboard = ({
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-bold text-slate-900">إدارة الأخبار والفعاليات</h3>
               <button 
-                onClick={() => { setEditingItem({ title: '', excerpt: '', date: new Date().toLocaleDateString('ar-SA'), category: 'فعاليات', image: '' }); setIsAdding(true); setModalSubTab('basic'); }}
+                onClick={() => { setEditingItem({ title: '', excerpt: '', date: new Date().toISOString().split('T')[0], category: 'فعاليات', image: '' }); setIsAdding(true); setModalSubTab('basic'); }}
                 className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all"
               >
                 <Plus className="w-5 h-5" />
@@ -1462,18 +1756,18 @@ const AdminDashboard = ({
               </button>
             </div>
             <div className="grid gap-4">
-              {posts.map((p: any) => (
+              {(posts || []).map((p: any) => (
                 <div key={p.id} className="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
                   <div className="flex flex-col sm:flex-row gap-6 items-center text-center sm:text-right">
                     <img src={p.image} className="w-20 h-20 rounded-2xl object-cover" alt="" />
                     <div>
                       <h4 className="font-bold text-slate-900 text-lg mb-1">{p.title}</h4>
-                      <p className="text-slate-500 text-sm">{p.date} • {p.category}</p>
+                      <p className="text-slate-500 text-sm">{formatDate(p.date)} • {p.category}</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditingItem(p); setIsAdding(false); setModalSubTab('basic'); }} className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><Edit className="w-5 h-5" /></button>
-                    <button onClick={() => setShowDeleteConfirm({ id: p.id, type: 'posts' })} className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-5 h-5" /></button>
+                    <button onClick={() => triggerDelete(p.id, 'posts')} className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-5 h-5" /></button>
                   </div>
                 </div>
               ))}
@@ -1487,7 +1781,7 @@ const AdminDashboard = ({
               <div className="flex justify-between items-center">
                 <h3 className="text-2xl font-bold text-slate-900">التقويم الدراسي</h3>
                 <button 
-                  onClick={() => { setEditingItem({ date: '', title: '', type: 'academic' }); setIsAdding(true); setModalSubTab('basic'); }}
+                  onClick={() => { setEditingItem({ date: new Date().toISOString().split('T')[0], title: '', type: 'academic' }); setIsAdding(true); setModalSubTab('basic'); }}
                   className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all"
                 >
                   <Plus className="w-5 h-5" />
@@ -1495,10 +1789,10 @@ const AdminDashboard = ({
                 </button>
               </div>
               <div className="grid gap-4">
-                {events.map((e: any) => (
+                {(events || []).map((e: any) => (
                   <div key={e.id} className="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
                     <div className="flex flex-col sm:flex-row gap-4 items-center text-center sm:text-right">
-                      <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl font-bold">{e.date}</div>
+                      <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl font-bold">{formatDate(e.date)}</div>
                       <div>
                         <h4 className="font-bold text-slate-900">{e.title}</h4>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
@@ -1511,7 +1805,7 @@ const AdminDashboard = ({
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => { setEditingItem(e); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
-                      <button onClick={() => setShowDeleteConfirm({ id: e.id, type: 'events' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => triggerDelete(e.id, 'events')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
                 ))}
@@ -1560,7 +1854,7 @@ const AdminDashboard = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {localSchedule.map((s: any) => (
+                    {(localSchedule || []).map((s: any) => (
                       <tr key={s.day} className="border-t border-slate-50">
                         <td className="p-4 font-bold text-slate-800 bg-slate-50/50">{s.day}</td>
                         {[1, 2, 3, 4, 5, 6, 7].map(num => (
@@ -1593,7 +1887,7 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="p-8 grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-                    {['-', ...subjects].map((subject) => (
+                    {['-', ...(subjects || [])].map((subject) => (
                       <button
                         key={subject}
                         onClick={() => updateCell(showSubjectPicker.day, showSubjectPicker.period, subject)}
@@ -1649,7 +1943,7 @@ const AdminDashboard = ({
               
               <div className="space-y-10">
                 {EXAM_TYPES.filter(t => t.id === selectedExamTypeFilter).map((type) => {
-                  const filteredExams = examSchedule.filter((s: any) => 
+                  const filteredExams = (examSchedule || []).filter((s: any) => 
                     s.grade === selectedGradeFilter && 
                     s.section === selectedSectionFilter && 
                     s.type === type.id
@@ -1694,7 +1988,7 @@ const AdminDashboard = ({
                                 <td className="p-4">
                                   <div className="flex gap-2">
                                     <button onClick={() => { setEditingItem({ ...s, isExam: true }); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
-                                    <button onClick={() => setShowDeleteConfirm({ id: s.id, type: 'examSchedule' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                    <button onClick={() => triggerDelete(s.id, 'examSchedule')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                                   </div>
                                 </td>
                               </tr>
@@ -1706,7 +2000,7 @@ const AdminDashboard = ({
                   );
                 })}
 
-                {examSchedule.filter((s: any) => s.grade === selectedGradeFilter && s.section === selectedSectionFilter).length === 0 && (
+                {(examSchedule || []).filter((s: any) => s.grade === selectedGradeFilter && s.section === selectedSectionFilter).length === 0 && (
                   <div className="p-12 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
                     <p className="text-slate-400">لا توجد امتحانات مضافة لهذا الصف والشعبة</p>
                   </div>
@@ -1783,6 +2077,20 @@ const AdminDashboard = ({
                         if (newGrade.trim()) {
                           setGrades([...grades, newGrade.trim()]);
                           setNewGrade('');
+                          MySwal.fire({
+                            title: 'تمت الإضافة!',
+                            text: 'تم إضافة المرحلة الدراسية بنجاح',
+                            icon: 'success',
+                            confirmButtonText: 'حسناً',
+                            timer: 2000
+                          });
+                        } else {
+                          MySwal.fire({
+                            title: 'خطأ!',
+                            text: 'يرجى إدخال اسم المرحلة الدراسية',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً'
+                          });
                         }
                       }} 
                       className="bg-emerald-600 text-white p-2 rounded-xl hover:bg-emerald-700 transition-all"
@@ -1791,10 +2099,10 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {grades.map((g, i) => (
+                    {(grades || []).map((g, i) => (
                       <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
                         <span className="font-bold text-slate-600">{g}</span>
-                        <button onClick={() => setShowDeleteConfirm({ id: i, type: 'grade' })} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                        <button onClick={() => triggerDelete(i, 'grade')} className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -1818,6 +2126,20 @@ const AdminDashboard = ({
                         if (newYear.trim()) {
                           setAcademicYears([...academicYears, newYear.trim()]);
                           setNewYear('');
+                          MySwal.fire({
+                            title: 'تمت الإضافة!',
+                            text: 'تم إضافة العام الدراسي بنجاح',
+                            icon: 'success',
+                            confirmButtonText: 'حسناً',
+                            timer: 2000
+                          });
+                        } else {
+                          MySwal.fire({
+                            title: 'خطأ!',
+                            text: 'يرجى إدخال العام الدراسي',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً'
+                          });
                         }
                       }} 
                       className="bg-emerald-600 text-white p-2 rounded-xl hover:bg-emerald-700 transition-all"
@@ -1826,10 +2148,10 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {academicYears.map((y, i) => (
+                    {(academicYears || []).map((y, i) => (
                       <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
                         <span className="font-bold text-slate-600">{y}</span>
-                        <button onClick={() => setShowDeleteConfirm({ id: i, type: 'year' })} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                        <button onClick={() => triggerDelete(i, 'year')} className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -1853,6 +2175,20 @@ const AdminDashboard = ({
                         if (newCategory.trim()) {
                           setCategories([...categories, newCategory.trim()]);
                           setNewCategory('');
+                          MySwal.fire({
+                            title: 'تمت الإضافة!',
+                            text: 'تم إضافة التصنيف بنجاح',
+                            icon: 'success',
+                            confirmButtonText: 'حسناً',
+                            timer: 2000
+                          });
+                        } else {
+                          MySwal.fire({
+                            title: 'خطأ!',
+                            text: 'يرجى إدخال اسم التصنيف',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً'
+                          });
                         }
                       }} 
                       className="bg-emerald-600 text-white p-2 rounded-xl hover:bg-emerald-700 transition-all"
@@ -1861,10 +2197,10 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {categories.map((c, i) => (
+                    {(categories || []).map((c, i) => (
                       <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
                         <span className="font-bold text-slate-600">{c}</span>
-                        <button onClick={() => setShowDeleteConfirm({ id: i, type: 'category' })} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                        <button onClick={() => triggerDelete(i, 'category')} className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -1888,6 +2224,20 @@ const AdminDashboard = ({
                         if (newSection.trim()) {
                           setSections([...sections, newSection.trim()]);
                           setNewSection('');
+                          MySwal.fire({
+                            title: 'تمت الإضافة!',
+                            text: 'تم إضافة الشعبة بنجاح',
+                            icon: 'success',
+                            confirmButtonText: 'حسناً',
+                            timer: 2000
+                          });
+                        } else {
+                          MySwal.fire({
+                            title: 'خطأ!',
+                            text: 'يرجى إدخال اسم الشعبة',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً'
+                          });
                         }
                       }} 
                       className="bg-emerald-600 text-white p-2 rounded-xl hover:bg-emerald-700 transition-all"
@@ -1896,10 +2246,10 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {sections.map((s, i) => (
+                    {(sections || []).map((s, i) => (
                       <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
                         <span className="font-bold text-slate-600">{s}</span>
-                        <button onClick={() => setShowDeleteConfirm({ id: i, type: 'section' })} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                        <button onClick={() => triggerDelete(i, 'section')} className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -1923,6 +2273,20 @@ const AdminDashboard = ({
                         if (newSubject.trim()) {
                           setSubjects([...subjects, newSubject.trim()]);
                           setNewSubject('');
+                          MySwal.fire({
+                            title: 'تمت الإضافة!',
+                            text: 'تم إضافة المادة الدراسية بنجاح',
+                            icon: 'success',
+                            confirmButtonText: 'حسناً',
+                            timer: 2000
+                          });
+                        } else {
+                          MySwal.fire({
+                            title: 'خطأ!',
+                            text: 'يرجى إدخال اسم المادة الدراسية',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً'
+                          });
                         }
                       }} 
                       className="bg-emerald-600 text-white p-2 rounded-xl hover:bg-emerald-700 transition-all"
@@ -1931,10 +2295,10 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {subjects.map((s: string, i: number) => (
+                    {(subjects || []).map((s: string, i: number) => (
                       <div key={i} className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 group">
                         <span className="font-bold text-slate-600">{s}</span>
-                        <button onClick={() => setShowDeleteConfirm({ id: i, type: 'subject' })} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                        <button onClick={() => triggerDelete(i, 'subject')} className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -1949,6 +2313,16 @@ const AdminDashboard = ({
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h3 className="text-2xl font-bold text-slate-900">إدارة أرقام الجلوس</h3>
               <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <input 
+                    type="text" 
+                    placeholder="بحث عن طالب..." 
+                    value={seatingSearch}
+                    onChange={(e) => setSeatingSearch(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  />
+                </div>
                 <ElegantDropdown 
                   label="الصف"
                   options={grades}
@@ -1984,7 +2358,11 @@ const AdminDashboard = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {seatingData.filter((s: any) => s.grade === selectedGradeFilter && s.section === selectedSectionFilter).map((s: any) => (
+                  {(seatingData || []).filter((s: any) => 
+                    s.grade === selectedGradeFilter && 
+                    s.section === selectedSectionFilter &&
+                    s.name.toLowerCase().startsWith(seatingSearch.toLowerCase())
+                  ).map((s: any) => (
                     <tr key={s.id} className="border-t border-slate-50">
                       <td className="p-4 font-bold text-slate-800">{s.name}</td>
                       <td className="p-4 text-slate-600">{s.grade}</td>
@@ -1993,7 +2371,7 @@ const AdminDashboard = ({
                       <td className="p-4">
                         <div className="flex gap-2">
                           <button onClick={() => { setEditingItem(s); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
-                          <button onClick={() => setShowDeleteConfirm({ id: s.id, type: 'seating' })} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => triggerDelete(s.id, 'seating')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
                     </tr>
@@ -2016,50 +2394,97 @@ const AdminDashboard = ({
                     placeholder="بحث باسم الطالب أو الرقم..." 
                     value={parentPortalSearch}
                     onChange={(e) => setParentPortalSearch(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                   />
                 </div>
                 <button 
-                  onClick={() => { setEditingItem({ id: '', name: '', grade: '', attendance: '100%', behavior: 'ممتاز', results: [], monthlyTests: [], termExams: { midterm: 0, final: 0 }, attendanceDetails: [], feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
+                  onClick={() => { setEditingItem({ id: '', name: '', grade: grades[0], attendance: '0%', behavior: 'ممتاز', results: [], attendanceDetails: [], monthlyTests: [], termExams: { midterm: 0, final: 0 }, feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
                   className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
                 >
                   <Plus className="w-5 h-5" />
-                  إضافة بيانات طالب
+                  إضافة طالب
                 </button>
               </div>
             </div>
             <div className="grid gap-4">
-              {Object.keys(parentPortalData)
-                .filter(id => 
-                  parentPortalData[id].name.toLowerCase().includes(parentPortalSearch.toLowerCase()) || 
-                  id.toLowerCase().includes(parentPortalSearch.toLowerCase())
-                )
-                .map((id) => (
-                <div key={id} className="bg-white p-6 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
-                  <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
-                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
-                      <User className="w-6 h-6 text-emerald-600" />
+              {Object.entries(parentPortalData).filter(([id, data]: any) => 
+                data.name.toLowerCase().includes(parentPortalSearch.toLowerCase()) || id.includes(parentPortalSearch)
+              ).map(([id, data]: any) => (
+                <div key={id} className="bg-white p-6 rounded-3xl border border-slate-100 flex justify-between items-center group hover:shadow-md transition-all">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-bold text-slate-600">
+                      {data.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-lg mb-1">{parentPortalData[id].name}</h4>
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-slate-500 text-sm">
-                        <span>رقم الطالب: <span className="font-mono font-bold text-slate-700">{id}</span></span>
-                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span>{parentPortalData[id].grade}</span>
-                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span className="flex items-center gap-1 text-emerald-600 font-bold">
-                          <CheckCircle2 className="w-3 h-3" />
-                          حضور {parentPortalData[id].attendance}
-                        </span>
-                      </div>
+                      <h4 className="font-bold text-slate-900">{data.name}</h4>
+                      <p className="text-sm text-slate-500">رقم الطالب: {id}</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditingItem({ ...parentPortalData[id], id }); setIsAdding(false); setModalSubTab('basic'); }} className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><Edit className="w-5 h-5" /></button>
-                    <button onClick={() => setShowDeleteConfirm({ id, type: 'parent-portal' })} className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-5 h-5" /></button>
+                    <button onClick={() => { setEditingItem({ id, ...data }); setIsAdding(false); setModalSubTab('basic'); }} className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"><Edit className="w-5 h-5" /></button>
+                    <button onClick={() => triggerDelete(id, 'parent-portal')} className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"><Trash2 className="w-5 h-5" /></button>
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        );
+      case 'social':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+              <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                <div className="bg-emerald-100 p-2 rounded-xl">
+                  <Share2 className="w-6 h-6 text-emerald-600" />
+                </div>
+                إدارة روابط التواصل الاجتماعي
+              </h3>
+              
+              <div className="space-y-8">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-slate-700">الروابط الحالية</h4>
+                  <button 
+                    onClick={() => {
+                      setEditingItem({ name: '', url: '' });
+                      setIsAdding(true);
+                      setModalSubTab('basic');
+                    }} 
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                  >
+                    <Plus className="w-5 h-5" />
+                    إضافة رابط جديد
+                  </button>
+                </div>
+
+                <div className="grid gap-4">
+                  {(socialLinks || []).map((link: any) => (
+                    <div key={link.id} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex justify-between items-center group hover:bg-white hover:shadow-md transition-all">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-900 text-lg">{link.name}</span>
+                        <span className="text-sm text-slate-500 font-mono">{link.url}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => {
+                            setEditingItem(link);
+                            setIsAdding(false);
+                            setModalSubTab('basic');
+                          }}
+                          className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button 
+                          onClick={() => triggerDelete(link.id, 'social')}
+                          className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -2070,14 +2495,40 @@ const AdminDashboard = ({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowSaveConfirm(true);
+    MySwal.fire({
+      title: 'تأكيد الحفظ',
+      text: "هل أنت متأكد من رغبتك في حفظ هذه التغييرات؟",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'نعم، احفظ',
+      cancelButtonText: 'تراجع',
+      customClass: {
+        popup: 'rounded-[2rem]',
+        confirmButton: 'rounded-xl px-6 py-3 font-bold',
+        cancelButton: 'rounded-xl px-6 py-3 font-bold'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        confirmSave();
+        MySwal.fire({
+          title: 'تم الحفظ!',
+          text: 'تم حفظ التغييرات بنجاح.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'rounded-[2rem]'
+          }
+        });
+      }
+    });
   };
 
   const confirmSave = () => {
     if (activeTab === 'settings') {
       setContactInfo(tempContactInfo);
-      alert('تم حفظ بيانات التواصل بنجاح');
-      setShowSaveConfirm(false);
       return;
     }
 
@@ -2086,8 +2537,6 @@ const AdminDashboard = ({
       const otherSchedules = schedule.filter((s: any) => !(s.grade === selectedGradeFilter && s.section === selectedSectionFilter));
       const updatedLocal = localSchedule.map(s => ({ ...s, id: s.id || Date.now().toString() + Math.random() }));
       setSchedule([...otherSchedules, ...updatedLocal]);
-      alert('تم حفظ الجدول بنجاح');
-      setShowSaveConfirm(false);
       return;
     }
 
@@ -2101,49 +2550,62 @@ const AdminDashboard = ({
 
     if (activeTab === 'students') {
       if (isAdding) {
-        setStudents([...students, { ...itemToSave, id: Date.now().toString() }]);
+        setStudents([...(students || []), { ...itemToSave, id: Date.now().toString(), achievements: itemToSave.achievements || [] }]);
       } else {
-        setStudents(students.map((s: any) => s.id === itemToSave.id ? itemToSave : s));
+        setStudents((students || []).map((s: any) => s.id === itemToSave.id ? { ...itemToSave, achievements: itemToSave.achievements || [] } : s));
       }
     } else if (activeTab === 'posts') {
       if (isAdding) {
-        setPosts([...posts, { ...editingItem, id: Date.now() }]);
+        setPosts([...(posts || []), { ...itemToSave, id: Date.now().toString(), tags: itemToSave.tags || [] }]);
       } else {
-        setPosts(posts.map((p: any) => p.id === editingItem.id ? editingItem : p));
+        setPosts((posts || []).map((p: any) => p.id === itemToSave.id ? { ...itemToSave, tags: itemToSave.tags || [] } : p));
       }
     } else if (activeTab === 'schedule') {
       if (editingItem.isSchedule) {
         if (isAdding) {
-          setSchedule([...schedule, { ...editingItem, id: Date.now().toString() }]);
+          setSchedule([...(schedule || []), { ...editingItem, id: Date.now().toString() }]);
         } else {
-          setSchedule(schedule.map((s: any) => s.id === editingItem.id ? editingItem : s));
+          setSchedule((schedule || []).map((s: any) => s.id === editingItem.id ? editingItem : s));
         }
       } else if (editingItem.isExam) {
         if (isAdding) {
-          setExamSchedule([...examSchedule, { ...editingItem, id: Date.now().toString() }]);
+          setExamSchedule([...(examSchedule || []), { ...editingItem, id: Date.now().toString() }]);
         } else {
-          setExamSchedule(examSchedule.map((s: any) => s.id === editingItem.id ? editingItem : s));
+          setExamSchedule((examSchedule || []).map((s: any) => s.id === editingItem.id ? editingItem : s));
         }
       } else {
         if (isAdding) {
-          setEvents([...events, { ...editingItem, id: Date.now().toString() }]);
+          setEvents([...(events || []), { ...editingItem, id: Date.now().toString() }]);
         } else {
-          setEvents(events.map((ev: any) => ev.id === editingItem.id ? editingItem : ev));
+          setEvents((events || []).map((ev: any) => ev.id === editingItem.id ? editingItem : ev));
         }
       }
     } else if (activeTab === 'seating') {
       if (isAdding) {
-        setSeatingData([...seatingData, { ...editingItem, id: Date.now().toString() }]);
+        setSeatingData([...(seatingData || []), { ...editingItem, id: Date.now().toString() }]);
       } else {
-        setSeatingData(seatingData.map((s: any) => s.id === editingItem.id ? editingItem : s));
+        setSeatingData((seatingData || []).map((s: any) => s.id === editingItem.id ? editingItem : s));
       }
     } else if (activeTab === 'parent-portal') {
       const { id, ...data } = editingItem;
-      setParentPortalData({ ...parentPortalData, [id]: data });
+      const sanitizedData = {
+        ...data,
+        results: data.results || [],
+        attendanceDetails: data.attendanceDetails || [],
+        monthlyTests: data.monthlyTests || [],
+        termExams: data.termExams || { midterm: 0, final: 0 },
+        feedback: data.feedback || []
+      };
+      setParentPortalData({ ...(parentPortalData || {}), [id]: sanitizedData });
+    } else if (activeTab === 'social') {
+      if (isAdding) {
+        setSocialLinks([...(socialLinks || []), { ...editingItem, id: Date.now().toString() }]);
+      } else {
+        setSocialLinks((socialLinks || []).map((l: any) => l.id === editingItem.id ? editingItem : l));
+      }
     }
     setEditingItem(null);
     setIsAdding(false);
-    setShowSaveConfirm(false);
   };
 
   return (
@@ -2411,7 +2873,7 @@ const AdminDashboard = ({
                         <div className="grid md:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">التاريخ</label>
-                            <input type="text" value={editingItem.date} onChange={(e) => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="15 مارس" required />
+                            <input type="date" value={editingItem.date} onChange={(e) => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
                           </div>
                           <ElegantDropdown 
                             label="نوع الحدث"
@@ -2445,12 +2907,29 @@ const AdminDashboard = ({
                       />
                       <div>
                         <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">التاريخ</label>
-                        <input type="text" value={editingItem.date} onChange={(e) => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                        <input type="date" value={editingItem.date} onChange={(e) => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رابط الصورة</label>
-                      <input type="url" value={editingItem.image} onChange={(e) => setEditingItem({...editingItem, image: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الصورة</label>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setEditingItem({ ...editingItem, image: reader.result as string });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" 
+                      />
+                      {editingItem.image && (
+                        <img src={editingItem.image} alt="Preview" className="mt-2 h-20 w-20 object-cover rounded-lg" />
+                      )}
                     </div>
                   </>
                 )}
@@ -2544,6 +3023,7 @@ const AdminDashboard = ({
                           <button type="button" onClick={() => {
                             const newResults = [...(editingItem.results || []), { subject: '', score: 0, total: 100, trend: [0, 0, 0, 0] }];
                             setEditingItem({...editingItem, results: newResults});
+                            setShowResultSubjectPicker(newResults.length - 1);
                           }} className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-100 transition-colors">
                             <Plus className="w-4 h-4" />
                             إضافة مادة
@@ -2563,31 +3043,28 @@ const AdminDashboard = ({
                                 </tr>
                               </thead>
                               <tbody>
-                                {(editingItem.results || []).map((res: any, idx: number) => (
+                                 {(editingItem.results || []).map((res: any, idx: number) => (
                                   <tr key={idx}>
                                     <td className="min-w-[150px]">
-                                      <ElegantDropdown 
-                                        options={subjects}
-                                        value={res.subject}
-                                        onChange={(val) => {
-                                          const newResults = [...editingItem.results];
-                                          newResults[idx].subject = val;
-                                          setEditingItem({...editingItem, results: newResults});
-                                        }}
-                                        widthClass="w-full"
-                                        noLabel
-                                      />
+                                      <button 
+                                        type="button"
+                                        onClick={() => setShowResultSubjectPicker(idx)}
+                                        className="w-full text-right px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm hover:border-emerald-500 transition-colors font-bold text-slate-700 flex items-center justify-between group/btn"
+                                      >
+                                        <span>{res.subject || 'اضغط لاختيار المادة'}</span>
+                                        <Edit2 className="w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity text-emerald-500" />
+                                      </button>
                                     </td>
                                     <td className="w-24">
                                       <input type="number" value={res.score} onChange={(e) => {
-                                        const newResults = [...editingItem.results];
+                                        const newResults = [...(editingItem.results || [])];
                                         newResults[idx].score = Number(e.target.value);
                                         setEditingItem({...editingItem, results: newResults});
                                       }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
                                     </td>
                                     <td className="w-24">
                                       <input type="number" value={res.total} onChange={(e) => {
-                                        const newResults = [...editingItem.results];
+                                        const newResults = [...(editingItem.results || [])];
                                         newResults[idx].total = Number(e.target.value);
                                         setEditingItem({...editingItem, results: newResults});
                                       }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
@@ -2596,7 +3073,7 @@ const AdminDashboard = ({
                                       <span className="text-xs font-bold text-slate-500">{Math.round((res.score / res.total) * 100)}%</span>
                                     </td>
                                     <td className="text-center align-middle">
-                                      <button type="button" onClick={() => setShowDeleteConfirm({ id: idx, type: 'portal-result' })} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                      <button type="button" onClick={() => triggerDelete(idx, 'portal-result')} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
                                         <Trash2 className="w-4 h-4" />
                                       </button>
                                     </td>
@@ -2619,8 +3096,9 @@ const AdminDashboard = ({
                         <div className="flex justify-between items-center">
                           <h4 className="font-bold text-slate-900">سجل الغياب الشهري</h4>
                           <button type="button" onClick={() => {
-                            const newDetails = [...(editingItem.attendanceDetails || []), { month: '', present: 0, absent: 0 }];
+                            const newDetails = [...(editingItem.attendanceDetails || []), { month: new Date().toISOString().slice(0, 7), present: 0, absent: 0 }];
                             setEditingItem({...editingItem, attendanceDetails: newDetails});
+                            setShowAttendanceMonthPicker(newDetails.length - 1);
                           }} className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-100 transition-colors">
                             <Plus className="w-4 h-4" />
                             إضافة شهر
@@ -2639,31 +3117,40 @@ const AdminDashboard = ({
                                 </tr>
                               </thead>
                               <tbody>
-                                {(editingItem.attendanceDetails || []).map((att: any, idx: number) => (
+                                 {(editingItem.attendanceDetails || []).map((att: any, idx: number) => (
                                   <tr key={idx}>
                                     <td className="min-w-[120px]">
-                                      <input type="text" value={att.month} onChange={(e) => {
-                                        const newDetails = [...editingItem.attendanceDetails];
-                                        newDetails[idx].month = e.target.value;
-                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="مثلاً: يناير" />
+                                      <button 
+                                        type="button"
+                                        onClick={() => setShowAttendanceMonthPicker(idx)}
+                                        className="w-full text-right px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm hover:border-emerald-500 transition-colors font-bold text-slate-700 flex items-center justify-between group/btn"
+                                      >
+                                        <span>
+                                          {att.month ? (() => {
+                                            const [year, month] = att.month.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                          })() : 'اضغط لاختيار الشهر'}
+                                        </span>
+                                        <Calendar className="w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity text-emerald-500" />
+                                      </button>
                                     </td>
                                     <td className="w-32">
                                       <input type="number" value={att.present} onChange={(e) => {
-                                        const newDetails = [...editingItem.attendanceDetails];
+                                        const newDetails = [...(editingItem.attendanceDetails || [])];
                                         newDetails[idx].present = Number(e.target.value);
                                         setEditingItem({...editingItem, attendanceDetails: newDetails});
                                       }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
                                     </td>
                                     <td className="w-32">
                                       <input type="number" value={att.absent} onChange={(e) => {
-                                        const newDetails = [...editingItem.attendanceDetails];
+                                        const newDetails = [...(editingItem.attendanceDetails || [])];
                                         newDetails[idx].absent = Number(e.target.value);
                                         setEditingItem({...editingItem, attendanceDetails: newDetails});
                                       }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
                                     </td>
                                     <td className="text-center align-middle">
-                                      <button type="button" onClick={() => setShowDeleteConfirm({ id: idx, type: 'portal-attendance' })} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                      <button type="button" onClick={() => triggerDelete(idx, 'portal-attendance')} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
                                         <Trash2 className="w-4 h-4" />
                                       </button>
                                     </td>
@@ -2681,6 +3168,18 @@ const AdminDashboard = ({
                     )}
                   </div>
                 )}
+                {activeTab === 'social' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم المنصة</label>
+                      <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="مثلاً: Facebook, Twitter" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الرابط (URL)</label>
+                      <input type="text" value={editingItem.url} onChange={(e) => setEditingItem({...editingItem, url: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="https://..." required />
+                    </div>
+                  </>
+                )}
                 <div className="pt-6 flex gap-4">
                   <button type="submit" className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
                     <Save className="w-5 h-5" />
@@ -2696,37 +3195,77 @@ const AdminDashboard = ({
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => setShowDeleteConfirm(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl text-center">
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Trash2 className="w-10 h-10 text-red-500" />
+      {/* Result Subject Picker Modal */}
+      {showResultSubjectPicker !== null && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden"
+          >
+            <div className="p-8 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-slate-900">اختر المادة</h3>
+              <button onClick={() => setShowResultSubjectPicker(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-6 h-6 text-slate-400" />
+              </button>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">هل أنت متأكد؟</h3>
-            <p className="text-slate-500 mb-8 leading-relaxed">سيتم حذف هذا العنصر بشكل نهائي ولا يمكن التراجع عن هذه العملية.</p>
-            <div className="flex gap-4">
-              <button onClick={handleDelete} className="flex-1 bg-red-600 text-white py-4 rounded-2xl font-bold hover:bg-red-700 transition-all">نعم، احذف</button>
-              <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all">تراجع</button>
-            </div>
+                  <div className="p-8 grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
+                    {(subjects || []).map((subject) => (
+                      <button
+                        key={subject}
+                        onClick={() => {
+                          const newResults = [...(editingItem.results || [])];
+                          if (showResultSubjectPicker !== null && newResults[showResultSubjectPicker]) {
+                            newResults[showResultSubjectPicker].subject = subject;
+                            setEditingItem({...editingItem, results: newResults});
+                          }
+                          setShowResultSubjectPicker(null);
+                        }}
+                        className="p-4 rounded-2xl border border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 font-bold transition-all text-center"
+                      >
+                        {subject}
+                      </button>
+                    ))}
+                  </div>
           </motion.div>
         </div>
       )}
 
-      {/* Save Confirmation Modal */}
-      {showSaveConfirm && (
-        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => setShowSaveConfirm(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl text-center">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+      {/* Attendance Month Picker Modal */}
+      {showAttendanceMonthPicker !== null && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden"
+          >
+            <div className="p-8 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-slate-900">اختر الشهر</h3>
+              <button onClick={() => setShowAttendanceMonthPicker(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-6 h-6 text-slate-400" />
+              </button>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">تأكيد الحفظ</h3>
-            <p className="text-slate-500 mb-8 leading-relaxed">هل أنت متأكد من رغبتك في حفظ هذه التغييرات؟</p>
-            <div className="flex gap-4">
-              <button onClick={confirmSave} className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all">نعم، احفظ</button>
-              <button onClick={() => setShowSaveConfirm(false)} className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all">تراجع</button>
+            <div className="p-8 space-y-4">
+              <input 
+                type="month" 
+                value={showAttendanceMonthPicker !== null && editingItem.attendanceDetails[showAttendanceMonthPicker] ? editingItem.attendanceDetails[showAttendanceMonthPicker].month : ''}
+                onChange={(e) => {
+                  if (showAttendanceMonthPicker !== null) {
+                    const newDetails = [...(editingItem.attendanceDetails || [])];
+                    if (newDetails[showAttendanceMonthPicker]) {
+                      newDetails[showAttendanceMonthPicker].month = e.target.value;
+                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                    }
+                  }
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-center text-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+              />
+              <button 
+                onClick={() => setShowAttendanceMonthPicker(null)}
+                className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all"
+              >
+                تأكيد الاختيار
+              </button>
             </div>
           </motion.div>
         </div>
@@ -2880,7 +3419,7 @@ const ParentPortal = ({
                     نتائج الاختبارات الفصلية
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    {result.results.map((item: any, idx: number) => (
+                    {(result.results || []).map((item: any, idx: number) => (
                       <div key={idx} className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all group overflow-hidden">
                         <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
                           <span className="font-bold text-base sm:text-lg truncate max-w-[150px] sm:max-w-none" title={item.subject}>{item.subject}</span>
@@ -2897,7 +3436,7 @@ const ParentPortal = ({
                         {/* Mini Trend Sparkline */}
                         <div className="h-10 w-full">
                           <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={item.trend.map((val: number, i: number) => ({ val, i }))}>
+                            <LineChart data={(item.trend || []).map((val: number, i: number) => ({ val, i }))}>
                               <Line type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} dot={false} />
                             </LineChart>
                           </ResponsiveContainer>
@@ -2916,7 +3455,7 @@ const ParentPortal = ({
                       نتائج الاختبارات الشهرية
                     </h3>
                     <div className="space-y-4">
-                      {result.monthlyTests.map((test: any, idx: number) => (
+                      {(result.monthlyTests || []).map((test: any, idx: number) => (
                         <div key={idx} className="flex flex-wrap justify-between items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5">
                           <span className="text-slate-300 font-bold truncate max-w-[100px] sm:max-w-none" title={test.month}>{test.month}</span>
                           <div className="flex items-center gap-3 shrink-0">
@@ -2938,11 +3477,11 @@ const ParentPortal = ({
                     <div className="space-y-6">
                       <div className="p-4 sm:p-6 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl text-center">
                         <span className="text-slate-400 text-sm block mb-2">الامتحان النصفي</span>
-                        <span className="text-2xl sm:text-4xl font-black text-emerald-500">{result.termExams.midterm}%</span>
+                        <span className="text-2xl sm:text-4xl font-black text-emerald-500">{(result.termExams?.midterm) || 0}%</span>
                       </div>
                       <div className="p-4 sm:p-6 bg-blue-600/10 border border-blue-500/20 rounded-3xl text-center">
                         <span className="text-slate-400 text-sm block mb-2">الامتحان النهائي</span>
-                        <span className="text-2xl sm:text-4xl font-black text-blue-500">{result.termExams.final}%</span>
+                        <span className="text-2xl sm:text-4xl font-black text-blue-500">{(result.termExams?.final) || 0}%</span>
                       </div>
                     </div>
                   </div>
@@ -2965,7 +3504,7 @@ const ParentPortal = ({
                         </tr>
                       </thead>
                       <tbody>
-                        {result.attendanceDetails.map((item: any, idx: number) => (
+                        {(result.attendanceDetails || []).map((item: any, idx: number) => (
                           <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                             <td className="py-4 font-bold text-slate-200">{item.month}</td>
                             <td className="py-4 text-center text-emerald-400 font-bold">{item.present} يوم</td>
@@ -2993,7 +3532,7 @@ const ParentPortal = ({
                     ملاحظات المعلمين
                   </h3>
                   <div className="space-y-6">
-                    {result.feedback.map((f: any, idx: number) => (
+                    {(result.feedback || []).map((f: any, idx: number) => (
                       <div key={idx} className="bg-white/5 p-6 rounded-2xl border-r-4 border-emerald-500">
                         <h4 className="font-bold text-emerald-400 mb-2">{f.teacher}</h4>
                         <p className="text-slate-300 leading-relaxed italic">"{f.comment}"</p>
@@ -3177,7 +3716,15 @@ const Contact = ({ contactInfo }: { contactInfo: { address: string, phone: strin
   );
 };
 
-const Footer = () => {
+const Footer = ({ socialLinks = [] }: { socialLinks?: any[] }) => {
+  const ensureAbsoluteUrl = (url: string) => {
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:') || url.startsWith('tel:')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
   return (
     <footer className="bg-slate-950 text-white py-12 border-t border-white/5" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -3187,13 +3734,16 @@ const Footer = () => {
           </div>
           <span className="text-2xl font-bold">مدرسة 22 مايو</span>
         </div>
-        <p className="text-slate-500 mb-8 max-w-lg mx-auto">
-          نحن نلتزم بتقديم تعليم عالي الجودة ينمي مهارات التفكير النقدي والإبداعي لدى طلابنا.
-        </p>
         <div className="flex justify-center gap-6 mb-8">
-          {['Twitter', 'Instagram', 'Facebook', 'LinkedIn'].map((social) => (
-            <a key={social} href="#" className="text-slate-400 hover:text-emerald-500 transition-colors">
-              {social}
+          {(socialLinks || []).map((social) => (
+            <a 
+              key={social.id} 
+              href={ensureAbsoluteUrl(social.url)} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-slate-400 hover:text-emerald-500 transition-colors"
+            >
+              {social.name}
             </a>
           ))}
         </div>
@@ -3211,6 +3761,7 @@ export default function App() {
   const [parentPortalResult, setParentPortalResult] = useState<any>(null);
 
   // Application State
+  const [showHonorRoll, setShowHonorRoll] = useState(true);
   const [students, setStudents] = useState(INITIAL_STUDENTS);
   const [events, setEvents] = useState(INITIAL_EVENTS);
   const [schedule, setSchedule] = useState(INITIAL_SCHEDULE);
@@ -3223,6 +3774,7 @@ export default function App() {
   const [academicYears, setAcademicYears] = useState(['2024', '2023', '2022']);
   const [categories, setCategories] = useState(['إنجازات', 'فعاليات', 'تطوير']);
   const [sections, setSections] = useState(['أ', 'ب', 'ج']);
+  const [socialLinks, setSocialLinks] = useState(INITIAL_SOCIAL_LINKS);
   const [contactInfo, setContactInfo] = useState({
     address: 'حي النرجس، الرياض، المملكة العربية السعودية',
     phone: '+966 11 123 4567',
@@ -3257,7 +3809,7 @@ export default function App() {
           <>
             <Hero />
             <AboutSection />
-            <TopStudents students={students} academicYears={academicYears} grades={grades} />
+            {showHonorRoll && <TopStudents students={students} academicYears={academicYears} grades={grades} />}
             <BlogSection posts={posts} />
             <VisionMission />
             <Services />
@@ -3290,10 +3842,12 @@ export default function App() {
             categories={categories} setCategories={setCategories}
             sections={sections} setSections={setSections}
             contactInfo={contactInfo} setContactInfo={setContactInfo}
+            socialLinks={socialLinks} setSocialLinks={setSocialLinks}
+            showHonorRoll={showHonorRoll} setShowHonorRoll={setShowHonorRoll}
           />
         )}
       </main>
-      <Footer />
+      <Footer socialLinks={socialLinks} />
     </div>
   );
 }
