@@ -242,32 +242,51 @@ const INITIAL_SEATING_DATA = [
 const PARENT_PORTAL_MOCK_DATA: any = {
   '12345': {
     name: 'أحمد محمد علي',
-    grade: 'الصف السادس',
     attendance: '98%',
     behavior: 'ممتاز',
-    results: [
-      { subject: 'الرياضيات', score: 98, total: 100, trend: [85, 88, 92, 98] },
-      { subject: 'اللغة العربية', score: 95, total: 100, trend: [90, 92, 94, 95] },
-      { subject: 'العلوم', score: 99, total: 100, trend: [88, 94, 96, 99] },
-      { subject: 'اللغة الإنجليزية', score: 92, total: 100, trend: [80, 85, 88, 92] },
+    exams: [
+      {
+        id: 'e1',
+        semester: 1,
+        type: 'monthly',
+        month: 'أكتوبر',
+        results: [
+          { subject: 'الرياضيات', score: 92, total: 100 },
+          { subject: 'اللغة العربية', score: 90, total: 100 },
+          { subject: 'العلوم', score: 88, total: 100 },
+          { subject: 'اللغة الإنجليزية', score: 85, total: 100 },
+        ]
+      },
+      {
+        id: 'e2',
+        semester: 1,
+        type: 'monthly',
+        month: 'نوفمبر',
+        results: [
+          { subject: 'الرياضيات', score: 88, total: 100 },
+          { subject: 'اللغة العربية', score: 92, total: 100 },
+          { subject: 'العلوم', score: 94, total: 100 },
+          { subject: 'اللغة الإنجليزية', score: 85, total: 100 },
+        ]
+      },
+      {
+        id: 'e3',
+        semester: 1,
+        type: 'final',
+        results: [
+          { subject: 'الرياضيات', score: 96, total: 100 },
+          { subject: 'اللغة العربية', score: 94, total: 100 },
+          { subject: 'العلوم', score: 95, total: 100 },
+          { subject: 'اللغة الإنجليزية', score: 92, total: 100 },
+        ]
+      }
     ],
-    monthlyTests: [
-      { month: 'أكتوبر', score: 92 },
-      { month: 'نوفمبر', score: 88 },
-      { month: 'ديسمبر', score: 95 },
-      { month: 'يناير', score: 91 },
-      { month: 'فبراير', score: 94 },
-    ],
-    termExams: {
-      midterm: 96,
-      final: 98
-    },
     attendanceDetails: [
-      { month: 'أكتوبر', present: 20, absent: 1 },
-      { month: 'نوفمبر', present: 19, absent: 2 },
-      { month: 'ديسمبر', present: 21, absent: 0 },
-      { month: 'يناير', present: 18, absent: 3 },
-      { month: 'فبراير', present: 22, absent: 0 },
+      { month: 'أكتوبر', present: 20, absent: 1, semester: 1 },
+      { month: 'نوفمبر', present: 19, absent: 2, semester: 1 },
+      { month: 'ديسمبر', present: 21, absent: 0, semester: 1 },
+      { month: 'يناير', present: 18, absent: 3, semester: 1 },
+      { month: 'فبراير', present: 22, absent: 0, semester: 2 },
     ],
     feedback: [
       { teacher: 'أ. محمد (الرياضيات)', comment: 'أحمد طالب متميز جداً، لديه قدرة استثنائية على حل المسائل المعقدة بسرعة.' },
@@ -1522,8 +1541,11 @@ const AdminDashboard = ({
   // New state for schedule management
   const [localSchedule, setLocalSchedule] = useState<any[]>([]);
   const [showSubjectPicker, setShowSubjectPicker] = useState<{ day: string, period: string } | null>(null);
-  const [showResultSubjectPicker, setShowResultSubjectPicker] = useState<number | null>(null);
+  const [showResultSubjectPicker, setShowResultSubjectPicker] = useState<{ examIdx: number, resultIdx: number } | null>(null);
   const [showAttendanceMonthPicker, setShowAttendanceMonthPicker] = useState<number | null>(null);
+  const [showMonthlyTestMonthPicker, setShowMonthlyTestMonthPicker] = useState<number | null>(null);
+  const [editingExamIdx, setEditingExamIdx] = useState<number | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState(1);
 
   useEffect(() => {
     // Initialize local schedule for the selected grade/section
@@ -2398,12 +2420,39 @@ const AdminDashboard = ({
                   />
                 </div>
                 <button 
-                  onClick={() => { setEditingItem({ id: '', name: '', grade: grades[0], attendance: '0%', behavior: 'ممتاز', results: [], attendanceDetails: [], monthlyTests: [], termExams: { midterm: 0, final: 0 }, feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
+                  onClick={() => { setEditingItem({ id: '', name: '', attendance: '0%', behavior: 'ممتاز', exams: [], attendanceDetails: [], feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
                   className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
                 >
                   <Plus className="w-5 h-5" />
                   إضافة طالب
                 </button>
+              </div>
+            </div>
+
+            {/* Semester Selection Dropdown - Moved here */}
+            <div className="flex items-center justify-between bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${selectedSemester === 1 ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">الفصل الدراسي المختار</p>
+                  <p className="text-lg font-bold text-slate-700">إدارة بيانات {selectedSemester === 1 ? 'الفصل الدراسي الأول' : 'الفصل الدراسي الثاني'}</p>
+                </div>
+              </div>
+              <div className="flex p-1 bg-slate-100 rounded-2xl">
+                {[
+                  { id: 1, name: 'الفصل الأول' },
+                  { id: 2, name: 'الفصل الثاني' }
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedSemester(s.id)}
+                    className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${selectedSemester === s.id ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    {s.name}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="grid gap-4">
@@ -2590,10 +2639,8 @@ const AdminDashboard = ({
       const { id, ...data } = editingItem;
       const sanitizedData = {
         ...data,
-        results: data.results || [],
+        exams: data.exams || [],
         attendanceDetails: data.attendanceDetails || [],
-        monthlyTests: data.monthlyTests || [],
-        termExams: data.termExams || { midterm: 0, final: 0 },
         feedback: data.feedback || []
       };
       setParentPortalData({ ...(parentPortalData || {}), [id]: sanitizedData });
@@ -2964,22 +3011,24 @@ const AdminDashboard = ({
                 {activeTab === 'parent-portal' && (
                   <div className="space-y-6">
                     {/* Sub-tabs Navigation */}
-                    <div className="flex p-1 bg-slate-100 rounded-2xl">
-                      {[
-                        { id: 'basic', name: 'المعلومات الأساسية', icon: User },
-                        { id: 'results', name: 'النتائج الدراسية', icon: Trophy },
-                        { id: 'attendance', name: 'الحضور والغياب', icon: ClipboardList }
-                      ].map((tab) => (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => setModalSubTab(tab.id)}
-                          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${modalSubTab === tab.id ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                        >
-                          <tab.icon className="w-4 h-4" />
-                          <span className="text-sm">{tab.name}</span>
-                        </button>
-                      ))}
+                    <div className="flex flex-col gap-4">
+                      <div className="flex p-1 bg-slate-100 rounded-2xl">
+                        {[
+                          { id: 'basic', name: 'المعلومات الأساسية', icon: User },
+                          { id: 'results', name: 'النتائج الدراسية', icon: Trophy },
+                          { id: 'attendance', name: 'الحضور والغياب', icon: ClipboardList }
+                        ].map((tab) => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setModalSubTab(tab.id)}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${modalSubTab === tab.id ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                          >
+                            <tab.icon className="w-4 h-4" />
+                            <span className="text-sm">{tab.name}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Basic Info Tab */}
@@ -2996,21 +3045,14 @@ const AdminDashboard = ({
                           </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-6">
-                          <ElegantDropdown 
-                            label="الصف"
-                            options={grades}
-                            value={editingItem.grade}
-                            onChange={(val) => setEditingItem({...editingItem, grade: val})}
-                            widthClass="w-full"
-                          />
                           <div>
                             <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">نسبة الحضور الإجمالية</label>
                             <input type="text" value={editingItem.attendance} onChange={(e) => setEditingItem({...editingItem, attendance: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="95%" required />
                           </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">تقييم السلوك</label>
-                          <input type="text" value={editingItem.behavior} onChange={(e) => setEditingItem({...editingItem, behavior: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ممتاز" required />
+                          <div>
+                            <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">تقييم السلوك</label>
+                            <input type="text" value={editingItem.behavior} onChange={(e) => setEditingItem({...editingItem, behavior: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ممتاز" required />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -3018,72 +3060,214 @@ const AdminDashboard = ({
                     {/* Results Tab */}
                     {modalSubTab === 'results' && (
                       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-bold text-slate-900">قائمة المواد والدرجات</h4>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div>
+                            <h4 className="font-bold text-slate-900">نتائج {selectedSemester === 1 ? 'الفصل الأول' : 'الفصل الثاني'}</h4>
+                            <p className="text-xs text-slate-400 font-bold mt-1">إضافة وتعديل نتائج الامتحانات لهذا الفصل</p>
+                          </div>
                           <button type="button" onClick={() => {
-                            const newResults = [...(editingItem.results || []), { subject: '', score: 0, total: 100, trend: [0, 0, 0, 0] }];
-                            setEditingItem({...editingItem, results: newResults});
-                            setShowResultSubjectPicker(newResults.length - 1);
-                          }} className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-100 transition-colors">
+                            // Initialize results with all subjects
+                            const initialResults = subjects.map((s: string) => ({ subject: s, score: 0, total: 100 }));
+                            const newExams = [...(editingItem.exams || []), { 
+                              id: Date.now().toString(), 
+                              semester: selectedSemester, 
+                              type: 'monthly', 
+                              month: 'أكتوبر', 
+                              results: initialResults 
+                            }];
+                            setEditingItem({...editingItem, exams: newExams});
+                            setEditingExamIdx(newExams.length - 1);
+                          }} className="bg-emerald-600 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20">
                             <Plus className="w-4 h-4" />
-                            إضافة مادة
+                            إضافة امتحان جديد
                           </button>
                         </div>
                         
-                        <div className="table-responsive bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
-                          {(editingItem.results || []).length > 0 ? (
-                            <table className="table mb-0">
-                              <thead>
-                                <tr>
-                                  <th className="text-right whitespace-nowrap">اسم المادة</th>
-                                  <th className="text-center whitespace-nowrap">الدرجة</th>
-                                  <th className="text-center whitespace-nowrap">المجموع</th>
-                                  <th className="text-center whitespace-nowrap">النسبة</th>
-                                  <th className="text-center whitespace-nowrap">إجراءات</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                 {(editingItem.results || []).map((res: any, idx: number) => (
-                                  <tr key={idx}>
-                                    <td className="min-w-[150px]">
+                        <div className="space-y-4">
+                          {(editingItem.exams || [])
+                            .map((exam: any, originalIdx: number) => ({ ...exam, originalIdx }))
+                            .filter((exam: any) => exam.semester === selectedSemester)
+                            .map((exam: any) => (
+                            <div key={exam.id} className="bg-slate-50 rounded-[2rem] border border-slate-100 overflow-hidden">
+                              <div className="p-6 flex flex-wrap items-center justify-between gap-4 bg-white border-b border-slate-100">
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl ${exam.semester === 1 ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                                    {exam.semester}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-slate-900 text-lg">
+                                        {exam.type === 'monthly' ? `امتحان شهر ${exam.month}` : `امتحان نهاية الفصل ${exam.semester === 1 ? 'الأول' : 'الثاني'}`}
+                                      </span>
+                                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${exam.type === 'monthly' ? 'bg-amber-50 text-amber-600' : 'bg-purple-50 text-purple-600'}`}>
+                                        {exam.type === 'monthly' ? 'شهري' : 'نهائي'}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-slate-400 font-bold">{exam.results.length} مواد مضافة لهذا الامتحان</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button type="button" onClick={() => setEditingExamIdx(editingExamIdx === exam.originalIdx ? null : exam.originalIdx)} className={`p-3 rounded-xl transition-all ${editingExamIdx === exam.originalIdx ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>
+                                    <Edit2 className="w-5 h-5" />
+                                  </button>
+                                  <button type="button" onClick={() => {
+                                    const newExams = (editingItem.exams || []).filter((_: any, i: number) => i !== exam.originalIdx);
+                                    setEditingItem({...editingItem, exams: newExams});
+                                    if (editingExamIdx === exam.originalIdx) setEditingExamIdx(null);
+                                  }} className="p-3 bg-red-50 text-red-400 hover:bg-red-100 rounded-xl transition-all">
+                                    <Trash2 className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              {editingExamIdx === exam.originalIdx && (
+                                <div className="p-6 space-y-8 animate-in slide-in-from-top-4 duration-500">
+                                  <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                      <label className="block text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">نوع الامتحان</label>
+                                      <div className="flex p-1.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                                        {[
+                                          { id: 'monthly', name: 'شهري' },
+                                          { id: 'final', name: 'نهائي' }
+                                        ].map(t => (
+                                          <button 
+                                            key={t.id} 
+                                            type="button" 
+                                            onClick={() => {
+                                              const newExams = [...editingItem.exams];
+                                              newExams[exam.originalIdx].type = t.id;
+                                              setEditingItem({...editingItem, exams: newExams});
+                                            }} 
+                                            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${exam.type === t.id ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}
+                                          >
+                                            {t.name}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    
+                                    {exam.type === 'monthly' && (
+                                      <div className="space-y-3">
+                                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">اختيار الشهر</label>
+                                        <button 
+                                          type="button" 
+                                          onClick={() => setShowMonthlyTestMonthPicker(exam.originalIdx)} 
+                                          className="w-full text-right px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 flex items-center justify-between hover:border-emerald-500 transition-all group shadow-sm"
+                                        >
+                                          <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                              <Calendar className="w-4 h-4 text-emerald-600" />
+                                            </div>
+                                            <span>{exam.month}</span>
+                                          </div>
+                                          <ChevronLeft className="w-4 h-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div className="space-y-4">
+                                    <div>
+                                      <h5 className="text-lg font-bold text-slate-900">نتائج المواد الدراسية</h5>
+                                      <p className="text-xs text-slate-400 font-bold">أدخل درجات الطالب لكل مادة في هذا الامتحان</p>
+                                    </div>
+                                    
+                                    <div className="bg-white rounded-3xl border border-slate-100 overflow-x-auto shadow-sm">
+                                      <table className="w-full text-right">
+                                        <thead className="bg-slate-50 border-b border-slate-100">
+                                          <tr>
+                                            <th className="p-4 text-xs font-black text-slate-400 uppercase tracking-widest">المادة الدراسية</th>
+                                            <th className="p-4 text-xs font-black text-slate-400 uppercase tracking-widest text-center">الدرجة</th>
+                                            <th className="p-4 text-xs font-black text-slate-400 uppercase tracking-widest text-center">المجموع</th>
+                                            <th className="p-4 text-xs font-black text-slate-400 uppercase tracking-widest text-center">الإجراءات</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50">
+                                          {exam.results.map((res: any, resIdx: number) => (
+                                            <tr key={resIdx} className="hover:bg-slate-50/50 transition-colors">
+                                              <td className="p-4">
+                                                <button type="button" onClick={() => setShowResultSubjectPicker({ examIdx: exam.originalIdx, resultIdx: resIdx })} className="flex items-center justify-between w-full text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors">
+                                                  <span>{res.subject || 'اختر المادة'}</span>
+                                                  <Edit2 className="w-3 h-3 opacity-30" />
+                                                </button>
+                                              </td>
+                                              <td className="p-4">
+                                                <input 
+                                                  type="number" 
+                                                  value={res.score} 
+                                                  onChange={(e) => {
+                                                    const newExams = [...editingItem.exams];
+                                                    newExams[exam.originalIdx].results[resIdx].score = Number(e.target.value);
+                                                    setEditingItem({...editingItem, exams: newExams});
+                                                  }} 
+                                                  className="w-20 mx-auto bg-slate-100 border-none rounded-xl px-3 py-2 text-sm font-black text-center outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-600" 
+                                                />
+                                              </td>
+                                              <td className="p-4">
+                                                <input 
+                                                  type="number" 
+                                                  value={res.total} 
+                                                  onChange={(e) => {
+                                                    const newExams = [...editingItem.exams];
+                                                    newExams[exam.originalIdx].results[resIdx].total = Number(e.target.value);
+                                                    setEditingItem({...editingItem, exams: newExams});
+                                                  }} 
+                                                  className="w-20 mx-auto bg-slate-100 border-none rounded-xl px-3 py-2 text-sm font-black text-center outline-none focus:ring-2 focus:ring-emerald-500 text-slate-400" 
+                                                />
+                                              </td>
+                                              <td className="p-4 text-center">
+                                                <button type="button" onClick={() => {
+                                                  const newExams = [...editingItem.exams];
+                                                  newExams[exam.originalIdx].results = newExams[exam.originalIdx].results.filter((_: any, i: number) => i !== resIdx);
+                                                  setEditingItem({...editingItem, exams: newExams});
+                                                }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all">
+                                                  <Trash2 className="w-4 h-4" />
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
                                       <button 
-                                        type="button"
-                                        onClick={() => setShowResultSubjectPicker(idx)}
-                                        className="w-full text-right px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm hover:border-emerald-500 transition-colors font-bold text-slate-700 flex items-center justify-between group/btn"
+                                        type="button" 
+                                        onClick={() => {
+                                          const newExams = [...editingItem.exams];
+                                          newExams[exam.originalIdx].results = [...newExams[exam.originalIdx].results, { subject: '', score: 0, total: 100 }];
+                                          setEditingItem({...editingItem, exams: newExams});
+                                          setShowResultSubjectPicker({ examIdx: exam.originalIdx, resultIdx: newExams[exam.originalIdx].results.length - 1 });
+                                        }} 
+                                        className="w-full py-4 bg-slate-50 text-slate-500 text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-100 transition-all border-t border-slate-100"
                                       >
-                                        <span>{res.subject || 'اضغط لاختيار المادة'}</span>
-                                        <Edit2 className="w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity text-emerald-500" />
+                                        <Plus className="w-4 h-4" /> إضافة مادة إضافية
                                       </button>
-                                    </td>
-                                    <td className="w-24">
-                                      <input type="number" value={res.score} onChange={(e) => {
-                                        const newResults = [...(editingItem.results || [])];
-                                        newResults[idx].score = Number(e.target.value);
-                                        setEditingItem({...editingItem, results: newResults});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
-                                    </td>
-                                    <td className="w-24">
-                                      <input type="number" value={res.total} onChange={(e) => {
-                                        const newResults = [...(editingItem.results || [])];
-                                        newResults[idx].total = Number(e.target.value);
-                                        setEditingItem({...editingItem, results: newResults});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
-                                    </td>
-                                    <td className="text-center align-middle">
-                                      <span className="text-xs font-bold text-slate-500">{Math.round((res.score / res.total) * 100)}%</span>
-                                    </td>
-                                    <td className="text-center align-middle">
-                                      <button type="button" onClick={() => triggerDelete(idx, 'portal-result')} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          ) : (
-                            <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                              <p className="text-slate-400 text-sm">لا توجد مواد مضافة حالياً</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          
+                          {(editingItem.exams || []).filter((e: any) => e.semester === selectedSemester).length === 0 && (
+                            <div className="text-center py-20 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                              <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-slate-200/50">
+                                <Trophy className="w-10 h-10 text-slate-200" />
+                              </div>
+                              <h5 className="text-xl font-bold text-slate-800 mb-2">لا توجد نتائج لهذا الفصل</h5>
+                              <p className="text-slate-400 max-w-xs mx-auto text-sm">ابدأ بإضافة نتائج الامتحانات الشهرية أو النهائية للفصل الدراسي {selectedSemester === 1 ? 'الأول' : 'الثاني'}</p>
+                              <button type="button" onClick={() => {
+                                const initialResults = subjects.map((s: string) => ({ subject: s, score: 0, total: 100 }));
+                                const newExams = [...(editingItem.exams || []), { 
+                                  id: Date.now().toString(), 
+                                  semester: selectedSemester, 
+                                  type: 'monthly', 
+                                  month: 'أكتوبر', 
+                                  results: initialResults 
+                                }];
+                                setEditingItem({...editingItem, exams: newExams});
+                                setEditingExamIdx(newExams.length - 1);
+                              }} className="mt-8 bg-white text-emerald-600 border-2 border-emerald-100 px-8 py-3 rounded-2xl font-bold text-sm hover:bg-emerald-50 transition-all">
+                                إضافة أول امتحان
+                              </button>
                             </div>
                           )}
                         </div>
@@ -3094,73 +3278,79 @@ const AdminDashboard = ({
                     {modalSubTab === 'attendance' && (
                       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
                         <div className="flex justify-between items-center">
-                          <h4 className="font-bold text-slate-900">سجل الغياب الشهري</h4>
+                          <h4 className="font-bold text-slate-900">سجل الغياب لـ {selectedSemester === 1 ? 'الفصل الأول' : 'الفصل الثاني'}</h4>
                           <button type="button" onClick={() => {
-                            const newDetails = [...(editingItem.attendanceDetails || []), { month: new Date().toISOString().slice(0, 7), present: 0, absent: 0 }];
+                            const newDetails = [...(editingItem.attendanceDetails || []), { month: 'أكتوبر', present: 0, absent: 0, semester: selectedSemester }];
                             setEditingItem({...editingItem, attendanceDetails: newDetails});
                             setShowAttendanceMonthPicker(newDetails.length - 1);
-                          }} className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-100 transition-colors">
+                          }} className="bg-emerald-600 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20">
                             <Plus className="w-4 h-4" />
-                            إضافة شهر
+                            إضافة شهر جديد
                           </button>
                         </div>
 
-                        <div className="table-responsive bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
-                          {(editingItem.attendanceDetails || []).length > 0 ? (
-                            <table className="table mb-0">
-                              <thead>
-                                <tr>
-                                  <th className="text-right whitespace-nowrap">الشهر</th>
-                                  <th className="text-center whitespace-nowrap">أيام الحضور</th>
-                                  <th className="text-center whitespace-nowrap">أيام الغياب</th>
-                                  <th className="text-center whitespace-nowrap">إجراءات</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                 {(editingItem.attendanceDetails || []).map((att: any, idx: number) => (
-                                  <tr key={idx}>
-                                    <td className="min-w-[120px]">
-                                      <button 
-                                        type="button"
-                                        onClick={() => setShowAttendanceMonthPicker(idx)}
-                                        className="w-full text-right px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm hover:border-emerald-500 transition-colors font-bold text-slate-700 flex items-center justify-between group/btn"
-                                      >
-                                        <span>
-                                          {att.month ? (() => {
-                                            const [year, month] = att.month.split('-');
-                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                          })() : 'اضغط لاختيار الشهر'}
-                                        </span>
-                                        <Calendar className="w-3 h-3 opacity-0 group-hover/btn:opacity-100 transition-opacity text-emerald-500" />
-                                      </button>
-                                    </td>
-                                    <td className="w-32">
-                                      <input type="number" value={att.present} onChange={(e) => {
-                                        const newDetails = [...(editingItem.attendanceDetails || [])];
-                                        newDetails[idx].present = Number(e.target.value);
-                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
-                                    </td>
-                                    <td className="w-32">
-                                      <input type="number" value={att.absent} onChange={(e) => {
-                                        const newDetails = [...(editingItem.attendanceDetails || [])];
-                                        newDetails[idx].absent = Number(e.target.value);
-                                        setEditingItem({...editingItem, attendanceDetails: newDetails});
-                                      }} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 text-center" />
-                                    </td>
-                                    <td className="text-center align-middle">
-                                      <button type="button" onClick={() => triggerDelete(idx, 'portal-attendance')} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          ) : (
-                            <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                              <p className="text-slate-400 text-sm">لا توجد بيانات غياب مضافة</p>
+                        <div className="space-y-4">
+                          {(editingItem.attendanceDetails || [])
+                            .map((att: any, originalIdx: number) => ({ ...att, originalIdx }))
+                            .filter((att: any) => att.semester === selectedSemester)
+                            .map((att: any) => (
+                              <div key={att.originalIdx} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-wrap items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
+                                    <Calendar className="w-6 h-6 text-slate-400" />
+                                  </div>
+                                  <div>
+                                    <h5 className="font-bold text-slate-900">{att.month}</h5>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">سجل حضور {selectedSemester === 1 ? 'الفصل الأول' : 'الفصل الثاني'}</p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-8">
+                                  <div className="space-y-1">
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase text-center">أيام الحضور</label>
+                                    <input type="number" value={att.present} onChange={(e) => {
+                                      const newDetails = [...editingItem.attendanceDetails];
+                                      newDetails[att.originalIdx].present = Number(e.target.value);
+                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                    }} className="w-20 bg-emerald-50 border-none rounded-xl px-3 py-2 text-sm font-black text-center outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-600" />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase text-center">أيام الغياب</label>
+                                    <input type="number" value={att.absent} onChange={(e) => {
+                                      const newDetails = [...editingItem.attendanceDetails];
+                                      newDetails[att.originalIdx].absent = Number(e.target.value);
+                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                    }} className="w-20 bg-red-50 border-none rounded-xl px-3 py-2 text-sm font-black text-center outline-none focus:ring-2 focus:ring-red-500 text-red-600" />
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button type="button" onClick={() => setShowAttendanceMonthPicker(att.originalIdx)} className="p-3 bg-slate-50 text-slate-400 hover:bg-slate-100 rounded-xl transition-all">
+                                      <Edit2 className="w-5 h-5" />
+                                    </button>
+                                    <button type="button" onClick={() => {
+                                      const newDetails = (editingItem.attendanceDetails || []).filter((_: any, i: number) => i !== att.originalIdx);
+                                      setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                    }} className="p-3 bg-red-50 text-red-400 hover:bg-red-100 rounded-xl transition-all">
+                                      <Trash2 className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+
+                          {(editingItem.attendanceDetails || []).filter((att: any) => att.semester === selectedSemester).length === 0 && (
+                            <div className="text-center py-20 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                              <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-slate-200/50">
+                                <ClipboardList className="w-10 h-10 text-slate-200" />
+                              </div>
+                              <h5 className="text-xl font-bold text-slate-800 mb-2">لا يوجد سجل حضور لهذا الفصل</h5>
+                              <p className="text-slate-400 max-w-xs mx-auto text-sm">ابدأ بإضافة سجل الحضور والغياب الشهري للفصل الدراسي {selectedSemester === 1 ? 'الأول' : 'الثاني'}</p>
+                              <button type="button" onClick={() => {
+                                const newDetails = [...(editingItem.attendanceDetails || []), { month: 'أكتوبر', present: 0, absent: 0, semester: selectedSemester }];
+                                setEditingItem({...editingItem, attendanceDetails: newDetails});
+                                setShowAttendanceMonthPicker(newDetails.length - 1);
+                              }} className="mt-8 bg-white text-emerald-600 border-2 border-emerald-100 px-8 py-3 rounded-2xl font-bold text-sm hover:bg-emerald-50 transition-all">
+                                إضافة سجل حضور
+                              </button>
                             </div>
                           )}
                         </div>
@@ -3195,6 +3385,43 @@ const AdminDashboard = ({
         )}
       </AnimatePresence>
 
+      {/* Monthly Test Month Picker Modal */}
+      {showMonthlyTestMonthPicker !== null && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl"
+          >
+            <h3 className="text-xl font-bold text-slate-900 mb-6 text-center">اختر الشهر</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {['أكتوبر', 'نوفمبر', 'ديسمبر', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو'].map((month) => (
+                <button
+                  key={month}
+                  onClick={() => {
+                    const newExams = [...(editingItem.exams || [])];
+                    if (newExams[showMonthlyTestMonthPicker]) {
+                      newExams[showMonthlyTestMonthPicker].month = month;
+                      setEditingItem({...editingItem, exams: newExams});
+                    }
+                    setShowMonthlyTestMonthPicker(null);
+                  }}
+                  className="p-3 rounded-xl border border-slate-100 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all font-bold text-sm text-slate-600"
+                >
+                  {month}
+                </button>
+              ))}
+            </div>
+            <button 
+              onClick={() => setShowMonthlyTestMonthPicker(null)}
+              className="w-full mt-8 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all"
+            >
+              إلغاء
+            </button>
+          </motion.div>
+        </div>
+      )}
+
       {/* Result Subject Picker Modal */}
       {showResultSubjectPicker !== null && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
@@ -3214,10 +3441,11 @@ const AdminDashboard = ({
                       <button
                         key={subject}
                         onClick={() => {
-                          const newResults = [...(editingItem.results || [])];
-                          if (showResultSubjectPicker !== null && newResults[showResultSubjectPicker]) {
-                            newResults[showResultSubjectPicker].subject = subject;
-                            setEditingItem({...editingItem, results: newResults});
+                          const { examIdx, resultIdx } = showResultSubjectPicker;
+                          const newExams = [...(editingItem.exams || [])];
+                          if (newExams[examIdx] && newExams[examIdx].results[resultIdx]) {
+                            newExams[examIdx].results[resultIdx].subject = subject;
+                            setEditingItem({...editingItem, exams: newExams});
                           }
                           setShowResultSubjectPicker(null);
                         }}
@@ -3325,6 +3553,21 @@ const ParentPortal = ({
     }
   };
 
+  const getExamTotal = (exam: any) => (exam.results || []).reduce((acc: number, r: any) => acc + (r.score || 0), 0);
+  
+  const semester1Exams = result ? (result.exams || []).filter((e: any) => e.semester === 1) : [];
+  const semester2Exams = result ? (result.exams || []).filter((e: any) => e.semester === 2) : [];
+
+  const semester1MonthlyTotal = semester1Exams.filter((e: any) => e.type === 'monthly').reduce((acc, e) => acc + getExamTotal(e), 0);
+  const semester1FinalScore = semester1Exams.find((e: any) => e.type === 'final') ? getExamTotal(semester1Exams.find((e: any) => e.type === 'final')) : 0;
+
+  const semester2MonthlyTotal = semester2Exams.filter((e: any) => e.type === 'monthly').reduce((acc, e) => acc + getExamTotal(e), 0);
+  const semester2FinalScore = semester2Exams.find((e: any) => e.type === 'final') ? getExamTotal(semester2Exams.find((e: any) => e.type === 'final')) : 0;
+
+  const finalTotal = semester1MonthlyTotal + semester1FinalScore + semester2MonthlyTotal + semester2FinalScore;
+
+  const hasSemester1Final = semester1Exams.some((e: any) => e.type === 'final');
+
   return (
     <section id="parent-portal" className="py-20 lg:py-32 bg-slate-900 text-white min-h-screen relative overflow-x-hidden" dir="rtl">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -3379,163 +3622,289 @@ const ParentPortal = ({
               className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full"
             >
               <div className="lg:col-span-1 space-y-6">
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-emerald-600 p-3 rounded-2xl">
-                        <Users className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold">{result.name}</h3>
-                        <p className="text-slate-400 text-sm">{result.grade}</p>
-                      </div>
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8 relative overflow-hidden">
+                  <button 
+                    onClick={handleLogout}
+                    className="absolute top-4 right-4 text-slate-400 hover:text-red-400 transition-colors p-2 bg-white/5 rounded-full z-20"
+                    title="تسجيل الخروج"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex flex-col items-center text-center gap-4 mb-8 pt-4">
+                    <div className="bg-emerald-600 p-4 rounded-3xl shadow-lg shadow-emerald-600/20">
+                      <Users className="w-8 h-8 text-white" />
                     </div>
-                    <button 
-                      onClick={handleLogout}
-                      className="text-slate-400 hover:text-red-400 transition-colors p-2"
-                      title="تسجيل الخروج"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white mb-1">{result.name}</h3>
+                      <p className="text-emerald-500 font-bold text-sm bg-emerald-500/10 px-4 py-1 rounded-full inline-block">{result.grade}</p>
+                    </div>
                   </div>
+
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
-                      <span className="text-slate-400">نسبة الحضور</span>
-                      <span className="text-emerald-400 font-bold">{result.attendance}</span>
+                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-4 h-4 text-emerald-500" />
+                        <span className="text-slate-400 text-sm">نسبة الحضور</span>
+                      </div>
+                      <span className="text-emerald-400 font-black">{result.attendance}</span>
                     </div>
-                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
-                      <span className="text-slate-400">السلوك</span>
-                      <span className="text-emerald-400 font-bold">{result.behavior}</span>
+                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <Award className="w-4 h-4 text-emerald-500" />
+                        <span className="text-slate-400 text-sm">السلوك العام</span>
+                      </div>
+                      <span className="text-emerald-400 font-black">{result.behavior}</span>
                     </div>
                   </div>
                 </div>
+
+                {/* Final Total Score - Only if both terms are available */}
+                {hasSemester1Final && semester2Exams.some((e: any) => e.type === 'final') && (
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="bg-gradient-to-br from-emerald-600 to-blue-600 rounded-[2rem] p-8 text-center shadow-2xl shadow-emerald-600/20 relative overflow-hidden group"
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <Trophy className="w-12 h-12 text-white/20 absolute bottom-4 left-4 rotate-12" />
+                    
+                    <span className="text-white/80 text-sm font-bold uppercase tracking-widest mb-3 block">المجموع النهائي العام</span>
+                    <h3 className="text-6xl font-black text-white mb-2 drop-shadow-lg">
+                      {finalTotal}
+                    </h3>
+                    <div className="inline-block px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold">
+                      الدرجة الكلية المستحقة
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
               <div className="lg:col-span-2 space-y-8">
-                {/* Results Grid */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
-                  <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Award className="text-emerald-500" />
-                    نتائج الاختبارات الفصلية
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    {(result.results || []).map((item: any, idx: number) => (
-                      <div key={idx} className="p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all group overflow-hidden">
-                        <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-                          <span className="font-bold text-base sm:text-lg truncate max-w-[150px] sm:max-w-none" title={item.subject}>{item.subject}</span>
-                          <span className="text-emerald-500 font-black text-lg sm:text-xl shrink-0">{item.score} / {item.total}</span>
-                        </div>
-                        <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden mb-4">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(item.score / item.total) * 100}%` }}
-                            transition={{ duration: 1, delay: idx * 0.1 }}
-                            className="bg-emerald-500 h-full rounded-full"
-                          ></motion.div>
-                        </div>
-                        {/* Mini Trend Sparkline */}
-                        <div className="h-10 w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={(item.trend || []).map((val: number, i: number) => ({ val, i }))}>
-                              <Line type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} dot={false} />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-1 text-center">اتجاه الأداء في آخر 4 اختبارات</p>
-                      </div>
-                    ))}
+                {/* Semester 1 Section */}
+                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-emerald-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white">الفصل الدراسي الأول</h3>
+                      <p className="text-slate-500 text-sm">نتائج الاختبارات الشهرية والحضور</p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Monthly Tests and Term Exams */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
-                    <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
-                      <Calendar className="text-emerald-500" />
-                      نتائج الاختبارات الشهرية
-                    </h3>
-                    <div className="space-y-4">
-                      {(result.monthlyTests || []).map((test: any, idx: number) => (
-                        <div key={idx} className="flex flex-wrap justify-between items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5">
-                          <span className="text-slate-300 font-bold truncate max-w-[100px] sm:max-w-none" title={test.month}>{test.month}</span>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <div className="w-16 sm:w-24 bg-white/10 h-1.5 rounded-full overflow-hidden">
-                              <div className="bg-emerald-500 h-full" style={{ width: `${test.score}%` }}></div>
+                  <div className="grid gap-4 mb-10">
+                    {semester1Exams.map((exam: any) => {
+                      const monthName = exam.month;
+                      const attendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 1);
+                      const examScore = getExamTotal(exam);
+                      
+                      if (exam.type === 'final') return null;
+
+                      return (
+                        <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
+                          <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 border-b border-white/5">
+                            <div className="flex items-center gap-4 w-full sm:w-auto">
+                              <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
+                                {monthName?.substring(0, 3)}
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-200 block text-lg">{monthName}</span>
+                                <span className="text-[10px] text-slate-500 uppercase tracking-wider">التقييم الشهري</span>
+                              </div>
                             </div>
-                            <span className="text-emerald-400 font-black text-sm sm:text-base">{test.score}%</span>
+                            
+                            <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
+                              <div className="text-center">
+                                <span className="block text-[10px] text-slate-500 mb-1">المجموع</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-emerald-400 font-black text-2xl">{examScore}</span>
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <span className="block text-[10px] text-slate-500 mb-1">الغياب</span>
+                                <span className={`font-black text-2xl ${attendance?.absent > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                  {attendance?.absent || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Subjects List for this month */}
+                          <div className="p-6 bg-black/20">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {(exam.results || []).map((res: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                  <span className="text-sm text-slate-300">{res.subject}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-bold text-white">{res.score}</span>
+                                    <span className="text-[10px] text-slate-500">/ {res.total}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
 
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
-                    <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
+                  {hasSemester1Final && (
+                    <div className="p-8 bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 border border-emerald-500/30 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6">
+                      <div className="text-center sm:text-right">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 rounded-full text-emerald-500 text-[10px] font-bold uppercase mb-3">
+                          <Trophy className="w-3 h-3" />
+                          امتحان نصف العام
+                        </div>
+                        <h4 className="text-2xl font-black text-white">نتيجة الفصل الأول</h4>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-5xl font-black text-emerald-500 drop-shadow-lg">
+                          {semester1FinalScore}
+                        </div>
+                        <div className="h-12 w-px bg-white/10 hidden sm:block"></div>
+                        <div className="text-slate-400 text-xs font-bold leading-tight hidden sm:block">
+                          درجة <br /> الفصل الأول
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Semester 2 Section - Only visible after midterm is added */}
+                {hasSemester1Final && (
+                  <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden">
+                    <div className="flex items-center gap-4 mb-10">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
+                        <Calendar className="w-6 h-6 text-blue-500" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-white">الفصل الدراسي الثاني</h3>
+                        <p className="text-slate-500 text-sm">نتائج الاختبارات الشهرية والحضور</p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 mb-10">
+                      {semester2Exams.map((exam: any) => {
+                        const monthName = exam.month;
+                        const attendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 2);
+                        const examScore = getExamTotal(exam);
+                        
+                        if (exam.type === 'final') return null;
+
+                        return (
+                          <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
+                            <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 border-b border-white/5">
+                              <div className="flex items-center gap-4 w-full sm:w-auto">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
+                                  {monthName?.substring(0, 3)}
+                                </div>
+                                <div>
+                                  <span className="font-bold text-slate-200 block text-lg">{monthName}</span>
+                                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">التقييم الشهري</span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
+                                <div className="text-center">
+                                  <span className="block text-[10px] text-slate-500 mb-1">المجموع</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-blue-400 font-black text-2xl">{examScore}</span>
+                                  </div>
+                                </div>
+                                <div className="text-center">
+                                  <span className="block text-[10px] text-slate-500 mb-1">الغياب</span>
+                                  <span className={`font-black text-2xl ${attendance?.absent > 0 ? 'text-red-400' : 'text-blue-400'}`}>
+                                    {attendance?.absent || 0}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Subjects List for this month */}
+                            <div className="p-6 bg-black/20">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {(exam.results || []).map((res: any, idx: number) => (
+                                  <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                    <span className="text-sm text-slate-300">{res.subject}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-bold text-white">{res.score}</span>
+                                      <span className="text-[10px] text-slate-500">/ {res.total}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      
+                      {/* Placeholder if no data for semester 2 yet */}
+                      {semester2Exams.length === 0 && (
+                        <div className="p-10 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
+                          <p className="text-slate-500 text-sm">بانتظار بدء تقييمات الفصل الدراسي الثاني</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {semester2Exams.find((e: any) => e.type === 'final') && (
+                      <div className="p-8 bg-gradient-to-br from-blue-600/20 to-blue-900/20 border border-blue-500/30 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="text-center sm:text-right">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 rounded-full text-blue-500 text-[10px] font-bold uppercase mb-3">
+                            <Trophy className="w-3 h-3" />
+                            امتحان نهاية العام
+                          </div>
+                          <h4 className="text-2xl font-black text-white">نتيجة الفصل الثاني</h4>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-5xl font-black text-blue-500 drop-shadow-lg">
+                            {semester2FinalScore}
+                          </div>
+                          <div className="h-12 w-px bg-white/10 hidden sm:block"></div>
+                          <div className="text-slate-400 text-xs font-bold leading-tight hidden sm:block">
+                            درجة <br /> الفصل الثاني
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Final Total Calculation Section - Only visible after midterm is added */}
+                {hasSemester1Final && (
+                  <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-10">
+                    <h3 className="text-xl font-bold mb-8 flex items-center gap-3">
                       <Trophy className="text-emerald-500" />
-                      الامتحانات النصفية والنهائية
+                      المجموع النهائي للسنة الدراسية
                     </h3>
-                    <div className="space-y-6">
-                      <div className="p-4 sm:p-6 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl text-center">
-                        <span className="text-slate-400 text-sm block mb-2">الامتحان النصفي</span>
-                        <span className="text-2xl sm:text-4xl font-black text-emerald-500">{(result.termExams?.midterm) || 0}%</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div className="p-6 bg-white/5 rounded-3xl border border-white/5 text-center">
+                        <span className="text-slate-500 text-xs block mb-2 uppercase tracking-wider">الفصل الأول (شهري + نهائي)</span>
+                        <span className="text-3xl font-black text-emerald-500">{semester1MonthlyTotal + semester1FinalScore}</span>
                       </div>
-                      <div className="p-4 sm:p-6 bg-blue-600/10 border border-blue-500/20 rounded-3xl text-center">
-                        <span className="text-slate-400 text-sm block mb-2">الامتحان النهائي</span>
-                        <span className="text-2xl sm:text-4xl font-black text-blue-500">{(result.termExams?.final) || 0}%</span>
+                      <div className="p-6 bg-white/5 rounded-3xl border border-white/5 text-center">
+                        <span className="text-slate-500 text-xs block mb-2 uppercase tracking-wider">الفصل الثاني (شهري + نهائي)</span>
+                        <span className="text-3xl font-black text-blue-500">{semester2MonthlyTotal + semester2FinalScore}</span>
+                      </div>
+                      <div className="p-6 bg-gradient-to-br from-emerald-600/20 to-blue-600/20 rounded-3xl border border-emerald-500/30 text-center">
+                        <span className="text-white/80 text-xs block mb-2 uppercase tracking-wider font-bold">المجموع الكلي</span>
+                        <span className="text-4xl font-black text-white">{finalTotal}</span>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Monthly Attendance Details */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
-                  <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Clock className="text-emerald-500" />
-                    سجل الحضور والغياب الشهري
-                  </h3>
-                  <div className="table-responsive">
-                    <table className="table w-full text-right border-collapse min-w-[700px]">
-                      <thead>
-                        <tr className="text-slate-400 text-sm border-b border-white/10">
-                          <th className="pb-4 font-bold">الشهر</th>
-                          <th className="pb-4 font-bold text-center">أيام الحضور</th>
-                          <th className="pb-4 font-bold text-center">أيام الغياب</th>
-                          <th className="pb-4 font-bold text-center">الحالة</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(result.attendanceDetails || []).map((item: any, idx: number) => (
-                          <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                            <td className="py-4 font-bold text-slate-200">{item.month}</td>
-                            <td className="py-4 text-center text-emerald-400 font-bold">{item.present} يوم</td>
-                            <td className="py-4 text-center text-red-400 font-bold">{item.absent} يوم</td>
-                            <td className="py-4 text-center">
-                              {item.absent === 0 ? (
-                                <span className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-bold">مثالي</span>
-                              ) : item.absent <= 2 ? (
-                                <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-[10px] font-bold">جيد جداً</span>
-                              ) : (
-                                <span className="bg-orange-500/10 text-orange-500 px-3 py-1 rounded-full text-[10px] font-bold">تنبيه</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                )}
 
                 {/* Teacher Feedback */}
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
-                  <h3 className="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
+                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-10">
+                  <h3 className="text-xl font-bold mb-8 flex items-center gap-3">
                     <MessageSquare className="text-emerald-500" />
-                    ملاحظات المعلمين
+                    ملاحظات الهيئة التدريسية
                   </h3>
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {(result.feedback || []).map((f: any, idx: number) => (
                       <div key={idx} className="bg-white/5 p-6 rounded-2xl border-r-4 border-emerald-500">
-                        <h4 className="font-bold text-emerald-400 mb-2">{f.teacher}</h4>
-                        <p className="text-slate-300 leading-relaxed italic">"{f.comment}"</p>
+                        <h4 className="font-bold text-emerald-400 mb-2 text-sm">{f.teacher}</h4>
+                        <p className="text-slate-300 text-sm leading-relaxed italic">"{f.comment}"</p>
                       </div>
                     ))}
                   </div>
