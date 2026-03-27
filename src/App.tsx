@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Menu, 
   X,
+  Check,
   CheckCircle2,
   Calendar,
   Clock,
@@ -62,13 +63,56 @@ import {
 
 const DAYS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
 const PERIODS = ['الحصة الأولى', 'الحصة الثانية', 'الحصة الثالثة', 'الحصة الرابعة', 'الحصة الخامسة', 'الحصة السادسة', 'الحصة السابعة'];
-const INITIAL_SUBJECTS = ['رياضيات', 'علوم', 'لغة عربية', 'إنجليزي', 'تربية إسلامية', 'اجتماعيات', 'حاسب آلي', 'فنية', 'رياضة'];
+const INITIAL_SUBJECTS = [
+  "قرآن",                    
+  "تربية إسلامية",            
+  "الايمان",            
+  "الفقه والحديث",  
+  "السيرة النبوية", 
+  "لغة عربية",          
+  "النحو والصرف",
+  "القراءة",               
+  "الأدب والنصوص والبلاغة",
+  "رياضيات",          
+  "التفاضل والتكامل",      
+  "الجبر والهندسة",    
+  "علوم",            
+  "فيزياء",        
+  "كيمياء",             
+  "أحياء",              
+  "لغة إنجليزية",         
+  "اجتماعيات",             
+  "تاريخ",                
+  "جغرافيا",           
+  "تربية وطنية",          
+  "علم الاقتصاد",        
+  "علم الاجتماع",   
+  "منطق",            
+  "فلسفة",                 
+  "علم النفس",         
+  "مجتمع يمني"
+];
 const INITIAL_SOCIAL_LINKS = [
   { id: '1', name: 'Twitter', url: 'https://twitter.com' },
   { id: '2', name: 'Instagram', url: 'https://instagram.com' },
   { id: '3', name: 'Facebook', url: 'https://facebook.com' },
   { id: '4', name: 'LinkedIn', url: 'https://linkedin.com' }
 ];
+
+const INITIAL_GRADE_SUBJECTS: Record<string, string[]> = {
+  'الصف الأول': ["قرآن", "تربية إسلامية", "لغة عربية", "رياضيات", "علوم"],
+  'الصف الثاني': ["قرآن", "تربية إسلامية", "لغة عربية", "رياضيات", "علوم"],
+  'الصف الثالث': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "اجتماعيات"],
+  'الصف الرابع': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "اجتماعيات"],
+  'الصف الخامس': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "تاريخ", "جغرافيا", "تربية وطنية", "لغة إنجليزية"],
+  'الصف السادس': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "تاريخ", "جغرافيا", "تربية وطنية", "لغة إنجليزية"],
+  'الصف السابع': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "تاريخ", "جغرافيا", "تربية وطنية", "لغة إنجليزية"],
+  'الصف الثامن': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "تاريخ", "جغرافيا", "تربية وطنية", "لغة إنجليزية"],
+  'الصف التاسع': ["قرآن", "لغة عربية", "رياضيات", "تربية إسلامية", "علوم", "تاريخ", "جغرافيا", "تربية وطنية", "لغة إنجليزية"],
+  'الأول ثانوي': [],
+  'الثاني ثانوي': [],
+  'الثالث ثانوي': []
+};
 
 const INITIAL_STUDENTS = [
   // 2024 - Grade 6
@@ -197,9 +241,9 @@ const INITIAL_EXAM_SCHEDULE = [
 ];
 
 const EXAM_TYPES = [
-  { id: 'monthly', name: 'الامتحانات الشهرية' },
-  { id: 'midterm', name: 'امتحانات نصف العام' },
-  { id: 'final', name: 'امتحانات نهاية العام' }
+  { id: 'monthly', name: 'شهرية' },
+  { id: 'midterm', name: 'نصف العام' },
+  { id: 'final', name: 'نهاية العام' }
 ];
 
 const INITIAL_POSTS = [
@@ -251,10 +295,10 @@ const PARENT_PORTAL_MOCK_DATA: any = {
         type: 'monthly',
         month: 'أكتوبر',
         results: [
-          { subject: 'الرياضيات', score: 92, total: 100 },
-          { subject: 'اللغة العربية', score: 90, total: 100 },
-          { subject: 'العلوم', score: 88, total: 100 },
-          { subject: 'اللغة الإنجليزية', score: 85, total: 100 },
+          { subject: 'رياضيات', score: 92, total: 100 },
+          { subject: 'لغة عربية', score: 90, total: 100 },
+          { subject: 'علوم', score: 88, total: 100 },
+          { subject: 'لغة إنجليزية', score: 85, total: 100 },
         ]
       },
       {
@@ -263,10 +307,10 @@ const PARENT_PORTAL_MOCK_DATA: any = {
         type: 'monthly',
         month: 'نوفمبر',
         results: [
-          { subject: 'الرياضيات', score: 88, total: 100 },
-          { subject: 'اللغة العربية', score: 92, total: 100 },
-          { subject: 'العلوم', score: 94, total: 100 },
-          { subject: 'اللغة الإنجليزية', score: 85, total: 100 },
+          { subject: 'رياضيات', score: 88, total: 100 },
+          { subject: 'لغة عربية', score: 92, total: 100 },
+          { subject: 'علوم', score: 94, total: 100 },
+          { subject: 'لغة إنجليزية', score: 85, total: 100 },
         ]
       },
       {
@@ -274,10 +318,10 @@ const PARENT_PORTAL_MOCK_DATA: any = {
         semester: 1,
         type: 'final',
         results: [
-          { subject: 'الرياضيات', score: 96, total: 100 },
-          { subject: 'اللغة العربية', score: 94, total: 100 },
-          { subject: 'العلوم', score: 95, total: 100 },
-          { subject: 'اللغة الإنجليزية', score: 92, total: 100 },
+          { subject: 'رياضيات', score: 96, total: 100 },
+          { subject: 'لغة عربية', score: 94, total: 100 },
+          { subject: 'علوم', score: 95, total: 100 },
+          { subject: 'لغة إنجليزية', score: 92, total: 100 },
         ]
       }
     ],
@@ -938,18 +982,20 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
             />
           </div>
 
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             <ElegantDropdown 
               label="العام الدراسي"
               options={academicYears}
               value={selectedYear}
               onChange={(val) => { setSelectedYear(val); setShowAll(false); }}
+              widthClass="w-full"
             />
             <ElegantDropdown 
               label="المرحلة الدراسية"
               options={grades}
               value={selectedGrade}
               onChange={(val) => { setSelectedGrade(val); setShowAll(false); }}
+              widthClass="w-full"
             />
           </div>
         </div>
@@ -1068,47 +1114,45 @@ const AcademicSchedule = ({ events, schedule, examSchedule, grades, sections }: 
             <p className="text-slate-500">ابقَ على اطلاع بمواعيد الحصص والفعاليات المدرسية والامتحانات</p>
           </div>
           
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <ElegantDropdown 
-                label="اختر الصف"
-                options={grades}
-                value={selectedGrade}
-                onChange={(val) => setSelectedGrade(val)}
-                widthClass="md:w-64"
-              />
-              <ElegantDropdown 
-                label="اختر الشعبة"
-                options={sections}
-                value={selectedSection}
-                onChange={(val) => setSelectedSection(val)}
-                widthClass="md:w-32"
-              />
-            </div>
-
-            <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 h-fit self-end">
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'calendar' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
-              >
-                <Calendar className="w-5 h-5" />
-                التقويم الدراسي
-              </button>
-              <button
-                onClick={() => setActiveTab('schedule')}
-                className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'schedule' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
-              >
-                <Clock className="w-5 h-5" />
-                جدول الحصص
-              </button>
-              <button
-                onClick={() => setActiveTab('exams')}
-                className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${activeTab === 'exams' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
-              >
-                <ClipboardList className="w-5 h-5" />
-                جدول الامتحانات
-              </button>
-            </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+            <ElegantDropdown 
+              label="الصف الدراسي"
+              options={grades}
+              value={selectedGrade}
+              onChange={(val) => setSelectedGrade(val)}
+              widthClass="w-full"
+            />
+            <ElegantDropdown 
+              label="الشعبة"
+              options={sections}
+              value={selectedSection}
+              onChange={(val) => setSelectedSection(val)}
+              widthClass="w-full"
+            />
+          </div>
+          
+          <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 h-fit w-full lg:w-auto">
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className={`flex-1 lg:flex-none px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'calendar' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              <Calendar className="w-5 h-5" />
+              التقويم الدراسي
+            </button>
+            <button
+              onClick={() => setActiveTab('schedule')}
+              className={`flex-1 lg:flex-none px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'schedule' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              <Clock className="w-5 h-5" />
+              جدول الحصص
+            </button>
+            <button
+              onClick={() => setActiveTab('exams')}
+              className={`flex-1 lg:flex-none px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'exams' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              <ClipboardList className="w-5 h-5" />
+              جدول الامتحانات
+            </button>
           </div>
         </div>
 
@@ -1441,20 +1485,20 @@ const SeatingNumbers = ({ seatingData, grades, sections }: { seatingData: any[],
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl pr-12 pl-4 py-4 outline-none focus:ring-2 focus:ring-emerald-500 text-lg shadow-sm transition-all"
             />
           </div>
-          <div className="flex gap-4 w-full md:w-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
             <ElegantDropdown 
               label="الصف الدراسي"
               options={grades}
               value={selectedGrade}
               onChange={(val) => setSelectedGrade(val)}
-              widthClass="w-full md:w-64"
+              widthClass="w-full"
             />
             <ElegantDropdown 
               label="الشعبة"
               options={sections}
               value={selectedSection}
               onChange={(val) => setSelectedSection(val)}
-              widthClass="w-full md:w-48"
+              widthClass="w-full"
             />
           </div>
         </div>
@@ -1506,6 +1550,7 @@ const AdminDashboard = ({
   posts, setPosts,
   seatingData, setSeatingData,
   parentPortalData, setParentPortalData,
+  gradeSubjects, setGradeSubjects,
   grades, setGrades,
   academicYears, setAcademicYears,
   categories, setCategories,
@@ -1525,6 +1570,9 @@ const AdminDashboard = ({
   const [selectedExamTypeFilter, setSelectedExamTypeFilter] = useState(EXAM_TYPES[0].id);
   const [parentPortalSearch, setParentPortalSearch] = useState('');
   const [seatingSearch, setSeatingSearch] = useState('');
+  const [managementSelectedGrade, setManagementSelectedGrade] = useState(grades[0]);
+  const [showGradeSubjectModal, setShowGradeSubjectModal] = useState(false);
+  const [tempModalSubjects, setTempModalSubjects] = useState<string[]>([]);
   
   const [newGrade, setNewGrade] = useState('');
   const [newYear, setNewYear] = useState('');
@@ -1540,7 +1588,9 @@ const AdminDashboard = ({
 
   // New state for schedule management
   const [localSchedule, setLocalSchedule] = useState<any[]>([]);
+  const [localExamSchedule, setLocalExamSchedule] = useState<any[]>([]);
   const [showSubjectPicker, setShowSubjectPicker] = useState<{ day: string, period: string } | null>(null);
+  const [showExamCellPicker, setShowExamCellPicker] = useState<{ examId: string, field: string } | null>(null);
   const [showResultSubjectPicker, setShowResultSubjectPicker] = useState<{ examIdx: number, resultIdx: number } | null>(null);
   const [showAttendanceMonthPicker, setShowAttendanceMonthPicker] = useState<number | null>(null);
   const [showMonthlyTestMonthPicker, setShowMonthlyTestMonthPicker] = useState<number | null>(null);
@@ -1556,6 +1606,15 @@ const AdminDashboard = ({
     });
     setLocalSchedule(fullSchedule);
   }, [selectedGradeFilter, selectedSectionFilter, schedule]);
+
+  useEffect(() => {
+    const filtered = (examSchedule || []).filter((s: any) => 
+      s.grade === selectedGradeFilter && 
+      s.section === selectedSectionFilter && 
+      s.type === selectedExamTypeFilter
+    );
+    setLocalExamSchedule(filtered);
+  }, [selectedGradeFilter, selectedSectionFilter, selectedExamTypeFilter, examSchedule]);
 
   const handleSaveSchedule = () => {
     handleSave(new Event('submit') as any);
@@ -1837,28 +1896,30 @@ const AdminDashboard = ({
             <div className="space-y-6 pt-10 border-t border-slate-100">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h3 className="text-2xl font-bold text-slate-900">الجدول الدراسي الأسبوعي</h3>
-                <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                   <ElegantDropdown 
                     label="تصفية حسب الصف"
                     options={grades}
                     value={selectedGradeFilter}
                     onChange={(val) => setSelectedGradeFilter(val)}
-                    widthClass="w-full md:w-64"
+                    widthClass="w-full"
                   />
                   <ElegantDropdown 
                     label="تصفية حسب الشعبة"
                     options={sections}
                     value={selectedSectionFilter}
                     onChange={(val) => setSelectedSectionFilter(val)}
-                    widthClass="w-full md:w-32"
+                    widthClass="w-full"
                   />
-                  <button 
-                    onClick={handleSaveSchedule}
-                    className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center shadow-lg shadow-emerald-600/20"
-                  >
-                    <Save className="w-5 h-5" />
-                    حفظ الجدول
-                  </button>
+                  <div className="col-span-2 lg:col-span-2 flex items-end">
+                    <button 
+                      onClick={handleSaveSchedule}
+                      className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full justify-center shadow-lg shadow-emerald-600/20 h-[52px]"
+                    >
+                      <Save className="w-5 h-5" />
+                      حفظ الجدول
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm table-responsive">
@@ -1909,7 +1970,7 @@ const AdminDashboard = ({
                     </button>
                   </div>
                   <div className="p-8 grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-                    {['-', ...(subjects || [])].map((subject) => (
+                    {['-', ...(gradeSubjects[selectedGradeFilter] || subjects || [])].map((subject) => (
                       <button
                         key={subject}
                         onClick={() => updateCell(showSubjectPicker.day, showSubjectPicker.period, subject)}
@@ -1926,8 +1987,8 @@ const AdminDashboard = ({
             <div className="space-y-8 pt-10 border-t border-slate-100">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <h3 className="text-2xl font-bold text-slate-900">جدول الامتحانات</h3>
-                <div className="flex flex-col md:flex-row items-end gap-4 w-full md:w-auto">
-                  <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row items-end gap-4 w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                     <ElegantDropdown 
                       label="نوع الامتحان"
                       options={EXAM_TYPES.map(t => t.name)}
@@ -1936,95 +1997,386 @@ const AdminDashboard = ({
                         const typeId = EXAM_TYPES.find(t => t.name === val)?.id;
                         setSelectedExamTypeFilter(typeId || EXAM_TYPES[0].id);
                       }}
-                      widthClass="w-40"
+                      widthClass="w-full"
                     />
                     <ElegantDropdown 
                       label="الصف"
                       options={grades}
                       value={selectedGradeFilter}
                       onChange={setSelectedGradeFilter}
-                      widthClass="w-32"
+                      widthClass="w-full"
                     />
                     <ElegantDropdown 
                       label="الشعبة"
                       options={sections}
                       value={selectedSectionFilter}
                       onChange={setSelectedSectionFilter}
-                      widthClass="w-32"
+                      widthClass="w-full"
                     />
                   </div>
-                  <button 
-                    onClick={() => { setEditingItem({ type: selectedExamTypeFilter, subject: subjects[0], time: '', date: '', day: DAYS[0], grade: selectedGradeFilter, section: selectedSectionFilter, isExam: true }); setIsAdding(true); setModalSubTab('basic'); }}
-                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center h-[52px]"
-                  >
-                    <Plus className="w-5 h-5" />
-                    إضافة امتحان
-                  </button>
                 </div>
               </div>
               
               <div className="space-y-10">
                 {EXAM_TYPES.filter(t => t.id === selectedExamTypeFilter).map((type) => {
-                  const filteredExams = (examSchedule || []).filter((s: any) => 
-                    s.grade === selectedGradeFilter && 
-                    s.section === selectedSectionFilter && 
-                    s.type === type.id
-                  );
-
-                  if (filteredExams.length === 0) {
+                  if (localExamSchedule.length === 0) {
                     return (
                       <div key={type.id} className="text-center py-20 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
                         <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                           <Calendar className="w-10 h-10 text-slate-300" />
                         </div>
                         <h4 className="text-xl font-bold text-slate-900 mb-2">لا يوجد جدول {type.name}</h4>
-                        <p className="text-slate-500">لم يتم إضافة أي امتحانات لهذا الصف والشعبة بعد.</p>
+                        <p className="text-slate-500 mb-6">لم يتم إضافة أي امتحانات لهذا الصف والشعبة بعد.</p>
+                        <button 
+                          onClick={() => {
+                            const gradeSubs = gradeSubjects[selectedGradeFilter] || [];
+                            if (gradeSubs.length === 0) {
+                              MySwal.fire({
+                                title: 'لا توجد مواد',
+                                text: 'يرجى ربط المواد بهذا الصف أولاً من الإعدادات',
+                                icon: 'info',
+                                confirmButtonText: 'حسناً',
+                                customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold' }
+                              });
+                              return;
+                            }
+
+                            const newRows = gradeSubs.map((subject, index) => {
+                              const dayIndex = index % DAYS.length;
+                              const date = new Date();
+                              date.setDate(date.getDate() + index); // Increment date for each subject
+                              
+                              return { 
+                                id: (Date.now() + index).toString() + Math.random(), 
+                                type: selectedExamTypeFilter, 
+                                subject: subject, 
+                                time: selectedExamTypeFilter === 'monthly' ? PERIODS[0] : '08:00 - 10:00', 
+                                date: date.toISOString().split('T')[0], 
+                                day: DAYS[dayIndex], 
+                                grade: selectedGradeFilter, 
+                                section: selectedSectionFilter 
+                              };
+                            });
+                            setLocalExamSchedule(newRows);
+                          }}
+                          className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all mx-auto shadow-lg shadow-emerald-600/20"
+                        >
+                          <Plus className="w-5 h-5" />
+                          بدء إنشاء الجدول تلقائياً
+                        </button>
                       </div>
                     );
                   }
 
                   return (
-                    <div key={type.id} className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
-                        <h4 className="text-lg font-bold text-slate-700">{type.name}</h4>
+                    <div key={type.id} className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-6 w-1 bg-emerald-500 rounded-full"></div>
+                          <h4 className="text-lg font-bold text-slate-700">{type.name}</h4>
+                        </div>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+                          انقر على أي خلية لتعديل بياناتها
+                        </span>
                       </div>
-                      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm table-responsive overflow-hidden">
-                        <table className="table w-full text-right min-w-[800px]">
-                          <thead className="bg-slate-50">
-                            <tr>
-                              <th className="p-4 font-bold text-slate-600">اليوم</th>
-                              <th className="p-4 font-bold text-slate-600">المادة</th>
-                              <th className="p-4 font-bold text-slate-600">التاريخ</th>
-                              <th className="p-4 font-bold text-slate-600">الوقت</th>
-                              <th className="p-4 font-bold text-slate-600">الإجراءات</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {filteredExams.map((s: any) => (
-                              <tr key={s.id} className="border-t border-slate-50 hover:bg-slate-50 transition-colors">
-                                <td className="p-4 font-bold text-slate-800">{s.day}</td>
-                                <td className="p-4 font-bold text-emerald-600">{s.subject}</td>
-                                <td className="p-4 text-slate-600">{s.date}</td>
-                                <td className="p-4 text-slate-600">{s.time}</td>
-                                <td className="p-4">
-                                  <div className="flex gap-2">
-                                    <button onClick={() => { setEditingItem({ ...s, isExam: true }); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
-                                    <button onClick={() => triggerDelete(s.id, 'examSchedule')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                  </div>
-                                </td>
+                      
+                      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-right border-collapse">
+                            <thead>
+                              <tr className="bg-slate-50/50 border-b border-slate-100">
+                                <th className="p-5 font-black text-slate-500 text-sm uppercase tracking-wider">اليوم</th>
+                                <th className="p-5 font-black text-slate-500 text-sm uppercase tracking-wider">المادة</th>
+                                <th className="p-5 font-black text-slate-500 text-sm uppercase tracking-wider">التاريخ</th>
+                                <th className="p-5 font-black text-slate-500 text-sm uppercase tracking-wider">الموعد / الوقت</th>
+                                <th className="p-5 font-black text-slate-500 text-sm uppercase tracking-wider w-20"></th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                              {localExamSchedule.map((row) => (
+                                <tr key={row.id} className="group hover:bg-emerald-50/30 transition-all">
+                                  <td 
+                                    onClick={() => setShowExamCellPicker({ examId: row.id, field: 'day' })}
+                                    className="p-5 font-bold text-slate-700 cursor-pointer hover:text-emerald-600 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      {row.day}
+                                      <Edit2 className="w-3 h-3 opacity-0 group-hover:opacity-40" />
+                                    </div>
+                                  </td>
+                                  <td 
+                                    onClick={() => setShowExamCellPicker({ examId: row.id, field: 'subject' })}
+                                    className="p-5 font-bold text-emerald-600 cursor-pointer hover:scale-105 origin-right transition-all"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      {row.subject}
+                                      <Edit2 className="w-3 h-3 opacity-0 group-hover:opacity-40 text-slate-400" />
+                                    </div>
+                                  </td>
+                                  <td 
+                                    onClick={() => setShowExamCellPicker({ examId: row.id, field: 'date' })}
+                                    className="p-5 font-bold text-slate-500 cursor-pointer hover:text-emerald-600 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      {row.date}
+                                      <Calendar className="w-3 h-3 opacity-0 group-hover:opacity-40" />
+                                    </div>
+                                  </td>
+                                  <td 
+                                    onClick={() => setShowExamCellPicker({ examId: row.id, field: 'time' })}
+                                    className="p-5 font-bold text-slate-600 cursor-pointer hover:text-emerald-600 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-slate-100 px-3 py-1 rounded-lg text-xs font-black text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors">
+                                        {row.time}
+                                      </span>
+                                      <Clock className="w-3 h-3 opacity-0 group-hover:opacity-40" />
+                                    </div>
+                                  </td>
+                                  <td className="p-5">
+                                    <button 
+                                      onClick={() => {
+                                        MySwal.fire({
+                                          title: 'حذف السطر؟',
+                                          text: 'هل أنت متأكد من حذف هذا الامتحان من الجدول؟',
+                                          icon: 'warning',
+                                          showCancelButton: true,
+                                          confirmButtonText: 'نعم، احذف',
+                                          cancelButtonText: 'تراجع',
+                                          confirmButtonColor: '#ef4444',
+                                          cancelButtonColor: '#64748b',
+                                          customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                                        }).then((result) => {
+                                          if (result.isConfirmed) {
+                                            setLocalExamSchedule(localExamSchedule.filter(r => r.id !== row.id));
+                                          }
+                                        });
+                                      }}
+                                      className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                    >
+                                      <Trash2 className="w-5 h-5" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button 
+                          onClick={() => {
+                            const gradeSubs = gradeSubjects[selectedGradeFilter] || [];
+                            const nextIndex = localExamSchedule.length;
+                            const nextSubject = gradeSubs[nextIndex % gradeSubs.length] || subjects[0];
+                            const nextDay = DAYS[nextIndex % DAYS.length];
+                            const nextDate = new Date();
+                            nextDate.setDate(nextDate.getDate() + nextIndex);
+
+                            const newRow = { 
+                              id: Date.now().toString() + Math.random(), 
+                              type: selectedExamTypeFilter, 
+                              subject: nextSubject, 
+                              time: selectedExamTypeFilter === 'monthly' ? PERIODS[0] : '08:00 - 10:00', 
+                              date: nextDate.toISOString().split('T')[0], 
+                              day: nextDay, 
+                              grade: selectedGradeFilter, 
+                              section: selectedSectionFilter 
+                            };
+                            setLocalExamSchedule([...localExamSchedule, newRow]);
+                          }}
+                          className="flex-1 bg-white text-emerald-600 border-2 border-emerald-100 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-50 transition-all shadow-sm"
+                        >
+                          <Plus className="w-5 h-5" />
+                          إضافة سطر جديد
+                        </button>
+                        <button 
+                          onClick={() => {
+                            MySwal.fire({
+                              title: 'تأكيد الحفظ',
+                              text: `هل أنت متأكد من حفظ جدول امتحانات ${type.name} لـ ${selectedGradeFilter}؟`,
+                              icon: 'question',
+                              showCancelButton: true,
+                              confirmButtonText: 'نعم، احفظ',
+                              cancelButtonText: 'تراجع',
+                              confirmButtonColor: '#10b981',
+                              cancelButtonColor: '#64748b',
+                              customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                const otherExams = examSchedule.filter((s: any) => !(s.grade === selectedGradeFilter && s.section === selectedSectionFilter && s.type === selectedExamTypeFilter));
+                                setExamSchedule([...otherExams, ...localExamSchedule]);
+                                MySwal.fire({
+                                  title: 'تم الحفظ!',
+                                  text: 'تم تحديث جدول الامتحانات بنجاح',
+                                  icon: 'success',
+                                  timer: 2000,
+                                  showConfirmButton: false
+                                });
+                              }
+                            });
+                          }}
+                          className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                        >
+                          <Save className="w-5 h-5" />
+                          حفظ الجدول بالكامل
+                        </button>
                       </div>
                     </div>
                   );
                 })}
 
-                {(examSchedule || []).filter((s: any) => s.grade === selectedGradeFilter && s.section === selectedSectionFilter).length === 0 && (
-                  <div className="p-12 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <p className="text-slate-400">لا توجد امتحانات مضافة لهذا الصف والشعبة</p>
+                {/* Exam Cell Picker Modal */}
+                {showExamCellPicker && (
+                  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden"
+                    >
+                      <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 className="text-xl font-bold text-slate-900">تعديل البيانات</h3>
+                        <button onClick={() => setShowExamCellPicker(null)} className="p-2 hover:bg-white rounded-full transition-colors shadow-sm border border-slate-100">
+                          <X className="w-5 h-5 text-slate-400" />
+                        </button>
+                      </div>
+                      
+                      <div className="p-8 space-y-6">
+                        {showExamCellPicker.field === 'day' && (
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-500">اختر اليوم</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {DAYS.map(day => (
+                                <button
+                                  key={day}
+                                  onClick={() => {
+                                    setLocalExamSchedule(prev => prev.map(r => r.id === showExamCellPicker.examId ? { ...r, day } : r));
+                                    setShowExamCellPicker(null);
+                                  }}
+                                  className={`p-3 rounded-xl border font-bold transition-all ${
+                                    localExamSchedule.find(r => r.id === showExamCellPicker.examId)?.day === day
+                                      ? 'bg-emerald-600 text-white border-emerald-600'
+                                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {day}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {showExamCellPicker.field === 'subject' && (
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-500">اختر المادة</label>
+                            <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                              {(gradeSubjects[selectedGradeFilter] || subjects).map(subject => (
+                                <button
+                                  key={subject}
+                                  onClick={() => {
+                                    setLocalExamSchedule(prev => prev.map(r => r.id === showExamCellPicker.examId ? { ...r, subject } : r));
+                                    setShowExamCellPicker(null);
+                                  }}
+                                  className={`p-3 rounded-xl border font-bold transition-all text-sm ${
+                                    localExamSchedule.find(r => r.id === showExamCellPicker.examId)?.subject === subject
+                                      ? 'bg-emerald-600 text-white border-emerald-600'
+                                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {subject}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {showExamCellPicker.field === 'date' && (
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-500">تاريخ الامتحان</label>
+                            <input 
+                              type="date"
+                              value={localExamSchedule.find(r => r.id === showExamCellPicker.examId)?.date || ''}
+                              onChange={(e) => {
+                                setLocalExamSchedule(prev => prev.map(r => r.id === showExamCellPicker.examId ? { ...r, date: e.target.value } : r));
+                              }}
+                              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                            />
+                            <button 
+                              onClick={() => setShowExamCellPicker(null)}
+                              className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold mt-4"
+                            >
+                              حفظ التاريخ
+                            </button>
+                          </div>
+                        )}
+
+                        {showExamCellPicker.field === 'time' && (
+                          <div className="space-y-4">
+                            {selectedExamTypeFilter === 'monthly' ? (
+                              <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-500">اختر الحصة</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {PERIODS.map(p => (
+                                    <button
+                                      key={p}
+                                      onClick={() => {
+                                        setLocalExamSchedule(prev => prev.map(r => r.id === showExamCellPicker.examId ? { ...r, time: p } : r));
+                                        setShowExamCellPicker(null);
+                                      }}
+                                      className={`p-3 rounded-xl border font-bold transition-all text-xs ${
+                                        localExamSchedule.find(r => r.id === showExamCellPicker.examId)?.time === p
+                                          ? 'bg-emerald-600 text-white border-emerald-600'
+                                          : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                      }`}
+                                    >
+                                      {p}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-400">وقت البدء</label>
+                                    <input 
+                                      type="time"
+                                      value={localExamSchedule.find(r => r.id === showExamCellPicker.examId)?.time?.split(' - ')[0] || '08:00'}
+                                      onChange={(e) => {
+                                        const row = localExamSchedule.find(r => r.id === showExamCellPicker.examId);
+                                        const end = row?.time?.split(' - ')[1] || '10:00';
+                                        setLocalExamSchedule(prev => prev.map(r => r.id === showExamCellPicker.examId ? { ...r, time: `${e.target.value} - ${end}` } : r));
+                                      }}
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-400">وقت الانتهاء</label>
+                                    <input 
+                                      type="time"
+                                      value={localExamSchedule.find(r => r.id === showExamCellPicker.examId)?.time?.split(' - ')[1] || '10:00'}
+                                      onChange={(e) => {
+                                        const row = localExamSchedule.find(r => r.id === showExamCellPicker.examId);
+                                        const start = row?.time?.split(' - ')[0] || '08:00';
+                                        setLocalExamSchedule(prev => prev.map(r => r.id === showExamCellPicker.examId ? { ...r, time: `${start} - ${e.target.value}` } : r));
+                                      }}
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700"
+                                    />
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => setShowExamCellPicker(null)}
+                                  className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold mt-2 shadow-lg shadow-emerald-600/20"
+                                >
+                                  حفظ الوقت
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
                   </div>
                 )}
               </div>
@@ -2097,14 +2449,28 @@ const AdminDashboard = ({
                     <button 
                       onClick={() => {
                         if (newGrade.trim()) {
-                          setGrades([...grades, newGrade.trim()]);
-                          setNewGrade('');
                           MySwal.fire({
-                            title: 'تمت الإضافة!',
-                            text: 'تم إضافة المرحلة الدراسية بنجاح',
-                            icon: 'success',
-                            confirmButtonText: 'حسناً',
-                            timer: 2000
+                            title: 'تأكيد الإضافة',
+                            text: `هل أنت متأكد من إضافة "${newGrade.trim()}"؟`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، أضف',
+                            cancelButtonText: 'تراجع',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#64748b',
+                            customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setGrades([...grades, newGrade.trim()]);
+                              setNewGrade('');
+                              MySwal.fire({
+                                title: 'تمت الإضافة!',
+                                text: 'تم إضافة المرحلة الدراسية بنجاح',
+                                icon: 'success',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000
+                              });
+                            }
                           });
                         } else {
                           MySwal.fire({
@@ -2146,14 +2512,28 @@ const AdminDashboard = ({
                     <button 
                       onClick={() => {
                         if (newYear.trim()) {
-                          setAcademicYears([...academicYears, newYear.trim()]);
-                          setNewYear('');
                           MySwal.fire({
-                            title: 'تمت الإضافة!',
-                            text: 'تم إضافة العام الدراسي بنجاح',
-                            icon: 'success',
-                            confirmButtonText: 'حسناً',
-                            timer: 2000
+                            title: 'تأكيد الإضافة',
+                            text: `هل أنت متأكد من إضافة "${newYear.trim()}"؟`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، أضف',
+                            cancelButtonText: 'تراجع',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#64748b',
+                            customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setAcademicYears([...academicYears, newYear.trim()]);
+                              setNewYear('');
+                              MySwal.fire({
+                                title: 'تمت الإضافة!',
+                                text: 'تم إضافة العام الدراسي بنجاح',
+                                icon: 'success',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000
+                              });
+                            }
                           });
                         } else {
                           MySwal.fire({
@@ -2195,14 +2575,28 @@ const AdminDashboard = ({
                     <button 
                       onClick={() => {
                         if (newCategory.trim()) {
-                          setCategories([...categories, newCategory.trim()]);
-                          setNewCategory('');
                           MySwal.fire({
-                            title: 'تمت الإضافة!',
-                            text: 'تم إضافة التصنيف بنجاح',
-                            icon: 'success',
-                            confirmButtonText: 'حسناً',
-                            timer: 2000
+                            title: 'تأكيد الإضافة',
+                            text: `هل أنت متأكد من إضافة "${newCategory.trim()}"؟`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، أضف',
+                            cancelButtonText: 'تراجع',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#64748b',
+                            customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setCategories([...categories, newCategory.trim()]);
+                              setNewCategory('');
+                              MySwal.fire({
+                                title: 'تمت الإضافة!',
+                                text: 'تم إضافة التصنيف بنجاح',
+                                icon: 'success',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000
+                              });
+                            }
                           });
                         } else {
                           MySwal.fire({
@@ -2244,14 +2638,28 @@ const AdminDashboard = ({
                     <button 
                       onClick={() => {
                         if (newSection.trim()) {
-                          setSections([...sections, newSection.trim()]);
-                          setNewSection('');
                           MySwal.fire({
-                            title: 'تمت الإضافة!',
-                            text: 'تم إضافة الشعبة بنجاح',
-                            icon: 'success',
-                            confirmButtonText: 'حسناً',
-                            timer: 2000
+                            title: 'تأكيد الإضافة',
+                            text: `هل أنت متأكد من إضافة "${newSection.trim()}"؟`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، أضف',
+                            cancelButtonText: 'تراجع',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#64748b',
+                            customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setSections([...sections, newSection.trim()]);
+                              setNewSection('');
+                              MySwal.fire({
+                                title: 'تمت الإضافة!',
+                                text: 'تم إضافة الشعبة بنجاح',
+                                icon: 'success',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000
+                              });
+                            }
                           });
                         } else {
                           MySwal.fire({
@@ -2293,14 +2701,28 @@ const AdminDashboard = ({
                     <button 
                       onClick={() => {
                         if (newSubject.trim()) {
-                          setSubjects([...subjects, newSubject.trim()]);
-                          setNewSubject('');
                           MySwal.fire({
-                            title: 'تمت الإضافة!',
-                            text: 'تم إضافة المادة الدراسية بنجاح',
-                            icon: 'success',
-                            confirmButtonText: 'حسناً',
-                            timer: 2000
+                            title: 'تأكيد الإضافة',
+                            text: `هل أنت متأكد من إضافة "${newSubject.trim()}"؟`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، أضف',
+                            cancelButtonText: 'تراجع',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#64748b',
+                            customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setSubjects([...subjects, newSubject.trim()]);
+                              setNewSubject('');
+                              MySwal.fire({
+                                title: 'تمت الإضافة!',
+                                text: 'تم إضافة المادة الدراسية بنجاح',
+                                icon: 'success',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000
+                              });
+                            }
                           });
                         } else {
                           MySwal.fire({
@@ -2325,6 +2747,188 @@ const AdminDashboard = ({
                     ))}
                   </div>
                 </div>
+
+                {/* Grade-Subject Mapping Redesign */}
+                <div className="md:col-span-2 pt-10 border-t border-slate-100 mt-10">
+                  <h4 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                    <div className="w-1.5 h-8 bg-emerald-500 rounded-full"></div>
+                    ربط المواد بالصفوف الدراسية
+                  </h4>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 mr-1">الصف الدراسي</label>
+                      <ElegantDropdown 
+                        options={grades}
+                        value={managementSelectedGrade}
+                        onChange={setManagementSelectedGrade}
+                        widthClass="w-full"
+                        noLabel
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <button 
+                        onClick={() => {
+                          setTempModalSubjects(gradeSubjects[managementSelectedGrade] || []);
+                          setShowGradeSubjectModal(true);
+                        }}
+                        className="w-full bg-emerald-600 text-white px-4 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 h-[52px]"
+                      >
+                        <Plus className="w-5 h-5" />
+                        إضافة مواد
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50/50 border border-slate-100 rounded-[2rem] p-6 min-h-[120px]">
+                    <div className="flex justify-between items-center mb-4">
+                      <h5 className="font-bold text-slate-700">المواد المرتبطة بـ {managementSelectedGrade}</h5>
+                      <span className="text-xs font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100">
+                        {(gradeSubjects[managementSelectedGrade] || []).length} مواد
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {(gradeSubjects[managementSelectedGrade] || []).length > 0 ? (
+                        (gradeSubjects[managementSelectedGrade] || []).map((s: string) => (
+                          <div key={s} className="bg-white px-4 py-2.5 rounded-xl border border-slate-200 flex items-center gap-3 shadow-sm group">
+                            <span className="font-bold text-slate-600 text-sm">{s}</span>
+                            <button 
+                              onClick={() => {
+                                MySwal.fire({
+                                  title: 'تأكيد الحذف',
+                                  text: `هل أنت متأكد من حذف مادة "${s}" من ${managementSelectedGrade}؟`,
+                                  icon: 'warning',
+                                  showCancelButton: true,
+                                  confirmButtonText: 'نعم، احذف',
+                                  cancelButtonText: 'تراجع',
+                                  confirmButtonColor: '#ef4444',
+                                  cancelButtonColor: '#64748b',
+                                  customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    const newSubjects = gradeSubjects[managementSelectedGrade].filter((sub: string) => sub !== s);
+                                    setGradeSubjects({ ...gradeSubjects, [managementSelectedGrade]: newSubjects });
+                                    MySwal.fire({
+                                      title: 'تم الحذف!',
+                                      text: 'تم حذف المادة بنجاح',
+                                      icon: 'success',
+                                      timer: 1500,
+                                      showConfirmButton: false
+                                    });
+                                  }
+                                });
+                              }}
+                              className="text-slate-300 hover:text-red-500 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="w-full py-8 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-100 rounded-2xl">
+                          <BookOpen className="w-8 h-8 mb-2 opacity-20" />
+                          <p className="text-sm font-bold">لا توجد مواد مرتبطة بهذا الصف حالياً</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subject Selection Modal */}
+                {showGradeSubjectModal && (
+                  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden"
+                    >
+                      <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div>
+                          <h3 className="text-2xl font-bold text-slate-900">اختيار المواد</h3>
+                          <p className="text-sm text-slate-500 font-bold mt-1">تحديد المواد الدراسية لـ {managementSelectedGrade}</p>
+                        </div>
+                        <button onClick={() => setShowGradeSubjectModal(false)} className="p-2 hover:bg-white rounded-full transition-colors shadow-sm border border-slate-100">
+                          <X className="w-6 h-6 text-slate-400" />
+                        </button>
+                      </div>
+                      
+                      <div className="p-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                          {subjects.map((s: string) => {
+                            const isSelected = tempModalSubjects.includes(s);
+                            return (
+                              <button
+                                key={s}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setTempModalSubjects(tempModalSubjects.filter(item => item !== s));
+                                  } else {
+                                    setTempModalSubjects([...tempModalSubjects, s]);
+                                  }
+                                }}
+                                className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-sm font-bold text-right ${
+                                  isSelected 
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-2 ring-emerald-500/20' 
+                                    : 'bg-white text-slate-500 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                }`}
+                              >
+                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all shrink-0 ${
+                                  isSelected ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-slate-200'
+                                }`}>
+                                  {isSelected && <Check className="w-4 h-4" />}
+                                </div>
+                                <span className="truncate">{s}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+                      <button 
+                        onClick={() => {
+                          MySwal.fire({
+                            title: 'تأكيد الحفظ',
+                            text: `هل أنت متأكد من تحديث مواد ${managementSelectedGrade}؟`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'نعم، احفظ',
+                            cancelButtonText: 'تراجع',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#64748b',
+                            customClass: { popup: 'rounded-[2rem]', confirmButton: 'rounded-xl px-6 py-3 font-bold', cancelButton: 'rounded-xl px-6 py-3 font-bold' }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              setGradeSubjects({
+                                ...gradeSubjects,
+                                [managementSelectedGrade]: tempModalSubjects
+                              });
+                              setShowGradeSubjectModal(false);
+                              MySwal.fire({
+                                title: 'تم الحفظ!',
+                                text: `تم تحديث مواد ${managementSelectedGrade} بنجاح`,
+                                icon: 'success',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000
+                              });
+                            }
+                          });
+                        }}
+                        className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                      >
+                        تأكيد الاختيار
+                      </button>
+                        <button 
+                          onClick={() => setShowGradeSubjectModal(false)}
+                          className="flex-1 bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition-all"
+                        >
+                          إلغاء
+                        </button>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2334,15 +2938,15 @@ const AdminDashboard = ({
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h3 className="text-2xl font-bold text-slate-900">إدارة أرقام الجلوس</h3>
-              <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                <div className="relative w-full md:w-64">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                <div className="relative w-full col-span-2 lg:col-span-1">
                   <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <input 
                     type="text" 
                     placeholder="بحث عن طالب..." 
                     value={seatingSearch}
                     onChange={(e) => setSeatingSearch(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-[52px]"
                   />
                 </div>
                 <ElegantDropdown 
@@ -2350,22 +2954,24 @@ const AdminDashboard = ({
                   options={grades}
                   value={selectedGradeFilter}
                   onChange={(val) => setSelectedGradeFilter(val)}
-                  widthClass="w-full md:w-48"
+                  widthClass="w-full"
                 />
                 <ElegantDropdown 
                   label="الشعبة"
                   options={sections}
                   value={selectedSectionFilter}
                   onChange={(val) => setSelectedSectionFilter(val)}
-                  widthClass="w-full md:w-32"
+                  widthClass="w-full"
                 />
-                <button 
-                  onClick={() => { setEditingItem({ name: '', grade: selectedGradeFilter, section: selectedSectionFilter, seatNumber: '' }); setIsAdding(true); setModalSubTab('basic'); }}
-                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
-                >
-                  <Plus className="w-5 h-5" />
-                  إضافة رقم جلوس
-                </button>
+                <div className="flex items-end col-span-2 lg:col-span-1">
+                  <button 
+                    onClick={() => { setEditingItem({ name: '', grade: selectedGradeFilter, section: selectedSectionFilter, seatNumber: '' }); setIsAdding(true); setModalSubTab('basic'); }}
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full justify-center h-[52px] shadow-lg shadow-emerald-600/20"
+                  >
+                    <Plus className="w-5 h-5" />
+                    إضافة رقم جلوس
+                  </button>
+                </div>
               </div>
             </div>
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm table-responsive">
@@ -2408,28 +3014,44 @@ const AdminDashboard = ({
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h3 className="text-2xl font-bold text-slate-900">إدارة بيانات الطلاب (بوابة الأهالي)</h3>
-              <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                <div className="relative w-full md:w-64">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                <div className="relative w-full col-span-2 lg:col-span-1">
                   <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   <input 
                     type="text" 
                     placeholder="بحث باسم الطالب أو الرقم..." 
                     value={parentPortalSearch}
                     onChange={(e) => setParentPortalSearch(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-[52px]"
                   />
                 </div>
-                <button 
-                  onClick={() => { setEditingItem({ id: '', name: '', attendance: '0%', behavior: 'ممتاز', exams: [], attendanceDetails: [], feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
-                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full md:w-auto justify-center"
-                >
-                  <Plus className="w-5 h-5" />
-                  إضافة طالب
-                </button>
+                <ElegantDropdown 
+                  label="الصف"
+                  options={grades}
+                  value={selectedGradeFilter}
+                  onChange={setSelectedGradeFilter}
+                  widthClass="w-full"
+                />
+                <ElegantDropdown 
+                  label="الشعبة"
+                  options={sections}
+                  value={selectedSectionFilter}
+                  onChange={setSelectedSectionFilter}
+                  widthClass="w-full"
+                />
+                <div className="flex items-end col-span-2 lg:col-span-1">
+                  <button 
+                    onClick={() => { setEditingItem({ id: '', name: '', grade: selectedGradeFilter, section: selectedSectionFilter, attendance: '0%', behavior: 'ممتاز', exams: [], attendanceDetails: [], feedback: [] }); setIsAdding(true); setModalSubTab('basic'); }}
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full justify-center h-[52px] shadow-lg shadow-emerald-600/20"
+                  >
+                    <Plus className="w-5 h-5" />
+                    إضافة طالب
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Semester Selection Dropdown - Moved here */}
+            {/* Semester Selection Dropdown */}
             <div className="flex items-center justify-between bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${selectedSemester === 1 ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
@@ -2457,7 +3079,9 @@ const AdminDashboard = ({
             </div>
             <div className="grid gap-4">
               {Object.entries(parentPortalData).filter(([id, data]: any) => 
-                data.name.toLowerCase().includes(parentPortalSearch.toLowerCase()) || id.includes(parentPortalSearch)
+                (data.name.toLowerCase().includes(parentPortalSearch.toLowerCase()) || id.includes(parentPortalSearch)) &&
+                (!data.grade || data.grade === selectedGradeFilter) &&
+                (!data.section || data.section === selectedSectionFilter)
               ).map(([id, data]: any) => (
                 <div key={id} className="bg-white p-6 rounded-3xl border border-slate-100 flex justify-between items-center group hover:shadow-md transition-all">
                   <div className="flex gap-4 items-center">
@@ -2466,7 +3090,7 @@ const AdminDashboard = ({
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-900">{data.name}</h4>
-                      <p className="text-sm text-slate-500">رقم الطالب: {id}</p>
+                      <p className="text-sm text-slate-500">رقم الطالب: {id} • {data.grade} ({data.section})</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -2851,7 +3475,7 @@ const AdminDashboard = ({
                           />
                           <ElegantDropdown 
                             label="المادة"
-                            options={subjects}
+                            options={gradeSubjects[editingItem.grade] || subjects}
                             value={editingItem.subject}
                             onChange={(val) => setEditingItem({...editingItem, subject: val})}
                             widthClass="w-full"
@@ -2986,14 +3610,7 @@ const AdminDashboard = ({
                       <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
                       <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
                     </div>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <ElegantDropdown 
-                        label="الصف"
-                        options={grades}
-                        value={editingItem.grade}
-                        onChange={(val) => setEditingItem({...editingItem, grade: val})}
-                        widthClass="w-full"
-                      />
+                    <div className="grid md:grid-cols-1 gap-6">
                       <ElegantDropdown 
                         label="الشعبة"
                         options={sections}
@@ -3060,14 +3677,26 @@ const AdminDashboard = ({
                     {/* Results Tab */}
                     {modalSubTab === 'results' && (
                       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
                           <div>
                             <h4 className="font-bold text-slate-900">نتائج {selectedSemester === 1 ? 'الفصل الأول' : 'الفصل الثاني'}</h4>
-                            <p className="text-xs text-slate-400 font-bold mt-1">إضافة وتعديل نتائج الامتحانات لهذا الفصل</p>
+                            <p className="text-xs text-slate-400 font-bold mt-1">إدارة نتائج الامتحانات</p>
+                          </div>
+                          <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm border border-slate-100">
+                            {[1, 2].map(s => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setSelectedSemester(s)}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${selectedSemester === s ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                              >
+                                الفصل {s === 1 ? 'الأول' : 'الثاني'}
+                              </button>
+                            ))}
                           </div>
                           <button type="button" onClick={() => {
-                            // Initialize results with all subjects
-                            const initialResults = subjects.map((s: string) => ({ subject: s, score: 0, total: 100 }));
+                            // Initialize results with filtered subjects
+                            const initialResults = (gradeSubjects[editingItem.grade] || subjects).map((s: string) => ({ subject: s, score: 0, total: 100 }));
                             const newExams = [...(editingItem.exams || []), { 
                               id: Date.now().toString(), 
                               semester: selectedSemester, 
@@ -3173,7 +3802,7 @@ const AdminDashboard = ({
                                     </div>
                                     
                                     <div className="bg-white rounded-3xl border border-slate-100 overflow-x-auto shadow-sm">
-                                      <table className="w-full text-right">
+                                      <table className="w-full text-right min-w-[600px]">
                                         <thead className="bg-slate-50 border-b border-slate-100">
                                           <tr>
                                             <th className="p-4 text-xs font-black text-slate-400 uppercase tracking-widest">المادة الدراسية</th>
@@ -3437,7 +4066,7 @@ const AdminDashboard = ({
               </button>
             </div>
                   <div className="p-8 grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-                    {(subjects || []).map((subject) => (
+                    {(gradeSubjects[editingItem.grade] || subjects || []).map((subject) => (
                       <button
                         key={subject}
                         onClick={() => {
@@ -3568,6 +4197,13 @@ const ParentPortal = ({
 
   const hasSemester1Final = semester1Exams.some((e: any) => e.type === 'final');
 
+  const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
+  const toggleMonth = (key: string) => {
+    setExpandedMonths(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
   return (
     <section id="parent-portal" className="py-20 lg:py-32 bg-slate-900 text-white min-h-screen relative overflow-x-hidden" dir="rtl">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -3682,8 +4318,8 @@ const ParentPortal = ({
 
               <div className="lg:col-span-2 space-y-8">
                 {/* Semester 1 Section */}
-                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden">
-                  <div className="flex items-center gap-4 mb-10">
+                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 relative overflow-hidden">
+                  <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
                       <Calendar className="w-6 h-6 text-emerald-500" />
                     </div>
@@ -3693,7 +4329,7 @@ const ParentPortal = ({
                     </div>
                   </div>
 
-                  <div className="grid gap-4 mb-10">
+                  <div className="grid gap-4 mb-8">
                     {semester1Exams.map((exam: any) => {
                       const monthName = exam.month;
                       const attendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 1);
@@ -3701,9 +4337,15 @@ const ParentPortal = ({
                       
                       if (exam.type === 'final') return null;
 
+                      const key = `1-${monthName}`;
+                      const isExpanded = expandedMonths.includes(key);
+
                       return (
                         <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
-                          <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 border-b border-white/5">
+                          <div 
+                            onClick={() => toggleMonth(key)}
+                            className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
+                          >
                             <div className="flex items-center gap-4 w-full sm:w-auto">
                               <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
                                 {monthName?.substring(0, 3)}
@@ -3727,23 +4369,48 @@ const ParentPortal = ({
                                   {attendance?.absent || 0}
                                 </span>
                               </div>
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5">
+                                <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                              </div>
                             </div>
                           </div>
                           
-                          {/* Subjects List for this month */}
-                          <div className="p-6 bg-black/20">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {(exam.results || []).map((res: any, idx: number) => (
-                                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                                  <span className="text-sm text-slate-300">{res.subject}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-bold text-white">{res.score}</span>
-                                    <span className="text-[10px] text-slate-500">/ {res.total}</span>
+                          <AnimatePresence>
+                            {isExpanded && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="overflow-hidden"
+                              >
+                                {/* Subjects List for this month */}
+                                <div className="p-6 bg-black/20">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {(exam.results || []).map((res: any, idx: number) => (
+                                      <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                          <span className="text-sm font-bold text-slate-200">{res.subject}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                          <div className="text-right">
+                                            <span className="text-lg font-black text-white block leading-none">{res.score}</span>
+                                            <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
+                                          </div>
+                                          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                            <span className="text-[10px] font-black text-emerald-500">
+                                              {Math.round((res.score / res.total) * 100)}%
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       );
                     })}
@@ -3773,8 +4440,8 @@ const ParentPortal = ({
 
                 {/* Semester 2 Section - Only visible after midterm is added */}
                 {hasSemester1Final && (
-                  <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-10 relative overflow-hidden">
-                    <div className="flex items-center gap-4 mb-10">
+                  <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 relative overflow-hidden">
+                    <div className="flex items-center gap-4 mb-8">
                       <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
                         <Calendar className="w-6 h-6 text-blue-500" />
                       </div>
@@ -3784,7 +4451,7 @@ const ParentPortal = ({
                       </div>
                     </div>
 
-                    <div className="grid gap-4 mb-10">
+                    <div className="grid gap-4 mb-8">
                       {semester2Exams.map((exam: any) => {
                         const monthName = exam.month;
                         const attendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 2);
@@ -3792,9 +4459,15 @@ const ParentPortal = ({
                         
                         if (exam.type === 'final') return null;
 
+                        const key = `2-${monthName}`;
+                        const isExpanded = expandedMonths.includes(key);
+
                         return (
                           <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
-                            <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 border-b border-white/5">
+                            <div 
+                              onClick={() => toggleMonth(key)}
+                              className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
+                            >
                               <div className="flex items-center gap-4 w-full sm:w-auto">
                                 <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
                                   {monthName?.substring(0, 3)}
@@ -3818,23 +4491,38 @@ const ParentPortal = ({
                                     {attendance?.absent || 0}
                                   </span>
                                 </div>
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5">
+                                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                                </div>
                               </div>
                             </div>
                             
-                            {/* Subjects List for this month */}
-                            <div className="p-6 bg-black/20">
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {(exam.results || []).map((res: any, idx: number) => (
-                                  <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                                    <span className="text-sm text-slate-300">{res.subject}</span>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm font-bold text-white">{res.score}</span>
-                                      <span className="text-[10px] text-slate-500">/ {res.total}</span>
+                            <AnimatePresence>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                                  className="overflow-hidden"
+                                >
+                                  {/* Subjects List for this month */}
+                                  <div className="p-6 bg-black/20">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                      {(exam.results || []).map((res: any, idx: number) => (
+                                        <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                          <span className="text-sm text-slate-300">{res.subject}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm font-bold text-white">{res.score}</span>
+                                            <span className="text-[10px] text-slate-500">/ {res.total}</span>
+                                          </div>
+                                        </div>
+                                      ))}
                                     </div>
                                   </div>
-                                ))}
-                              </div>
-                            </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         );
                       })}
@@ -3921,12 +4609,18 @@ const ParentPortal = ({
 const Registration = () => {
   const [selectedGrade, setSelectedGrade] = useState('الصف الأول الابتدائي');
   const grades = [
-    'الصف الأول الابتدائي',
-    'الصف الثاني الابتدائي',
-    'الصف الثالث الابتدائي',
-    'الصف الرابع الابتدائي',
-    'الصف الخامس الابتدائي',
-    'الصف السادس الابتدائي'
+    'الصف الأول',
+    'الصف الثاني',
+    'الصف الثالث',
+    'الصف الرابع',
+    'الصف الخامس',
+    'الصف السادس',
+    'الصف السابع',
+    'الصف الثامن',
+    'الصف التاسع',
+    'الأول ثانوي',
+    'الثاني ثانوي',
+    'الثالث ثانوي'
   ];
 
   return (
@@ -4139,7 +4833,21 @@ export default function App() {
   const [posts, setPosts] = useState(INITIAL_POSTS);
   const [seatingData, setSeatingData] = useState(INITIAL_SEATING_DATA);
   const [parentPortalData, setParentPortalData] = useState(PARENT_PORTAL_MOCK_DATA);
-  const [grades, setGrades] = useState(['الصف الخامس', 'الصف السادس', 'الصف السابع']);
+  const [gradeSubjects, setGradeSubjects] = useState(INITIAL_GRADE_SUBJECTS);
+  const [grades, setGrades] = useState([
+    'الصف الأول',
+    'الصف الثاني',
+    'الصف الثالث',
+    'الصف الرابع',
+    'الصف الخامس',
+    'الصف السادس',
+    'الصف السابع',
+    'الصف الثامن',
+    'الصف التاسع',
+    'الأول ثانوي',
+    'الثاني ثانوي',
+    'الثالث ثانوي'
+  ]);
   const [academicYears, setAcademicYears] = useState(['2024', '2023', '2022']);
   const [categories, setCategories] = useState(['إنجازات', 'فعاليات', 'تطوير']);
   const [sections, setSections] = useState(['أ', 'ب', 'ج']);
@@ -4206,6 +4914,7 @@ export default function App() {
             posts={posts} setPosts={setPosts}
             seatingData={seatingData} setSeatingData={setSeatingData}
             parentPortalData={parentPortalData} setParentPortalData={setParentPortalData}
+            gradeSubjects={gradeSubjects} setGradeSubjects={setGradeSubjects}
             grades={grades} setGrades={setGrades}
             academicYears={academicYears} setAcademicYears={setAcademicYears}
             categories={categories} setCategories={setCategories}
