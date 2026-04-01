@@ -13,6 +13,7 @@ import {
   Mail, 
   MapPin, 
   ChevronLeft, 
+  ChevronRight,
   ChevronDown,
   Menu, 
   X,
@@ -39,7 +40,10 @@ import {
   Lock,
   User,
   Download,
-  Share2
+  Share2,
+  FileText,
+  Upload,
+  CheckSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { jsPDF } from 'jspdf';
@@ -175,17 +179,6 @@ const INITIAL_SUBJECTS = [
   "رياضيات",          
   "التفاضل والتكامل",      
   "الجبر والهندسة",    
-  "علوم",            
-  "فيزياء",        
-  "كيمياء",             
-  "أحياء",              
-  "لغة إنجليزية",         
-  "اجتماعيات",             
-  "تاريخ",                
-  "جغرافيا",           
-  "تربية وطنية",          
-  "علم الاقتصاد",        
-  "علم الاجتماع",   
   "منطق",            
   "فلسفة",                 
   "علم النفس",         
@@ -220,6 +213,7 @@ const INITIAL_STUDENTS = [
     name: 'أحمد محمد علي', 
     grade: 'الصف السادس', 
     year: '2024', 
+    section: 'أ',
     rank: 1, 
     image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200', 
     score: '99.8%',
@@ -230,6 +224,7 @@ const INITIAL_STUDENTS = [
     name: 'سارة خالد حسن', 
     grade: 'الصف السادس', 
     year: '2024', 
+    section: 'أ',
     rank: 2, 
     image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=200', 
     score: '99.5%',
@@ -240,6 +235,7 @@ const INITIAL_STUDENTS = [
     name: 'عمر ياسين', 
     grade: 'الصف السادس', 
     year: '2024', 
+    section: 'أ',
     rank: 3, 
     image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200', 
     score: '99.2%',
@@ -250,6 +246,7 @@ const INITIAL_STUDENTS = [
     name: 'ليان العتيبي', 
     grade: 'الصف السادس', 
     year: '2024', 
+    section: 'أ',
     rank: 4, 
     image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
     score: '98.9%',
@@ -260,6 +257,7 @@ const INITIAL_STUDENTS = [
     name: 'خالد منصور', 
     grade: 'الصف السادس', 
     year: '2024', 
+    section: 'أ',
     rank: 5, 
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
     score: '98.7%',
@@ -270,6 +268,7 @@ const INITIAL_STUDENTS = [
     name: 'يوسف إبراهيم', 
     grade: 'الصف الخامس', 
     year: '2024', 
+    section: 'أ',
     rank: 1, 
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', 
     score: '99.7%',
@@ -280,6 +279,7 @@ const INITIAL_STUDENTS = [
     name: 'مريم عبدالله', 
     grade: 'الصف الخامس', 
     year: '2024', 
+    section: 'أ',
     rank: 2, 
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', 
     score: '99.4%',
@@ -290,6 +290,7 @@ const INITIAL_STUDENTS = [
     name: 'ليلى محمود', 
     grade: 'الصف السادس', 
     year: '2023', 
+    section: 'أ',
     rank: 1, 
     image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', 
     score: '99.9%',
@@ -300,11 +301,12 @@ const INITIAL_STUDENTS = [
     name: 'فهد العتيبي', 
     grade: 'الصف السادس', 
     year: '2023', 
+    section: 'أ',
     rank: 2, 
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200', 
     score: '99.6%',
     achievements: ['بطل المنطقة في السباحة', 'جائزة الطالب المبتكر', 'عضو فريق الروبوت']
-  },
+  }
 ];
 
 const formatDate = (dateString: string) => {
@@ -639,7 +641,7 @@ const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-6
           setIsOpen(!isOpen);
           setSearchTerm('');
         }}
-        className="flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-3.5 font-bold text-slate-700 hover:bg-slate-100 transition-all"
+        className="flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-3.5 font-bold text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
       >
         <span>{value}</span>
         <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -657,13 +659,13 @@ const ElegantDropdown = ({ label, options, value, onChange, widthClass = "md:w-6
               <div className="p-2 border-b border-slate-50 mb-2">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="text"
-                    placeholder="بحث..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl pr-9 pl-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
+                    <input 
+                      type="text"
+                      placeholder="بحث..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl pr-9 pl-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
+                    />
                 </div>
               </div>
             )}
@@ -1134,7 +1136,7 @@ const StudentCard = ({ student, idx }: { student: any, idx: number, key?: string
         <h4 className="text-xl font-bold text-slate-900 mb-2">{student.name}</h4>
         <div className="flex items-center justify-center gap-2 mb-4">
           <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
-            {student.grade}
+            {student.grade} ({student.section || 'أ'})
           </span>
           <span className="bg-slate-50 text-slate-500 px-3 py-1 rounded-full text-xs font-bold">
             دفعة {student.year}
@@ -1186,9 +1188,10 @@ const StudentCard = ({ student, idx }: { student: any, idx: number, key?: string
   );
 };
 
-const TopStudents = ({ students, academicYears, grades }: { students: any[], academicYears: string[], grades: string[] }) => {
+const TopStudents = ({ students, academicYears, grades, sections }: { students: any[], academicYears: string[], grades: string[], sections: string[] }) => {
   const [selectedYear, setSelectedYear] = useState(academicYears[0]);
   const [selectedGrade, setSelectedGrade] = useState(grades[0]);
+  const [selectedSection, setSelectedSection] = useState(sections[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -1206,11 +1209,12 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
       const y = element.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0) + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
-  }, [showAll, selectedYear, selectedGrade]);
+  }, [showAll, selectedYear, selectedGrade, selectedSection]);
 
   const filteredStudents = (students || []).filter(s => 
     s.year === selectedYear && 
     s.grade === selectedGrade &&
+    (s.section || 'أ') === selectedSection &&
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -1234,7 +1238,7 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">لوحة الشرف</h2>
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">لوحة الأوائل</h2>
             <p className="text-slate-500 text-lg">نحتفي بطلابنا المتميزين الذين حققوا أعلى الدرجات ورفعوا اسم مدرستنا عالياً</p>
             <div className="w-24 h-1.5 bg-emerald-600 mx-auto mt-6 rounded-full"></div>
           </motion.div>
@@ -1249,11 +1253,11 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
               placeholder="ابحث عن اسم الطالب..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl pr-12 pl-6 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-700"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl pr-12 pl-6 py-4 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-700 shadow-sm"
             />
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ElegantDropdown 
               label="العام الدراسي"
               options={academicYears}
@@ -1266,6 +1270,13 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
               options={grades}
               value={selectedGrade}
               onChange={(val) => { setSelectedGrade(val); setShowAll(false); }}
+              widthClass="w-full"
+            />
+            <ElegantDropdown 
+              label="الشعبة"
+              options={sections}
+              value={selectedSection}
+              onChange={(val) => { setSelectedSection(val); setShowAll(false); }}
               widthClass="w-full"
             />
           </div>
@@ -1289,7 +1300,7 @@ const TopStudents = ({ students, academicYears, grades }: { students: any[], aca
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-2">لا توجد نتائج</h3>
                 <p className="text-slate-400 max-w-sm">
-                  عذراً، لم نجد طلاباً يطابقون بحثك في <span className="text-emerald-600 font-bold">{selectedGrade}</span> لعام <span className="text-emerald-600 font-bold">{selectedYear}</span>.
+                  عذراً، لم نجد طلاباً يطابقون بحثك في <span className="text-emerald-600 font-bold">{selectedGrade} ({selectedSection})</span> لعام <span className="text-emerald-600 font-bold">{selectedYear}</span>.
                 </p>
               </motion.div>
             )}
@@ -1777,10 +1788,10 @@ const SeatingNumbers = ({ seatingData, grades, sections }: { seatingData: any[],
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 table-responsive">
           <table className="table w-full text-right border-collapse min-w-[700px]">
             <thead>
-              <tr className="bg-slate-50">
-                <th className="p-6 font-bold text-slate-900 border-b border-slate-100">اسم الطالب</th>
-                <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">رقم الجلوس</th>
-                <th className="p-6 font-bold text-slate-900 border-b border-slate-100 text-center">الحالة</th>
+              <tr className="bg-emerald-50/50">
+                <th className="p-6 font-bold text-emerald-900 border-b border-emerald-100 text-xl">اسم الطالب</th>
+                <th className="p-6 font-bold text-emerald-900 border-b border-emerald-100 text-center text-xl">رقم الجلوس</th>
+                <th className="p-6 font-bold text-emerald-900 border-b border-emerald-100 text-center text-xl">الحالة</th>
               </tr>
             </thead>
             <tbody>
@@ -1788,7 +1799,7 @@ const SeatingNumbers = ({ seatingData, grades, sections }: { seatingData: any[],
                 filteredData.map((student, idx) => (
                   <tr key={idx} className="hover:bg-slate-50 transition-colors">
                     <td className="p-6 font-medium text-slate-700 border-b border-slate-100">{student.name}</td>
-                    <td className="p-6 font-black text-emerald-600 border-b border-slate-100 text-center text-xl">{student.seatNumber}</td>
+                    <td className="p-6 font-normal text-emerald-600 border-b border-slate-100 text-center text-lg">{student.seatNumber}</td>
                     <td className="p-6 border-b border-slate-100 text-center">
                       <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold">مؤكد</span>
                     </td>
@@ -1813,6 +1824,7 @@ const SeatingNumbers = ({ seatingData, grades, sections }: { seatingData: any[],
 };
 
 const AdminDashboard = ({ 
+  setConfirmModal,
   students, setStudents,
   events, setEvents,
   schedule, setSchedule,
@@ -1841,6 +1853,284 @@ const AdminDashboard = ({
   const [selectedExamTypeFilter, setSelectedExamTypeFilter] = useState(EXAM_TYPES[0].id);
   const [parentPortalSearch, setParentPortalSearch] = useState('');
   const [seatingSearch, setSeatingSearch] = useState('');
+  const [seatingPage, setSeatingPage] = useState(1);
+  const [selectedSeatingIds, setSelectedSeatingIds] = useState<string[]>([]);
+  const itemsPerPage = 10;
+  const seatingFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSeatingCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim());
+      const parsedEntries: any[] = [];
+      
+      lines.forEach((line, index) => {
+        const columns = line.split(',');
+        if (columns.length >= 3) {
+          const name = columns[1]?.trim();
+          const seatNumber = columns[2]?.trim();
+          
+          if (name && seatNumber && !name.toLowerCase().includes('name') && !name.includes('الاسم')) {
+            parsedEntries.push({
+              name,
+              grade: selectedGradeFilter,
+              section: selectedSectionFilter,
+              seatNumber
+            });
+          }
+        }
+      });
+
+      if (parsedEntries.length === 0) {
+        MySwal.fire({
+          title: 'خطأ في الملف',
+          text: 'لم يتم العثور على بيانات صالحة في الملف. تأكد من التنسيق (الرقم، الاسم، رقم الجلوس)',
+          icon: 'error',
+          confirmButtonText: 'حسناً'
+        });
+        return;
+      }
+
+      // Analyze data: new vs update
+      let newCount = 0;
+      let updateCount = 0;
+      const currentSeating = seatingData || [];
+      
+      parsedEntries.forEach(entry => {
+        const exists = currentSeating.find(s => 
+          s.name === entry.name && 
+          s.grade === entry.grade && 
+          s.section === entry.section
+        );
+        if (exists) updateCount++;
+        else newCount++;
+      });
+
+      const result = await MySwal.fire({
+        title: 'تأكيد الاستيراد',
+        html: `
+          <div class="text-right space-y-3" dir="rtl">
+            <p class="font-bold text-slate-700">تم تحليل الملف وجدنا التالي:</p>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-600">سجلات جديدة:</span>
+                <span class="text-emerald-600 font-bold">${newCount}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-slate-600">سجلات للتحديث:</span>
+                <span class="text-blue-600 font-bold">${updateCount}</span>
+              </div>
+              <div class="h-px bg-slate-200 my-2"></div>
+              <div class="flex justify-between items-center font-bold">
+                <span>الإجمالي:</span>
+                <span>${parsedEntries.length}</span>
+              </div>
+            </div>
+            <p class="text-sm text-slate-500 mt-4">هل تريد المتابعة وإضافة/تحديث هذه البيانات في ${selectedGradeFilter} - ${selectedSectionFilter}؟</p>
+          </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'نعم، استيراد',
+        cancelButtonText: 'إلغاء',
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#64748b',
+      });
+
+      if (result.isConfirmed) {
+        // Show progress modal
+        MySwal.fire({
+          title: 'جاري معالجة البيانات...',
+          html: `
+            <div class="w-full bg-slate-100 rounded-full h-4 mb-4 overflow-hidden">
+              <div id="import-progress-bar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="import-progress-text" class="text-sm text-slate-500 font-bold">بدء المعالجة... 0%</p>
+          `,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          didOpen: () => { MySwal.showLoading(); }
+        });
+
+        let updatedSeating = [...currentSeating];
+        const total = parsedEntries.length;
+
+        for (let i = 0; i < total; i++) {
+          const entry = parsedEntries[i];
+          const existingIndex = updatedSeating.findIndex(s => 
+            s.name === entry.name && 
+            s.grade === entry.grade && 
+            s.section === entry.section
+          );
+
+          if (existingIndex > -1) {
+            updatedSeating[existingIndex] = { ...updatedSeating[existingIndex], seatNumber: entry.seatNumber };
+          } else {
+            updatedSeating.push({
+              id: (Date.now() + i).toString(),
+              ...entry
+            });
+          }
+
+          if (i % 20 === 0 || i === total - 1) {
+            const progress = Math.round(((i + 1) / total) * 100);
+            const progressBar = document.getElementById('import-progress-bar');
+            const progressText = document.getElementById('import-progress-text');
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (progressText) progressText.innerText = `جاري المعالجة... ${progress}%`;
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+        }
+
+        setSeatingData(updatedSeating);
+        
+        // Update grades and sections if new ones were imported (though here they are fixed by filters)
+        if (!grades.includes(selectedGradeFilter)) {
+          setGrades(prev => [...prev, selectedGradeFilter]);
+        }
+        if (!sections.includes(selectedSectionFilter)) {
+          setSections(prev => [...prev, selectedSectionFilter]);
+        }
+
+        MySwal.fire({
+          title: 'تم الاستيراد بنجاح',
+          text: `تمت معالجة ${total} سجل بنجاح.`,
+          icon: 'success',
+          confirmButtonText: 'حسناً'
+        });
+      }
+    };
+    reader.readAsText(file);
+    if (seatingFileInputRef.current) seatingFileInputRef.current.value = '';
+  };
+
+  const handleBulkDeleteSeating = () => {
+    if (selectedSeatingIds.length === 0) return;
+    
+    MySwal.fire({
+      title: 'هل أنت متأكد؟',
+      text: `سيتم حذف ${selectedSeatingIds.length} سجل من أرقام الجلوس!`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'نعم، احذف الكل',
+      cancelButtonText: 'إلغاء'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newSeatingData = seatingData.filter((s: any) => !selectedSeatingIds.includes(s.id));
+        setSeatingData(newSeatingData);
+        setSelectedSeatingIds([]);
+        MySwal.fire('تم الحذف!', 'تم حذف السجلات المختارة بنجاح.', 'success');
+      }
+    });
+  };
+
+  const handleBulkEditSeating = async () => {
+    if (selectedSeatingIds.length === 0) return;
+
+    // Get current values for selected items to pre-populate if they are all the same
+    const selectedItems = seatingData.filter((s: any) => selectedSeatingIds.includes(s.id));
+    const firstItem = selectedItems[0];
+    const allSameGrade = selectedItems.every((s: any) => s.grade === firstItem.grade);
+    const allSameSection = selectedItems.every((s: any) => s.section === firstItem.section);
+    
+    const initialGrade = allSameGrade ? firstItem.grade : '';
+    const initialSection = allSameSection ? firstItem.section : '';
+
+    // Derive available options from the table data to satisfy "بناء على بيانات الجدول"
+    const tableGrades = Array.from(new Set(seatingData.map((s: any) => s.grade))).filter(Boolean);
+    const tableSections = Array.from(new Set(seatingData.map((s: any) => s.section))).filter(Boolean);
+    
+    // Merge with master lists to ensure all possible options are available
+    const modalGrades = Array.from(new Set([...grades, ...tableGrades]));
+    const modalSections = Array.from(new Set([...sections, ...tableSections]));
+
+    const { value: formValues } = await MySwal.fire({
+      title: 'تعديل السجلات المختارة',
+      html: `
+        <div class="text-right space-y-4" dir="rtl">
+          <p class="text-sm text-slate-500">سيتم تطبيق التغييرات على ${selectedSeatingIds.length} طالب.</p>
+          <div class="space-y-2">
+            <label class="block text-sm font-bold text-slate-700">الصف الجديد:</label>
+            <select id="swal-grade" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="" ${!initialGrade ? 'selected' : ''}>-- لا تغيير --</option>
+              ${modalGrades.map((g: string) => `<option value="${g}" ${g === initialGrade ? 'selected' : ''}>${g}</option>`).join('')}
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-bold text-slate-700">الشعبة الجديدة:</label>
+            <select id="swal-section" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="" ${!initialSection ? 'selected' : ''}>-- لا تغيير --</option>
+              ${modalSections.map((s: string) => `<option value="${s}" ${s === initialSection ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'تحديث الكل',
+      cancelButtonText: 'إلغاء',
+      confirmButtonColor: '#059669',
+      cancelButtonColor: '#64748b',
+      preConfirm: () => {
+        return {
+          grade: (document.getElementById('swal-grade') as HTMLSelectElement).value,
+          section: (document.getElementById('swal-section') as HTMLSelectElement).value
+        }
+      }
+    });
+
+    if (formValues) {
+      const { grade, section } = formValues;
+      // If user kept "-- لا تغيير --" for both, do nothing
+      if (!grade && !section) return;
+
+      const updatedSeating = seatingData.map((s: any) => {
+        if (selectedSeatingIds.includes(s.id)) {
+          return {
+            ...s,
+            grade: grade || s.grade,
+            section: section || s.section
+          };
+        }
+        return s;
+      });
+
+      setSeatingData(updatedSeating);
+
+      // Update master lists if new values were used
+      if (grade && !grades.includes(grade)) {
+        setGrades(prev => [...prev, grade]);
+      }
+      if (section && !sections.includes(section)) {
+        setSections(prev => [...prev, section]);
+      }
+
+      setSelectedSeatingIds([]);
+      MySwal.fire('تم التحديث!', 'تم تحديث السجلات المختارة بنجاح.', 'success');
+    }
+  };
+
+  const toggleSeatingSelection = (id: string) => {
+    setSelectedSeatingIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleAllSeatingSelection = (ids: string[]) => {
+    const allSelected = ids.every(id => selectedSeatingIds.includes(id));
+    if (allSelected) {
+      setSelectedSeatingIds(prev => prev.filter(id => !ids.includes(id)));
+    } else {
+      setSelectedSeatingIds(prev => Array.from(new Set([...prev, ...ids])));
+    }
+  };
+
   const [managementSelectedGrade, setManagementSelectedGrade] = useState(grades[0]);
   const [showGradeSubjectModal, setShowGradeSubjectModal] = useState(false);
   const [tempModalSubjects, setTempModalSubjects] = useState<string[]>([]);
@@ -1867,21 +2157,6 @@ const AdminDashboard = ({
   const [showMonthlyTestMonthPicker, setShowMonthlyTestMonthPicker] = useState<number | null>(null);
   const [editingExamIdx, setEditingExamIdx] = useState<number | null>(null);
   const [selectedSemester, setSelectedSemester] = useState(1);
-
-  // Confirmation Modal State
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-    type: 'danger' | 'success' | 'warning' | 'info';
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    onConfirm: () => {},
-    type: 'info'
-  });
 
   const closeConfirmModal = () => setConfirmModal(prev => ({ ...prev, isOpen: false }));
 
@@ -1948,6 +2223,19 @@ const AdminDashboard = ({
       const newDetails = (editingItem.attendanceDetails || []).filter((_: any, i: number) => i !== id);
       setEditingItem({...editingItem, attendanceDetails: newDetails});
     }
+    else if (type === 'portal-exam') {
+      const newExams = (editingItem.exams || []).filter((_: any, i: number) => i !== id);
+      setEditingItem({...editingItem, exams: newExams});
+      if (editingExamIdx === id) setEditingExamIdx(null);
+    }
+    else if (type === 'portal-subject-result') {
+      const [examIdx, resIdx] = (id as string).split('-').map(Number);
+      const newExams = [...(editingItem.exams || [])];
+      if (newExams[examIdx]) {
+        newExams[examIdx].results = newExams[examIdx].results.filter((_: any, i: number) => i !== resIdx);
+        setEditingItem({...editingItem, exams: newExams});
+      }
+    }
   };
 
   const triggerDelete = (id: string | number, type: string) => {
@@ -1992,7 +2280,7 @@ const AdminDashboard = ({
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-center text-2xl tracking-widest focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-center text-2xl tracking-widest focus:ring-2 focus:ring-emerald-500 outline-none transition-all shadow-sm"
               placeholder="••••••••"
             />
             {loginError && (
@@ -2010,7 +2298,7 @@ const AdminDashboard = ({
   }
 
   const tabs = [
-    { id: 'students', name: 'لوحة الشرف', icon: Trophy },
+    { id: 'students', name: 'لوحة الأوائل', icon: Trophy },
     { id: 'posts', name: 'المستجدات', icon: MessageSquare },
     { id: 'schedule', name: 'التقويم والجداول', icon: Calendar },
     { id: 'seating', name: 'أرقام الجلوس', icon: ClipboardList },
@@ -2030,7 +2318,7 @@ const AdminDashboard = ({
                   <Trophy className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">عرض لوحة الشرف</h4>
+                  <h4 className="font-bold text-slate-900">عرض لوحة الأوائل</h4>
                   <p className="text-sm text-slate-500">التحكم في ظهور قسم المتفوقين في الصفحة الرئيسية</p>
                 </div>
               </div>
@@ -2042,7 +2330,7 @@ const AdminDashboard = ({
               </button>
             </div>
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-bold text-slate-900">إدارة لوحة الشرف</h3>
+              <h3 className="text-2xl font-bold text-slate-900">إدارة لوحة الأوائل</h3>
               <button 
                 onClick={() => { setEditingItem({ name: '', grade: 'الصف السادس', year: '2024', rank: 1, score: '', achievements: [], image: '' }); setIsAdding(true); setModalSubTab('basic'); }}
                 className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all"
@@ -2058,6 +2346,7 @@ const AdminDashboard = ({
                     <th className="p-4 font-bold text-slate-600">الترتيب</th>
                     <th className="p-4 font-bold text-slate-600">الطالب</th>
                     <th className="p-4 font-bold text-slate-600">الصف</th>
+                    <th className="p-4 font-bold text-slate-600">الشعبة</th>
                     <th className="p-4 font-bold text-slate-600">العام</th>
                     <th className="p-4 font-bold text-slate-600">المعدل</th>
                     <th className="p-4 font-bold text-slate-600">الإجراءات</th>
@@ -2081,6 +2370,7 @@ const AdminDashboard = ({
                         </div>
                       </td>
                       <td className="p-4 text-slate-600">{s.grade}</td>
+                      <td className="p-4 text-slate-600">{s.section || 'أ'}</td>
                       <td className="p-4 text-slate-600">{s.year}</td>
                       <td className="p-4 font-bold text-emerald-600">{s.score}</td>
                       <td className="p-4">
@@ -3206,6 +3496,14 @@ const AdminDashboard = ({
           </div>
         );
       case 'seating':
+        const filteredSeating = (seatingData || []).filter((s: any) => 
+          s.grade === selectedGradeFilter && 
+          s.section === selectedSectionFilter &&
+          s.name.toLowerCase().includes(seatingSearch.toLowerCase())
+        );
+        const totalSeatingPages = Math.ceil(filteredSeating.length / itemsPerPage);
+        const currentSeatingData = filteredSeating.slice((seatingPage - 1) * itemsPerPage, seatingPage * itemsPerPage);
+
         return (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -3217,28 +3515,55 @@ const AdminDashboard = ({
                     type="text" 
                     placeholder="بحث عن طالب..." 
                     value={seatingSearch}
-                    onChange={(e) => setSeatingSearch(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-[52px]"
+                    onChange={(e) => { setSeatingSearch(e.target.value); setSeatingPage(1); }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-[52px] shadow-sm"
                   />
                 </div>
                 <ElegantDropdown 
                   label="الصف"
                   options={grades}
                   value={selectedGradeFilter}
-                  onChange={(val) => setSelectedGradeFilter(val)}
+                  onChange={(val) => { setSelectedGradeFilter(val); setSeatingPage(1); }}
                   widthClass="w-full"
                 />
                 <ElegantDropdown 
                   label="الشعبة"
                   options={sections}
                   value={selectedSectionFilter}
-                  onChange={(val) => setSelectedSectionFilter(val)}
+                  onChange={(val) => { setSelectedSectionFilter(val); setSeatingPage(1); }}
                   widthClass="w-full"
                 />
-                <div className="flex items-end col-span-2 lg:col-span-1">
+                <div className="flex items-end col-span-2 lg:col-span-1 gap-2">
+                  <button 
+                    onClick={() => toggleAllSeatingSelection(filteredSeating.map((s: any) => s.id))}
+                    className={`px-4 py-3 rounded-xl font-bold flex items-center gap-2 transition-all justify-center h-[52px] border ${
+                      filteredSeating.length > 0 && filteredSeating.every(s => selectedSeatingIds.includes(s.id))
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                    title="تحديد الكل"
+                  >
+                    <CheckSquare className="w-5 h-5" />
+                    <span className="hidden xl:inline">تحديد الكل</span>
+                  </button>
+                  <input 
+                    type="file" 
+                    ref={seatingFileInputRef}
+                    onChange={handleSeatingCSVUpload}
+                    accept=".csv"
+                    className="hidden"
+                  />
+                  <button 
+                    onClick={() => seatingFileInputRef.current?.click()}
+                    className="bg-slate-100 text-slate-700 px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-200 transition-all justify-center h-[52px] border border-slate-200"
+                    title="استيراد من CSV"
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span className="hidden xl:inline">استيراد</span>
+                  </button>
                   <button 
                     onClick={() => { setEditingItem({ name: '', grade: selectedGradeFilter, section: selectedSectionFilter, seatNumber: '' }); setIsAdding(true); setModalSubTab('basic'); }}
-                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all w-full justify-center h-[52px] shadow-lg shadow-emerald-600/20"
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all flex-1 justify-center h-[52px] shadow-lg shadow-emerald-600/20"
                   >
                     <Plus className="w-5 h-5" />
                     إضافة رقم جلوس
@@ -3247,29 +3572,77 @@ const AdminDashboard = ({
               </div>
             </div>
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+              {/* Bulk Actions Bar */}
+              {selectedSeatingIds.length > 0 && (
+                <div className="bg-emerald-50 p-4 border-b border-emerald-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-in slide-in-from-top duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
+                      {selectedSeatingIds.length}
+                    </div>
+                    <span className="text-emerald-800 font-bold">سجلات مختارة</span>
+                    {selectedSeatingIds.length < filteredSeating.length && (
+                      <button 
+                        onClick={() => setSelectedSeatingIds(filteredSeating.map((s: any) => s.id))}
+                        className="text-xs text-emerald-600 hover:underline font-bold"
+                      >
+                        تحديد كل النتائج ({filteredSeating.length})
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <button 
+                      onClick={handleBulkEditSeating}
+                      className="flex-1 sm:flex-none bg-blue-600 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 text-sm"
+                    >
+                      <Edit className="w-4 h-4" />
+                      تعديل المحدد
+                    </button>
+                    <button 
+                      onClick={handleBulkDeleteSeating}
+                      className="flex-1 sm:flex-none bg-red-600 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 text-sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      حذف المحدد
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="table w-full text-right min-w-[800px]">
-                  <thead className="bg-slate-50">
+                  <thead className="bg-slate-100/80">
                     <tr>
-                      <th className="p-4 font-bold text-slate-600">الطالب</th>
-                      <th className="p-4 font-bold text-slate-600">الصف</th>
-                      <th className="p-4 font-bold text-slate-600">الشعبة</th>
-                      <th className="p-4 font-bold text-slate-600">رقم الجلوس</th>
-                      <th className="p-4 font-bold text-slate-600">الإجراءات</th>
+                      <th className="p-4 w-12">
+                        <input 
+                          type="checkbox" 
+                          className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                          checked={filteredSeating.length > 0 && filteredSeating.every(s => selectedSeatingIds.includes(s.id))}
+                          onChange={() => toggleAllSeatingSelection(filteredSeating.map((s: any) => s.id))}
+                        />
+                      </th>
+                      <th className="p-4 font-bold text-slate-900 text-base">الطالب</th>
+                      <th className="p-4 font-bold text-slate-900 text-base">الصف</th>
+                      <th className="p-4 font-bold text-slate-900 text-base">الشعبة</th>
+                      <th className="p-4 font-bold text-emerald-700 text-base">رقم الجلوس</th>
+                      <th className="p-4 font-bold text-slate-900 text-base">الإجراءات</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {(seatingData || []).filter((s: any) => 
-                      s.grade === selectedGradeFilter && 
-                      s.section === selectedSectionFilter &&
-                      s.name.toLowerCase().startsWith(seatingSearch.toLowerCase())
-                    ).map((s: any) => (
-                      <tr key={s.id} className="border-t border-slate-50">
+                  <tbody className="text-sm">
+                    {currentSeatingData.map((s: any) => (
+                      <tr key={s.id} className={`border-t border-slate-50 hover:bg-slate-50/50 transition-colors ${selectedSeatingIds.includes(s.id) ? 'bg-emerald-50/30' : ''}`}>
+                        <td className="p-4">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                            checked={selectedSeatingIds.includes(s.id)}
+                            onChange={() => toggleSeatingSelection(s.id)}
+                          />
+                        </td>
                         <td className="p-4 font-bold text-slate-800">{s.name}</td>
                         <td className="p-4 text-slate-600">{s.grade}</td>
                         <td className="p-4 text-slate-600">{s.section}</td>
-                        <td className="p-4 font-black text-emerald-600">{s.seatNumber}</td>
+                        <td className="p-4 font-normal text-emerald-600">{s.seatNumber}</td>
                         <td className="p-4">
                           <div className="flex gap-2">
                             <button onClick={() => { setEditingItem(s); setIsAdding(false); setModalSubTab('basic'); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
@@ -3284,33 +3657,49 @@ const AdminDashboard = ({
 
               {/* Mobile Card View */}
               <div className="md:hidden divide-y divide-slate-50">
-                {(seatingData || []).filter((s: any) => 
-                  s.grade === selectedGradeFilter && 
-                  s.section === selectedSectionFilter &&
-                  s.name.toLowerCase().startsWith(seatingSearch.toLowerCase())
-                ).map((s: any) => (
-                  <div key={s.id} className="p-6 space-y-4">
+                {currentSeatingData.length > 0 && (
+                  <div className="p-4 bg-slate-50/50 flex items-center gap-4 border-b border-slate-100">
+                    <input 
+                      type="checkbox" 
+                      id="mobile-select-all"
+                      className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                      checked={filteredSeating.length > 0 && filteredSeating.every(s => selectedSeatingIds.includes(s.id))}
+                      onChange={() => toggleAllSeatingSelection(filteredSeating.map((s: any) => s.id))}
+                    />
+                    <label htmlFor="mobile-select-all" className="text-sm font-bold text-slate-600 cursor-pointer flex-1">تحديد كل النتائج ({filteredSeating.length})</label>
+                  </div>
+                )}
+                {currentSeatingData.map((s: any) => (
+                  <div key={s.id} className={`p-6 space-y-4 transition-colors ${selectedSeatingIds.includes(s.id) ? 'bg-emerald-50/30' : ''}`}>
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-lg">{s.name}</h4>
-                        <p className="text-sm text-slate-500">{s.grade} • {s.section}</p>
+                      <div className="flex gap-4">
+                        <input 
+                          type="checkbox" 
+                          className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mt-1 cursor-pointer"
+                          checked={selectedSeatingIds.includes(s.id)}
+                          onChange={() => toggleSeatingSelection(s.id)}
+                        />
+                        <div>
+                          <h4 className="font-bold text-slate-900 text-base">{s.name}</h4>
+                          <p className="text-xs text-slate-500">{s.grade} • {s.section}</p>
+                        </div>
                       </div>
-                      <div className="bg-emerald-50 px-4 py-2 rounded-xl">
-                        <span className="text-xs font-black text-emerald-600 uppercase tracking-widest block mb-0.5">رقم الجلوس</span>
-                        <span className="text-lg font-black text-emerald-700">{s.seatNumber}</span>
+                      <div className="bg-slate-50 px-3 py-1.5 rounded-lg">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5">رقم الجلوس</span>
+                        <span className="text-base font-normal text-emerald-700">{s.seatNumber}</span>
                       </div>
                     </div>
                     <div className="flex gap-3 pt-2">
                       <button 
                         onClick={() => { setEditingItem(s); setIsAdding(false); setModalSubTab('basic'); }}
-                        className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 py-3 rounded-xl font-bold transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 py-2.5 rounded-xl font-bold transition-all text-sm"
                       >
                         <Edit className="w-4 h-4" />
                         تعديل
                       </button>
                       <button 
                         onClick={() => triggerDelete(s.id, 'seating')}
-                        className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 py-3 rounded-xl font-bold transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 py-2.5 rounded-xl font-bold transition-all text-sm"
                       >
                         <Trash2 className="w-4 h-4" />
                         حذف
@@ -3319,7 +3708,49 @@ const AdminDashboard = ({
                   </div>
                 ))}
               </div>
+
+              {/* Pagination Info inside container */}
+              {totalSeatingPages > 1 && (
+                <div className="p-4 bg-slate-50/50 border-t border-slate-100 text-center">
+                  <p className="text-sm font-bold text-slate-500">
+                    عرض {(seatingPage - 1) * itemsPerPage + 1} إلى {Math.min(seatingPage * itemsPerPage, filteredSeating.length)} من {filteredSeating.length} طالب
+                  </p>
+                </div>
+              )}
             </div>
+
+            {/* Pagination Buttons outside container */}
+            {totalSeatingPages > 1 && (
+              <div className="flex justify-center mt-6">
+                <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-2 md:pb-0">
+                  <button 
+                    disabled={seatingPage === 1}
+                    onClick={() => setSeatingPage(prev => prev - 1)}
+                    className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors shrink-0"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <div className="flex gap-1">
+                    {[...Array(totalSeatingPages)].map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSeatingPage(i + 1)}
+                        className={`w-10 h-10 rounded-lg font-bold transition-all shrink-0 ${seatingPage === i + 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                  <button 
+                    disabled={seatingPage === totalSeatingPages}
+                    onClick={() => setSeatingPage(prev => prev + 1)}
+                    className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors shrink-0"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         );
       case 'parent-portal':
@@ -3335,7 +3766,7 @@ const AdminDashboard = ({
                     placeholder="بحث باسم الطالب أو الرقم..." 
                     value={parentPortalSearch}
                     onChange={(e) => setParentPortalSearch(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-[52px]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-12 pl-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 text-sm h-[52px] shadow-sm"
                   />
                 </div>
                 <ElegantDropdown 
@@ -3526,6 +3957,7 @@ const AdminDashboard = ({
           [newId]: {
             name: newStudent.name,
             grade: newStudent.grade,
+            section: newStudent.section || 'أ',
             attendance: '100%',
             behavior: 'ممتاز',
             exams: [],
@@ -3543,10 +3975,19 @@ const AdminDashboard = ({
             [itemToSave.id]: {
               ...parentPortalData[itemToSave.id],
               name: itemToSave.name,
-              grade: itemToSave.grade
+              grade: itemToSave.grade,
+              section: itemToSave.section || 'أ'
             }
           });
         }
+      }
+
+      // Update master lists if new values were used
+      if (itemToSave.grade && !grades.includes(itemToSave.grade)) {
+        setGrades(prev => [...prev, itemToSave.grade]);
+      }
+      if (itemToSave.section && !sections.includes(itemToSave.section)) {
+        setSections(prev => [...prev, itemToSave.section]);
       }
     } else if (activeTab === 'posts') {
       if (isAdding) {
@@ -3580,6 +4021,14 @@ const AdminDashboard = ({
       } else {
         setSeatingData((seatingData || []).map((s: any) => s.id === editingItem.id ? editingItem : s));
       }
+      
+      // Update master lists if new values were used
+      if (editingItem.grade && !grades.includes(editingItem.grade)) {
+        setGrades(prev => [...prev, editingItem.grade]);
+      }
+      if (editingItem.section && !sections.includes(editingItem.section)) {
+        setSections(prev => [...prev, editingItem.section]);
+      }
     } else if (activeTab === 'parent-portal') {
       const { id, ...data } = editingItem;
       const sanitizedData = {
@@ -3589,6 +4038,14 @@ const AdminDashboard = ({
         feedback: data.feedback || []
       };
       setParentPortalData({ ...(parentPortalData || {}), [id]: sanitizedData });
+
+      // Update master lists if new values were used
+      if (sanitizedData.grade && !grades.includes(sanitizedData.grade)) {
+        setGrades(prev => [...prev, sanitizedData.grade]);
+      }
+      if (sanitizedData.section && !sections.includes(sanitizedData.section)) {
+        setSections(prev => [...prev, sanitizedData.section]);
+      }
     } else if (activeTab === 'social') {
       if (isAdding) {
         setSocialLinks([...(socialLinks || []), { ...editingItem, id: Date.now().toString() }]);
@@ -3699,19 +4156,26 @@ const AdminDashboard = ({
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
-                        <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                        <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" required />
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">المعدل</label>
-                        <input type="text" value={editingItem.score} onChange={(e) => setEditingItem({...editingItem, score: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="99.8%" required />
+                        <input type="text" value={editingItem.score} onChange={(e) => setEditingItem({...editingItem, score: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" placeholder="99.8%" required />
                       </div>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-3 gap-6">
                       <ElegantDropdown 
                         label="الصف"
                         options={grades}
                         value={editingItem.grade}
                         onChange={(val) => setEditingItem({...editingItem, grade: val})}
+                        widthClass="w-full"
+                      />
+                      <ElegantDropdown 
+                        label="الشعبة"
+                        options={sections}
+                        value={editingItem.section || sections[0]}
+                        onChange={(val) => setEditingItem({...editingItem, section: val})}
                         widthClass="w-full"
                       />
                       <ElegantDropdown 
@@ -3725,7 +4189,7 @@ const AdminDashboard = ({
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الترتيب</label>
-                        <input type="number" value={editingItem.rank} onChange={(e) => setEditingItem({...editingItem, rank: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" min="1" required />
+                        <input type="number" value={editingItem.rank} onChange={(e) => setEditingItem({...editingItem, rank: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" min="1" required />
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">الصورة الشخصية</label>
@@ -3882,7 +4346,7 @@ const AdminDashboard = ({
                       <>
                         <div>
                           <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">عنوان الحدث</label>
-                          <input type="text" value={editingItem.title} onChange={(e) => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                          <input type="text" value={editingItem.title} onChange={(e) => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" required />
                         </div>
                         <div className="grid md:grid-cols-2 gap-6">
                           <ElegantDatePicker 
@@ -3907,7 +4371,7 @@ const AdminDashboard = ({
                   <>
                     <div>
                       <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">عنوان الخبر</label>
-                      <input type="text" value={editingItem.title} onChange={(e) => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      <input type="text" value={editingItem.title} onChange={(e) => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" required />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">مقتطف</label>
@@ -3955,12 +4419,19 @@ const AdminDashboard = ({
                   <>
                     <div>
                       <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
-                      <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({...editingItem, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" required />
                     </div>
-                    <div className="grid md:grid-cols-1 gap-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <ElegantDropdown 
+                        label="الصف"
+                        options={Array.from(new Set([...grades, ...seatingData.map((s: any) => s.grade)]))}
+                        value={editingItem.grade}
+                        onChange={(val) => setEditingItem({...editingItem, grade: val})}
+                        widthClass="w-full"
+                      />
                       <ElegantDropdown 
                         label="الشعبة"
-                        options={sections}
+                        options={Array.from(new Set([...sections, ...seatingData.map((s: any) => s.section)]))}
                         value={editingItem.section}
                         onChange={(val) => setEditingItem({...editingItem, section: val})}
                         widthClass="w-full"
@@ -3968,7 +4439,7 @@ const AdminDashboard = ({
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رقم الجلوس</label>
-                      <input type="text" value={editingItem.seatNumber} onChange={(e) => setEditingItem({...editingItem, seatNumber: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" required />
+                      <input type="text" value={editingItem.seatNumber} onChange={(e) => setEditingItem({...editingItem, seatNumber: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" required />
                     </div>
                   </>
                 )}
@@ -4000,7 +4471,7 @@ const AdminDashboard = ({
                         <div className="grid md:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">رقم الطالب (ID)</label>
-                            <input type="text" value={editingItem.id} onChange={(e) => setEditingItem({...editingItem, id: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" disabled={!isAdding} required />
+                            <input type="number" value={editingItem.id} onChange={(e) => setEditingItem({...editingItem, id: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500" disabled={!isAdding} required />
                           </div>
                           <div>
                             <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-widest">اسم الطالب</label>
@@ -4087,11 +4558,7 @@ const AdminDashboard = ({
                                   <button type="button" onClick={() => setEditingExamIdx(editingExamIdx === exam.originalIdx ? null : exam.originalIdx)} className={`p-3 rounded-xl transition-all ${editingExamIdx === exam.originalIdx ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>
                                     <Edit2 className="w-5 h-5" />
                                   </button>
-                                  <button type="button" onClick={() => {
-                                    const newExams = (editingItem.exams || []).filter((_: any, i: number) => i !== exam.originalIdx);
-                                    setEditingItem({...editingItem, exams: newExams});
-                                    if (editingExamIdx === exam.originalIdx) setEditingExamIdx(null);
-                                  }} className="p-3 bg-red-50 text-red-400 hover:bg-red-100 rounded-xl transition-all">
+                                  <button type="button" onClick={() => triggerDelete(exam.originalIdx, 'portal-exam')} className="p-3 bg-red-50 text-red-400 hover:bg-red-100 rounded-xl transition-all">
                                     <Trash2 className="w-5 h-5" />
                                   </button>
                                 </div>
@@ -4195,11 +4662,7 @@ const AdminDashboard = ({
                                                   />
                                                 </td>
                                                 <td className="p-4 text-center">
-                                                  <button type="button" onClick={() => {
-                                                    const newExams = [...editingItem.exams];
-                                                    newExams[exam.originalIdx].results = newExams[exam.originalIdx].results.filter((_: any, i: number) => i !== resIdx);
-                                                    setEditingItem({...editingItem, exams: newExams});
-                                                  }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all">
+                                                  <button type="button" onClick={() => triggerDelete(`${exam.originalIdx}-${resIdx}`, 'portal-subject-result')} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all">
                                                     <Trash2 className="w-4 h-4" />
                                                   </button>
                                                 </td>
@@ -4221,11 +4684,7 @@ const AdminDashboard = ({
                                                 <span>{res.subject || 'اختر المادة'}</span>
                                                 <Edit2 className="w-3 h-3 opacity-30" />
                                               </button>
-                                              <button type="button" onClick={() => {
-                                                const newExams = [...editingItem.exams];
-                                                newExams[exam.originalIdx].results = newExams[exam.originalIdx].results.filter((_: any, i: number) => i !== resIdx);
-                                                setEditingItem({...editingItem, exams: newExams});
-                                              }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all">
+                                              <button type="button" onClick={() => triggerDelete(`${exam.originalIdx}-${resIdx}`, 'portal-subject-result')} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all">
                                                 <Trash2 className="w-4 h-4" />
                                               </button>
                                             </div>
@@ -4529,15 +4988,6 @@ const AdminDashboard = ({
           </motion.div>
         </div>
       )}
-      {/* Confirmation Modal */}
-      <ElegantConfirmModal
-        isOpen={confirmModal.isOpen}
-        onClose={closeConfirmModal}
-        onConfirm={confirmModal.onConfirm}
-        title={confirmModal.title}
-        message={confirmModal.message}
-        type={confirmModal.type}
-      />
     </div>
   );
 };
@@ -4559,6 +5009,33 @@ const ParentPortal = ({
 }) => {
   const [error, setError] = useState('');
 
+  // Sync result when parentPortalData or students changes
+  useEffect(() => {
+    if (result && result.id) {
+      const student = students.find((s: any) => s.id === result.id);
+      const portalData = parentPortalData[result.id];
+      
+      if (portalData || student) {
+        const mergedResult = {
+          ...(portalData || {}),
+          id: result.id,
+          name: student?.name || portalData?.name,
+          grade: student?.grade || portalData?.grade,
+          exams: portalData?.exams || [],
+          attendanceDetails: portalData?.attendanceDetails || []
+        };
+        
+        // Simple comparison to prevent unnecessary updates
+        const currentResultStr = JSON.stringify(result);
+        const nextResultStr = JSON.stringify(mergedResult);
+        
+        if (currentResultStr !== nextResultStr) {
+          setResult(mergedResult);
+        }
+      }
+    }
+  }, [parentPortalData, students, result, setResult]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -4574,6 +5051,7 @@ const ParentPortal = ({
     if (portalData || student) {
       const mergedResult = {
         ...(portalData || {}),
+        id: studentId,
         name: student?.name || portalData?.name,
         grade: student?.grade || portalData?.grade,
         exams: portalData?.exams || [],
@@ -4630,9 +5108,17 @@ const ParentPortal = ({
   const hasSemester1Final = semester1Exams.some((e: any) => e.type === 'final');
 
   const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
+  const [expandedSemesters, setExpandedSemesters] = useState<number[]>([1]); // Default first semester expanded
+
   const toggleMonth = (key: string) => {
     setExpandedMonths(prev => 
       prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const toggleSemester = (semester: number) => {
+    setExpandedSemesters(prev => 
+      prev.includes(semester) ? prev.filter(s => s !== semester) : [...prev, semester]
     );
   };
 
@@ -4654,12 +5140,12 @@ const ParentPortal = ({
             <div className="space-y-4 mb-10">
               <label className="text-sm font-bold text-slate-300 block text-center">رقم الطالب الخاص (Student ID)</label>
               <input 
-                type="text" 
+                type="number" 
                 required
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 placeholder="أدخل الرقم (مثال: 12345)"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-2xl font-bold tracking-widest"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-center text-2xl font-bold tracking-widest shadow-lg"
               />
             </div>
 
@@ -4705,7 +5191,7 @@ const ParentPortal = ({
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-white mb-1">{result.name}</h3>
-                      <p className="text-emerald-500 font-bold text-sm bg-emerald-500/10 px-4 py-1 rounded-full inline-block">{result.grade}</p>
+                      <p className="text-emerald-500 font-bold text-sm bg-emerald-500/10 px-4 py-1 rounded-full inline-block">{result.grade} ({result.section || 'أ'})</p>
                     </div>
                   </div>
 
@@ -4750,337 +5236,387 @@ const ParentPortal = ({
 
               <div className="lg:col-span-2 space-y-8">
                 {/* Semester 1 Section */}
-                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 relative overflow-hidden">
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-emerald-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white">الفصل الدراسي الأول</h3>
-                      <p className="text-slate-500 text-sm">نتائج الاختبارات الشهرية والحضور</p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 mb-8">
-                    {semester1Exams.map((exam: any) => {
-                      const monthName = exam.month;
-                      const portalAttendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 1);
-                      const attendance = portalAttendance || { present: exam.present, absent: exam.absent };
-                      const examScore = getExamTotal(exam);
-                      
-                      if (exam.type === 'final') return null;
-
-                      const key = `1-${monthName}`;
-                      const isExpanded = expandedMonths.includes(key);
-
-                      return (
-                        <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
-                          <div 
-                            onClick={() => toggleMonth(key)}
-                            className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
-                          >
-                            <div className="flex items-center gap-4 w-full sm:w-auto">
-                              <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
-                                {monthName?.substring(0, 3)}
-                              </div>
-                              <div>
-                                <span className="font-bold text-slate-200 block text-lg">{monthName}</span>
-                                <span className="text-[10px] text-slate-500 uppercase tracking-wider">التقييم الشهري</span>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
-                              <div className="text-center">
-                                <span className="block text-[10px] text-slate-500 mb-1">المجموع</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-emerald-400 font-black text-2xl">{examScore}</span>
-                                </div>
-                              </div>
-                              <div className="text-center">
-                                <span className="block text-[10px] text-slate-500 mb-1">الغياب</span>
-                                <span className={`font-black text-2xl ${attendance?.absent > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                                  {attendance?.absent || 0}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5">
-                                <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <AnimatePresence>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.3, ease: "easeInOut" }}
-                                className="overflow-hidden"
-                              >
-                                {/* Subjects List for this month */}
-                                <div className="p-6 bg-black/20">
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {(exam.results || []).map((res: any, idx: number) => (
-                                      <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
-                                        <div className="flex items-center gap-3">
-                                          <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                          <span className="text-sm font-bold text-slate-200">{res.subject}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                          <div className="text-right">
-                                            <span className="text-lg font-black text-white block leading-none">{res.score}</span>
-                                            <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
-                                          </div>
-                                          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                                            <span className="text-[10px] font-black text-emerald-500">
-                                              {Math.round((res.score / res.total) * 100)}%
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {hasSemester1Final && (
-                    <div className="space-y-4">
-                      <div 
-                        onClick={() => toggleMonth('final-1')}
-                        className="p-8 bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 border border-emerald-500/30 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 cursor-pointer hover:from-emerald-600/30 hover:to-emerald-900/30 transition-all group"
-                      >
-                        <div className="text-center sm:text-right">
-                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 rounded-full text-emerald-500 text-[10px] font-bold uppercase mb-3">
-                            <Trophy className="w-3 h-3" />
-                            امتحان نصف العام
-                          </div>
-                          <h4 className="text-2xl font-black text-white">نتيجة الفصل الأول</h4>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-5xl font-black text-emerald-500 drop-shadow-lg">
-                            {semester1FinalScore}
-                          </div>
-                          <div className="h-12 w-px bg-white/10 hidden sm:block"></div>
-                          <div className="text-slate-400 text-xs font-bold leading-tight hidden sm:block">
-                            درجة <br /> الفصل الأول
-                          </div>
-                          <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                            <ChevronDown className={`w-6 h-6 text-emerald-500 transition-transform duration-300 ${expandedMonths.includes('final-1') ? 'rotate-180' : ''}`} />
-                          </div>
-                        </div>
+                <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden">
+                  <div 
+                    onClick={() => toggleSemester(1)}
+                    className="p-6 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
+                        <Calendar className="w-6 h-6 text-emerald-500" />
                       </div>
-                      
-                      {/* Final Exam Subjects Detail */}
-                      <AnimatePresence>
-                        {expandedMonths.includes('final-1') && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="overflow-hidden"
-                          >
-                            <div className="p-6 bg-black/20 rounded-[2rem] border border-white/5">
-                              <h5 className="text-sm font-bold text-emerald-400 mb-4 px-2">تفاصيل درجات اختبار نصف العام:</h5>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {(semester1FinalExam?.results || []).map((res: any, idx: number) => (
-                                  <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                      <span className="text-sm font-bold text-slate-200">{res.subject}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                      <div className="text-right">
-                                        <span className="text-lg font-black text-white block leading-none">{res.score}</span>
-                                        <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
+                      <div>
+                        <h3 className="text-2xl font-bold text-white">الفصل الدراسي الأول</h3>
+                        <p className="text-slate-500 text-sm">نتائج الاختبارات الشهرية والحضور</p>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-6 h-6 text-slate-500 transition-transform duration-300 ${expandedSemesters.includes(1) ? 'rotate-180' : ''}`} />
+                  </div>
+
+                  <AnimatePresence>
+                    {expandedSemesters.includes(1) && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-6 pt-0">
+                          <div className="grid gap-4 mb-8">
+                            {semester1Exams.map((exam: any) => {
+                              const monthName = exam.month;
+                              const portalAttendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 1);
+                              const attendance = portalAttendance || { present: exam.present, absent: exam.absent };
+                              const examScore = getExamTotal(exam);
+                              
+                              if (exam.type === 'final') return null;
+
+                              const key = `1-${monthName}`;
+                              const isExpanded = expandedMonths.includes(key);
+
+                              return (
+                                <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
+                                  <div 
+                                    onClick={() => toggleMonth(key)}
+                                    className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                                      <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
+                                        {monthName?.substring(0, 3)}
                                       </div>
-                                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                                        <span className="text-[10px] font-black text-emerald-500">
-                                          {Math.round((res.score / res.total) * 100)}%
+                                      <div>
+                                        <span className="font-bold text-slate-200 block text-lg">{monthName}</span>
+                                        <span className="text-[10px] text-slate-500 uppercase tracking-wider">التقييم الشهري</span>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
+                                      <div className="text-center">
+                                        <span className="block text-[10px] text-slate-500 mb-1">المجموع</span>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-emerald-400 font-black text-2xl">{examScore}</span>
+                                        </div>
+                                      </div>
+                                      <div className="text-center">
+                                        <span className="block text-[10px] text-slate-500 mb-1">الغياب</span>
+                                        <span className={`font-black text-2xl ${attendance?.absent > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                          {attendance?.absent || 0}
                                         </span>
                                       </div>
+                                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5">
+                                        <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                                      </div>
                                     </div>
                                   </div>
-                                ))}
+                                  
+                                  <AnimatePresence>
+                                    {isExpanded && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                                        className="overflow-hidden"
+                                      >
+                                        {/* Subjects List for this month */}
+                                        <div className="p-6 bg-black/20">
+                                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {(exam.results || []).map((res: any, idx: number) => (
+                                              <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
+                                                <div className="flex items-center gap-3">
+                                                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                                  <span className="text-sm font-bold text-slate-200">{res.subject}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                  <div className="text-right">
+                                                    <span className="text-lg font-black text-white block leading-none">{res.score}</span>
+                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
+                                                  </div>
+                                                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                                    <span className="text-[10px] font-black text-emerald-500">
+                                                      {Math.round((res.score / res.total) * 100)}%
+                                                    </span>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {hasSemester1Final && (
+                            <div className="space-y-4">
+                              <div 
+                                onClick={() => toggleMonth('final-1')}
+                                className="p-8 bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 border border-emerald-500/30 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 cursor-pointer hover:from-emerald-600/30 hover:to-emerald-900/30 transition-all group"
+                              >
+                                <div className="text-center sm:text-right">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 rounded-full text-emerald-500 text-[10px] font-bold uppercase mb-3">
+                                    <Trophy className="w-3 h-3" />
+                                    امتحان نصف العام
+                                  </div>
+                                  <h4 className="text-2xl font-black text-white">نتيجة الفصل الأول</h4>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="text-5xl font-black text-emerald-500 drop-shadow-lg">
+                                    {semester1FinalScore}
+                                  </div>
+                                  <div className="h-12 w-px bg-white/10 hidden sm:block"></div>
+                                  <div className="text-slate-400 text-xs font-bold leading-tight hidden sm:block">
+                                    درجة <br /> الفصل الأول
+                                  </div>
+                                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                                    <ChevronDown className={`w-6 h-6 text-emerald-500 transition-transform duration-300 ${expandedMonths.includes('final-1') ? 'rotate-180' : ''}`} />
+                                  </div>
+                                </div>
                               </div>
+                              
+                              {/* Final Exam Subjects Detail */}
+                              <AnimatePresence>
+                                {expandedMonths.includes('final-1') && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="p-6 bg-black/20 rounded-[2rem] border border-white/5">
+                                      <h5 className="text-sm font-bold text-emerald-400 mb-4 px-2">تفاصيل درجات اختبار نصف العام:</h5>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {(semester1FinalExam?.results || []).map((res: any, idx: number) => (
+                                          <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
+                                            <div className="flex items-center gap-3">
+                                              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                              <span className="text-sm font-bold text-slate-200">{res.subject}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                              <div className="text-right">
+                                                <span className="text-lg font-black text-white block leading-none">{res.score}</span>
+                                                <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
+                                              </div>
+                                              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                                <span className="text-[10px] font-black text-emerald-500">
+                                                  {Math.round((res.score / res.total) * 100)}%
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )}
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Semester 2 Section - Only visible after midterm is added */}
                 {hasSemester1Final && (
-                  <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-4 sm:p-6 relative overflow-hidden">
-                    <div className="flex items-center gap-4 mb-8">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
-                        <Calendar className="w-6 h-6 text-blue-500" />
+                  <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden">
+                    <div 
+                      onClick={() => toggleSemester(2)}
+                      className="p-6 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
+                          <Calendar className="w-6 h-6 text-blue-500" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-white">الفصل الدراسي الثاني</h3>
+                          <p className="text-slate-500 text-sm">نتائج الاختبارات الشهرية والحضور</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">الفصل الدراسي الثاني</h3>
-                        <p className="text-slate-500 text-sm">نتائج الاختبارات الشهرية والحضور</p>
-                      </div>
+                      <ChevronDown className={`w-6 h-6 text-slate-500 transition-transform duration-300 ${expandedSemesters.includes(2) ? 'rotate-180' : ''}`} />
                     </div>
 
-                    <div className="grid gap-4 mb-8">
-                      {semester2Exams.map((exam: any) => {
-                        const monthName = exam.month;
-                        const portalAttendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 2);
-                        const attendance = portalAttendance || { present: exam.present, absent: exam.absent };
-                        const examScore = getExamTotal(exam);
-                        
-                        if (exam.type === 'final') return null;
+                    <AnimatePresence>
+                      {expandedSemesters.includes(2) && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-6 pt-0">
+                            <div className="grid gap-4 mb-8">
+                              {semester2Exams.map((exam: any) => {
+                                const monthName = exam.month;
+                                const portalAttendance = (result.attendanceDetails || []).find((a: any) => a.month === monthName && a.semester === 2);
+                                const attendance = portalAttendance || { present: exam.present, absent: exam.absent };
+                                const examScore = getExamTotal(exam);
+                                
+                                if (exam.type === 'final') return null;
 
-                        const key = `2-${monthName}`;
-                        const isExpanded = expandedMonths.includes(key);
+                                const key = `2-${monthName}`;
+                                const isExpanded = expandedMonths.includes(key);
 
-                        return (
-                          <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
-                            <div 
-                              onClick={() => toggleMonth(key)}
-                              className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
-                            >
-                              <div className="flex items-center gap-4 w-full sm:w-auto">
-                                <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
-                                  {monthName?.substring(0, 3)}
-                                </div>
-                                <div>
-                                  <span className="font-bold text-slate-200 block text-lg">{monthName}</span>
-                                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">التقييم الشهري</span>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
-                                <div className="text-center">
-                                  <span className="block text-[10px] text-slate-500 mb-1">المجموع</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-blue-400 font-black text-2xl">{examScore}</span>
-                                  </div>
-                                </div>
-                                <div className="text-center">
-                                  <span className="block text-[10px] text-slate-500 mb-1">الغياب</span>
-                                  <span className={`font-black text-2xl ${attendance?.absent > 0 ? 'text-red-400' : 'text-blue-400'}`}>
-                                    {attendance?.absent || 0}
-                                  </span>
-                                </div>
-                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5">
-                                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <AnimatePresence>
-                              {isExpanded && (
-                                <motion.div
-                                  initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: 'auto', opacity: 1 }}
-                                  exit={{ height: 0, opacity: 0 }}
-                                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                                  className="overflow-hidden"
-                                >
-                                  {/* Subjects List for this month */}
-                                  <div className="p-6 bg-black/20">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                      {(exam.results || []).map((res: any, idx: number) => (
-                                        <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                                          <span className="text-sm text-slate-300">{res.subject}</span>
+                                return (
+                                  <div key={exam.id} className="bg-white/5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all overflow-hidden">
+                                    <div 
+                                      onClick={() => toggleMonth(key)}
+                                      className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
+                                    >
+                                      <div className="flex items-center gap-4 w-full sm:w-auto">
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-sm">
+                                          {monthName?.substring(0, 3)}
+                                        </div>
+                                        <div>
+                                          <span className="font-bold text-slate-200 block text-lg">{monthName}</span>
+                                          <span className="text-[10px] text-slate-500 uppercase tracking-wider">التقييم الشهري</span>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
+                                        <div className="text-center">
+                                          <span className="block text-[10px] text-slate-500 mb-1">المجموع</span>
                                           <div className="flex items-center gap-2">
-                                            <span className="text-sm font-bold text-white">{res.score}</span>
-                                            <span className="text-[10px] text-slate-500">/ {res.total}</span>
+                                            <span className="text-blue-400 font-black text-2xl">{examScore}</span>
                                           </div>
                                         </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        );
-                      })}
-                      
-                      {/* Placeholder if no data for semester 2 yet */}
-                      {semester2Exams.length === 0 && (
-                        <div className="p-10 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
-                          <p className="text-slate-500 text-sm">بانتظار بدء تقييمات الفصل الدراسي الثاني</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {semester2FinalExam && (
-                      <div className="space-y-4">
-                        <div 
-                          onClick={() => toggleMonth('final-2')}
-                          className="p-8 bg-gradient-to-br from-blue-600/20 to-blue-900/20 border border-blue-500/30 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 cursor-pointer hover:from-blue-600/30 hover:to-blue-900/30 transition-all group"
-                        >
-                          <div className="text-center sm:text-right">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 rounded-full text-blue-500 text-[10px] font-bold uppercase mb-3">
-                              <Trophy className="w-3 h-3" />
-                              امتحان نهاية العام
-                            </div>
-                            <h4 className="text-2xl font-black text-white">نتيجة الفصل الثاني</h4>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-5xl font-black text-blue-500 drop-shadow-lg">
-                              {semester2FinalScore}
-                            </div>
-                            <div className="h-12 w-px bg-white/10 hidden sm:block"></div>
-                            <div className="text-slate-400 text-xs font-bold leading-tight hidden sm:block">
-                              درجة <br /> الفصل الثاني
-                            </div>
-                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                              <ChevronDown className={`w-6 h-6 text-blue-500 transition-transform duration-300 ${expandedMonths.includes('final-2') ? 'rotate-180' : ''}`} />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Final Exam Subjects Detail */}
-                        <AnimatePresence>
-                          {expandedMonths.includes('final-2') && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3, ease: "easeInOut" }}
-                              className="overflow-hidden"
-                            >
-                              <div className="p-6 bg-black/20 rounded-[2rem] border border-white/5">
-                                <h5 className="text-sm font-bold text-blue-400 mb-4 px-2">تفاصيل درجات اختبار نهاية العام:</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  {(semester2FinalExam?.results || []).map((res: any, idx: number) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
-                                      <div className="flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                        <span className="text-sm font-bold text-slate-200">{res.subject}</span>
-                                      </div>
-                                      <div className="flex items-center gap-3">
-                                        <div className="text-right">
-                                          <span className="text-lg font-black text-white block leading-none">{res.score}</span>
-                                          <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
-                                        </div>
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                                          <span className="text-[10px] font-black text-blue-500">
-                                            {Math.round((res.score / res.total) * 100)}%
+                                        <div className="text-center">
+                                          <span className="block text-[10px] text-slate-500 mb-1">الغياب</span>
+                                          <span className={`font-black text-2xl ${attendance?.absent > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                            {attendance?.absent || 0}
                                           </span>
                                         </div>
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5">
+                                          <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                                        </div>
                                       </div>
                                     </div>
-                                  ))}
+                                    
+                                    <AnimatePresence>
+                                      {isExpanded && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: 'auto', opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                                          className="overflow-hidden"
+                                        >
+                                          {/* Subjects List for this month */}
+                                          <div className="p-6 bg-black/20">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                              {(exam.results || []).map((res: any, idx: number) => (
+                                                <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
+                                                  <div className="flex items-center gap-3">
+                                                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                                    <span className="text-sm font-bold text-slate-200">{res.subject}</span>
+                                                  </div>
+                                                  <div className="flex items-center gap-3">
+                                                    <div className="text-right">
+                                                      <span className="text-lg font-black text-white block leading-none">{res.score}</span>
+                                                      <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
+                                                    </div>
+                                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                                      <span className="text-[10px] font-black text-blue-500">
+                                                        {Math.round((res.score / res.total) * 100)}%
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                );
+                              })}
+                              
+                              {/* Placeholder if no data for semester 2 yet */}
+                              {semester2Exams.length === 0 && (
+                                <div className="p-10 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
+                                  <p className="text-slate-500 text-sm">بانتظار بدء تقييمات الفصل الدراسي الثاني</p>
                                 </div>
+                              )}
+                            </div>
+
+                            {semester2FinalExam && (
+                              <div className="space-y-4">
+                                <div 
+                                  onClick={() => toggleMonth('final-2')}
+                                  className="p-8 bg-gradient-to-br from-blue-600/20 to-blue-900/20 border border-blue-500/30 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 cursor-pointer hover:from-blue-600/30 hover:to-blue-900/30 transition-all group"
+                                >
+                                  <div className="text-center sm:text-right">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 rounded-full text-blue-500 text-[10px] font-bold uppercase mb-3">
+                                      <Trophy className="w-3 h-3" />
+                                      امتحان نهاية العام
+                                    </div>
+                                    <h4 className="text-2xl font-black text-white">نتيجة الفصل الثاني</h4>
+                                  </div>
+                                  <div className="flex items-center gap-4">
+                                    <div className="text-5xl font-black text-blue-500 drop-shadow-lg">
+                                      {semester2FinalScore}
+                                    </div>
+                                    <div className="h-12 w-px bg-white/10 hidden sm:block"></div>
+                                    <div className="text-slate-400 text-xs font-bold leading-tight hidden sm:block">
+                                      درجة <br /> الفصل الثاني
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                                      <ChevronDown className={`w-6 h-6 text-blue-500 transition-transform duration-300 ${expandedMonths.includes('final-2') ? 'rotate-180' : ''}`} />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Final Exam Subjects Detail */}
+                                <AnimatePresence>
+                                  {expandedMonths.includes('final-2') && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: 'auto', opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                                      className="overflow-hidden"
+                                    >
+                                      <div className="p-6 bg-black/20 rounded-[2rem] border border-white/5">
+                                        <h5 className="text-sm font-bold text-blue-400 mb-4 px-2">تفاصيل درجات اختبار نهاية العام:</h5>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          {(semester2FinalExam?.results || []).map((res: any, idx: number) => (
+                                            <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 shadow-sm">
+                                              <div className="flex items-center gap-3">
+                                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                                <span className="text-sm font-bold text-slate-200">{res.subject}</span>
+                                              </div>
+                                              <div className="flex items-center gap-3">
+                                                <div className="text-right">
+                                                  <span className="text-lg font-black text-white block leading-none">{res.score}</span>
+                                                  <span className="text-[10px] text-slate-500 font-bold uppercase">من {res.total}</span>
+                                                </div>
+                                                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                                  <span className="text-[10px] font-black text-blue-500">
+                                                    {Math.round((res.score / res.total) * 100)}%
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
                               </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )}
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
 
@@ -5191,7 +5727,7 @@ const Registration = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 mr-2">اسم الطالب</label>
-                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="الاسم ثلاثي" />
+                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all shadow-sm" placeholder="الاسم ثلاثي" />
                 </div>
                 <div className="space-y-2">
                   <ElegantDropdown 
@@ -5207,17 +5743,17 @@ const Registration = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 mr-2">اسم ولي الأمر</label>
-                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="الاسم الكامل" />
+                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all shadow-sm" placeholder="الاسم الكامل" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 mr-2">رقم التواصل</label>
-                  <input type="tel" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="05xxxxxxxx" />
+                  <input type="tel" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all shadow-sm" placeholder="05xxxxxxxx" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 mr-2">ملاحظات إضافية</label>
-                <textarea rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="أي معلومات تود إضافتها..."></textarea>
+                <textarea rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all shadow-sm" placeholder="أي معلومات تود إضافتها..."></textarea>
               </div>
 
               <button className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-3 group">
@@ -5279,20 +5815,20 @@ const Contact = ({ contactInfo }: { contactInfo: { address: string, phone: strin
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-slate-700 font-medium mb-2">الاسم الكامل</label>
-                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="أدخل اسمك" />
+                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm" placeholder="أدخل اسمك" />
                 </div>
                 <div>
                   <label className="block text-slate-700 font-medium mb-2">رقم الجوال</label>
-                  <input type="tel" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="05xxxxxxxx" />
+                  <input type="tel" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm" placeholder="05xxxxxxxx" />
                 </div>
               </div>
               <div>
                 <label className="block text-slate-700 font-medium mb-2">البريد الإلكتروني</label>
-                <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="example@mail.com" />
+                <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm" placeholder="example@mail.com" />
               </div>
               <div>
                 <label className="block text-slate-700 font-medium mb-2">الرسالة</label>
-                <textarea rows={4} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="كيف يمكننا مساعدتك؟"></textarea>
+                <textarea rows={4} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm" placeholder="كيف يمكننا مساعدتك؟"></textarea>
               </div>
               <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
                 إرسال الرسالة
@@ -5349,6 +5885,21 @@ export default function App() {
   const [parentPortalStudentId, setParentPortalStudentId] = useState('');
   const [parentPortalResult, setParentPortalResult] = useState<any>(null);
 
+  // Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'danger' | 'success' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'info'
+  });
+
   // Application State
   const [showHonorRoll, setShowHonorRoll] = useState(true);
   const [students, setStudents] = useState(INITIAL_STUDENTS);
@@ -5388,21 +5939,50 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [view]);
 
+  // Initial load from localStorage
   useEffect(() => {
     try {
       if (typeof localStorage !== 'undefined') {
         const savedId = localStorage.getItem('parentPortalStudentId');
         if (savedId) {
           setParentPortalStudentId(savedId);
-          if (parentPortalData[savedId]) {
-            setParentPortalResult(parentPortalData[savedId]);
+          const student = INITIAL_STUDENTS.find((s: any) => s.id === savedId);
+          const portalData = PARENT_PORTAL_MOCK_DATA[savedId];
+          if (portalData || student) {
+            setParentPortalResult({
+              ...(portalData || {}),
+              name: student?.name || portalData?.name,
+              grade: student?.grade || portalData?.grade,
+              exams: portalData?.exams || [],
+              attendanceDetails: portalData?.attendanceDetails || []
+            });
           }
         }
       }
     } catch (e) {
-      console.warn('LocalStorage access failed:', e);
+      console.warn('Initial parent portal load failed:', e);
     }
-  }, [parentPortalData]);
+  }, []);
+
+  // Sync logic for Parent Portal
+  useEffect(() => {
+    if (parentPortalStudentId && parentPortalResult) {
+      const student = students.find((s: any) => s.id === parentPortalStudentId);
+      const portalData = parentPortalData[parentPortalStudentId];
+      if (portalData || student) {
+        const mergedResult = {
+          ...(portalData || {}),
+          name: student?.name || portalData?.name,
+          grade: student?.grade || portalData?.grade,
+          exams: portalData?.exams || [],
+          attendanceDetails: portalData?.attendanceDetails || []
+        };
+        if (JSON.stringify(mergedResult) !== JSON.stringify(parentPortalResult)) {
+          setParentPortalResult(mergedResult);
+        }
+      }
+    }
+  }, [parentPortalData, students, parentPortalStudentId, parentPortalResult]);
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-emerald-100 selection:text-emerald-900">
@@ -5412,7 +5992,7 @@ export default function App() {
           <>
             <Hero />
             <AboutSection />
-            {showHonorRoll && <TopStudents students={students} academicYears={academicYears} grades={grades} />}
+            {showHonorRoll && <TopStudents students={students} academicYears={academicYears} grades={grades} sections={sections} />}
             <BlogSection posts={posts} />
             <VisionMission />
             <Services />
@@ -5433,6 +6013,7 @@ export default function App() {
         )}
         {view === 'admin' && (
           <AdminDashboard 
+            setConfirmModal={setConfirmModal}
             students={students} setStudents={setStudents}
             events={events} setEvents={setEvents}
             schedule={schedule} setSchedule={setSchedule}
@@ -5453,6 +6034,14 @@ export default function App() {
         )}
       </main>
       <Footer socialLinks={socialLinks} />
+      <ElegantConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+      />
     </div>
   );
 }
